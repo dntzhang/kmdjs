@@ -1,6 +1,7 @@
 kmdjs
 =====
 AMD and CMD are dead. 
+
 many ideas are from other great projects, although some of them will die.but still thanks to:
 
 windjs http://windjs.org/cn/

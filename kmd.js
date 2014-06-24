@@ -1,4 +1,12 @@
-﻿(function (exports, global) {
+﻿/* Dependence  Visualization for KMD.js
+ * By 当耐特 http://weibo.com/iamleizhang
+ * KMD.js http://kmdjs.github.io/
+ * blog: http://www.cnblogs.com/iamzhanglei/
+ * My website:http://htmlcssjs.duapp.com/
+ * thanks to http://raphaeljs.com/
+ * MIT Licensed.
+ */
+(function (exports, global) {
     /**
      * @param {Object} path
      * @param {Function} callback

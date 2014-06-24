@@ -7,6 +7,7 @@
     ]
 
 });
+//try to change "define" to "define.build" can build the project.
 define(["Util"], {
     init: function () {
             var ball = new Ball(100, 100, 28, 1, 2, "KMD.js");

@@ -1,4 +1,4 @@
-﻿define("HelloKMD.Ball", {
+﻿define("Ball", {
     init: function (x,y,r,vx,vy,text) {
         this.x = x;
         this.y = y;

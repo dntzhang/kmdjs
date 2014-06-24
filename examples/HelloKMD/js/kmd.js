@@ -217,7 +217,7 @@
                 cache[values[0] + "." + name] = v;
             }
         }
-        if (val) {
+        if (callback) {
             setTime(code + "\n//@ sourceURL=" + (name || "anonymous") + ".js");
         }
     }
@@ -251,7 +251,7 @@
         var i;
         var obj;
         var results;
-        var r;
+        var copy;
         var element;
         var value;
         /** @type {number} */
@@ -275,25 +275,25 @@
         results.push(a + ".Main");
         fn(obj);
         /** @type {Array} */
-        r = [];
-        map(results, function (element) {
-            map(data, function (o) {
+        copy = [];
+        map(results, function (b) {
+            map(data, function (a) {
                 var args;
                 var callback;
                 var value;
-                if (o.c == element) {
-                    r.push(o);
+                if (a.c == b) {
+                    copy.push(a);
                     /** @type {Array} */
                     args = [];
                     /** @type {Function} */
-                    callback = new Function(o.a, o.b);
+                    callback = new Function(a.a, a.b);
                     /** @type {number} */
                     j = 0;
-                    for (; j < o.d.length; j++) {
-                        args.push(cache[o.d[j]]);
+                    for (; j < a.d.length; j++) {
+                        args.push(cache[a.d[j]]);
                     }
                     value = callback.apply(null, args);
-                    cache[o.c] = value;
+                    cache[a.c] = value;
                 }
             });
         });
@@ -314,7 +314,7 @@
             element.focus();
             /** @type {string} */
             value = '(function (n) { var f = !1, l = /xyz/.test(function () { xyz }) ? /\b_super\b/ : /.*/, o = function () { }, t, r, s, u, c, e; for (o.extend = function (n) { function i() { !f && this.init && this.init.apply(this, arguments) } var o = this.prototype, e, t, r, u; f = !0, e = new this, f = !1; for (t in n) t != "statics" && (e[t] = typeof n[t] == "function" && typeof o[t] == "function" && l.test(n[t]) ? function (n, t) { return function () { var r = this._super, i; return this._super = o[n], i = t.apply(this, arguments), this._super = r, i } }(t, n[t]) : n[t]); for (r in this) this.hasOwnProperty(r) && r != "extend" && (i[r] = this[r]); if (n.statics) for (u in n.statics) n.statics.hasOwnProperty(u) && (i[u] = n.statics[u]); return i.prototype = e, i.prototype.constructor = i, i.extend = arguments.callee, i }, n.__class = o, t = {}, t.modules = {}, t.all =' +
-            exports.stringify(r).replace(/\s+/g, " ") + ', r = 0, s = t.all.length; r < s; r++) { var i = t.all[r], h = [], a = new Function(i.a, i.b); for (u = 0, c = i.d.length; u < c; u++) h.push(t.modules[i.d[u]]); e = a.apply(null, h),t.modules[i.c] = e } new t.modules["' + a + '.Main"] })(this)';
+            exports.stringify(copy).replace(/\s+/g, " ") + ', r = 0, s = t.all.length; r < s; r++) { var i = t.all[r], h = [], a = new Function(i.a, i.b); for (u = 0, c = i.d.length; u < c; u++) h.push(t.modules[i.d[u]]); e = a.apply(null, h),t.modules[i.c] = e } new t.modules["' + a + '.Main"] })(this)';
             /** @type {string} */
             element.value = value;
         }
@@ -353,7 +353,7 @@
      * @param {boolean} obj
      * @return {?}
      */
-    function has(obj) {
+    function copy(obj) {
         /**
          * @return {*}
          */
@@ -394,15 +394,15 @@
     }
     /**
      * @param {Array} val
-     * @param {?} elem
+     * @param {?} keepData
      * @return {?}
      */
-    function next(val, elem) {
+    function next(val, keepData) {
         /** @type {number} */
         var idx = 0;
         var len = val.length;
         for (; idx < len; idx++) {
-            if (val[idx] == elem) {
+            if (val[idx] == keepData) {
                 return true;
             }
         }
@@ -415,25 +415,25 @@
     function run(fn) {
         var markdown = floor("(" + fn.toString() + ")").toString();
         /** @type {Array} */
-        var pos = [];
+        var skip = [];
         var indents;
         return markdown.replace(/new,name,\w*,?/gm, function (pair) {
-            var cur = pair.split(",")[2];
-            if (!next(pos, cur)) {
-                pos.push(cur);
+            var key = pair.split(",")[2];
+            if (!next(skip, key)) {
+                skip.push(key);
             }
         }), indents = [], markdown.replace(/var,\w*,?/gm, function (pair) {
             indents.push(pair.split(",")[1]);
         }), markdown.replace(/call,dot,name,\w*,?/gm, function (pair) {
-            var cur = pair.split(",")[3];
-            if (!next(indents, cur)) {
-                if (!(cur in window)) {
-                    if (!(cur == "this")) {
-                        pos.push(cur);
+            var name = pair.split(",")[3];
+            if (!next(indents, name)) {
+                if (!(name in window)) {
+                    if (!(name == "this")) {
+                        skip.push(name);
                     }
                 }
             }
-        }), pos;
+        }), skip;
     }
     /**
      * @param {string} fmt
@@ -451,18 +451,20 @@
     function process() {
         var matches;
         /** @type {NodeList} */
-        var context = doc.getElementsByTagName("script");
+        var scripts = doc.getElementsByTagName("script");
+        var script;
         var match;
         var src;
         /** @type {number} */
         var i = 0;
         /** @type {number} */
-        var j = context.length;
-        for (; i < j; i++) {
-            if (match = context[i].getAttribute("src").toUpperCase(), lastIndexOf(match, "KMD") != -1) {
+        var valuesLen = scripts.length;
+        for (; i < valuesLen; i++) {
+            if (script = scripts[i], match = script.getAttribute("src").toUpperCase(), lastIndexOf(match, "KMD") != -1) {
                 src = match.split("/");
                 src.pop();
                 matches = src.length ? src.join("/") + "/" : "./";
+                dataMain = script.getAttribute("data-main");
                 break;
             }
         }
@@ -1349,7 +1351,7 @@
         }
         return output.join("").replace(/[\n ]+$/, "");
     }
-    var define;
+    var render;
     var main = {};
     var floor = function () {
         /**
@@ -1561,15 +1563,15 @@
              */
             function read_num(prefix) {
                 /** @type {boolean} */
-                var env = false;
+                var property = false;
                 /** @type {boolean} */
                 var type = false;
                 /** @type {boolean} */
-                var hasDecimal = false;
+                var object = false;
                 /** @type {boolean} */
                 var has_dot = prefix == ".";
                 var num = read_while(function (ch, i) {
-                    return ch == "x" || ch == "X" ? hasDecimal ? false : hasDecimal = true : !hasDecimal && (ch == "E" || ch == "e") ? env ? false : env = type = true : ch == "-" ? type || i == 0 && !prefix ? true : false : ch == "+" ? type : (type = false, ch == ".") ? !has_dot && (!hasDecimal && !env) ? has_dot = true : false : is_alphanumeric_char(ch);
+                    return ch == "x" || ch == "X" ? object ? false : object = true : !object && (ch == "E" || ch == "e") ? property ? false : property = type = true : ch == "-" ? type || i == 0 && !prefix ? true : false : ch == "+" ? type : (type = false, ch == ".") ? !has_dot && (!object && !property) ? has_dot = true : false : is_alphanumeric_char(ch);
                 });
                 var ret;
                 if (prefix && (num = prefix + num), ret = parseDate(num), isNaN(ret)) {
@@ -2731,7 +2733,7 @@
         /**
          * @return {undefined}
          */
-        function Class() {
+        function g() {
             if (!b) {
                 if (this.init) {
                     this.init.apply(this, arguments);
@@ -2739,18 +2741,18 @@
             }
         }
         var _super = this.prototype;
-        var prototype;
+        var e;
         var name;
         var key;
-        var k;
+        var i;
         /** @type {boolean} */
         b = true;
-        prototype = new this;
+        e = new this;
         /** @type {boolean} */
         b = false;
         for (name in prop) {
             if (name != "statics") {
-                prototype[name] = typeof prop[name] == "function" && (typeof _super[name] == "function" && fnTest.test(prop[name])) ? function (name, matcherFunction) {
+                e[name] = typeof prop[name] == "function" && (typeof _super[name] == "function" && fnTest.test(prop[name])) ? function (name, matcherFunction) {
                     return function () {
                         var tmp = this._super;
                         var returnValue;
@@ -2762,18 +2764,18 @@
         for (key in this) {
             if (this.hasOwnProperty(key)) {
                 if (key != "extend") {
-                    Class[key] = this[key];
+                    g[key] = this[key];
                 }
             }
         }
         if (prop.statics) {
-            for (k in prop.statics) {
-                if (prop.statics.hasOwnProperty(k)) {
-                    Class[k] = prop.statics[k];
+            for (i in prop.statics) {
+                if (prop.statics.hasOwnProperty(i)) {
+                    g[i] = prop.statics[i];
                 }
             }
         }
-        return Class.prototype = prototype, Class.prototype.constructor = Class, Class.extend = arguments.callee, Class;
+        return g.prototype = e, g.prototype.constructor = g, g.extend = arguments.callee, g;
     };
     /** @type {HTMLDocument} */
     var doc = document;
@@ -2789,54 +2791,56 @@
     var result = {};
     var scope;
     var names = {};
+    var dataMain;
     /** @type {boolean} */
-    var ti = !!(typeof window != "undefined" && (typeof navigator != "undefined" && window.document));
+    var ii = !!(typeof window != "undefined" && (typeof navigator != "undefined" && window.document));
     /** @type {boolean} */
-    var val = false;
+    var callback = false;
     var a;
     /** @type {Array} */
     var list = [];
     var isObject = isType("Object");
-    var dateString = isType("String");
+    var isString = isType("String");
     /** @type {function (*): boolean} */
-    var ri = Array.isArray || isType("Array");
+    var ui = Array.isArray || isType("Array");
     var isFunction = isType("Function");
-    var isString = isType("Boolean");
+    var tmpl = isType("Boolean");
     /**
-     * @param {Object} name
-     * @param {boolean} value
-     * @param {boolean} prop
+     * @param {Object} value
+     * @param {boolean} options
+     * @param {boolean} data
      * @return {undefined}
      */
-    define = function (name, value, prop) {
+    render = function (value, options, data) {
         var __class;
         var rvar;
-        if (isString(prop) && (val = prop), isString(value) && (val = value), list.length == 0) {
-            if (isObject(name)) {
-                expand([a], "function(){ var Main=__class.extend(" + has(name) + ");}", true, "Main", true);
+        if (tmpl(data) && (callback = data), tmpl(options) && (callback = options), list.length == 0) {
+            if (isObject(value)) {
+                expand([a], "function(){ var Main=__class.extend(" + copy(value) + ");}", true, "Main", true);
             } else {
-                name.unshift(a);
-                expand(name, "function(){ var Main=__class.extend(" + has(value) + ");}", true, "Main", true);
+                value.unshift(a);
+                expand(value, "function(){ var Main=__class.extend(" + copy(options) + ");}", true, "Main", true);
             }
             return;
         }
         if (arguments.length === 1) {
             throw "the module must take a name";
         }
-        var ca = name.split(":");
+        var ca = value.split(":");
         var c = ca[0];
         var i = lastIndexOf(c, ".");
         if (i == -1) {
-            throw "the class must have a namespace";
+            c = a + "." + c;
+            i = lastIndexOf(c, ".");
         }
         /** @type {string} */
         __class = ca.length == 1 ? "__class" : ' __modules["' + ca[1] + '"]';
         rvar = c.substring(i + 1, c.length);
         if (arguments.length === 2) {
-            expand([c.substring(0, i)], "function(){ var " + rvar + "=" + __class + ".extend(" + has(value) + ");}", true, rvar);
+            expand([c.substring(0, i)], "function(){ var " + rvar + "=" + __class + ".extend(" + copy(options) + ");}", true, rvar);
         } else {
-            value.unshift(c.substring(0, i));
-            expand(value, "function(){ var " + rvar + "=" + __class + ".extend(" + has(prop) + ");}", true, rvar, true);
+            options.unshift(c.substring(0, i));
+            expand(options, "function(){ var " + rvar + "=" + __class + ".extend(" + copy(data) + ");}", true, rvar, true);
         }
     };
     /** @type {Array} */
@@ -2846,14 +2850,14 @@
     /**
      * @return {undefined}
      */
-    define.build = function () {
+    render.build = function () {
         /** @type {boolean} */
         d = true;
-        define.apply(null, arguments);
+        render.apply(null, arguments);
     };
     /** @type {Array} */
-    define.pendingModules = list;
-    request(reported_date + "Main.js", function () {
+    render.pendingModules = list;
+    request(reported_date + dataMain + ".js", function () {
     });
     /**
      * @param {Object} o
@@ -2878,8 +2882,8 @@
     };
     /** @type {function (): undefined} */
     global.__class = $$;
-    define.modules = global.__modules = cache;
+    render.modules = global.__modules = cache;
     /** @type {function (Object, boolean, boolean): undefined} */
-    global.define = define;
+    global.define = render;
     global.kmdjs = main;
 })(typeof JSON != "object" ? {} : JSON, this);

@@ -2,30 +2,30 @@ kmdjs
 =====
 AMD and CMD are dead. 
 many ideas are from other great projects, although some of them will die.but still thanks to:
-windjshttp://windjs.org/cn/
+windjs http://windjs.org/cn/
 
-jsbeautifierhttp://jsbeautifier.org/
+jsbeautifier http://jsbeautifier.org/
 
 class.js http://ejohn.org/blog/simple-javascript-inheritance/
 
 Extjs http://www.sencha.com/
 
-UglifyJShttps://github.com/mishoo/UglifyJS/
+UglifyJS https://github.com/mishoo/UglifyJS/
 
-requirejshttp://www.requirejs.org/
+requirejs http://www.requirejs.org/
 
-browserifyhttp://browserify.org/
+browserify http://browserify.org/
 
-raphaeljshttp://raphaeljs.com/
+raphaeljs http://raphaeljs.com/
 
-seajshttp://seajs.org/
+seajs http://seajs.org/
 
-jsnicehttp://www.jsnice.org/
+jsnice http://www.jsnice.org/
 
-json2https://github.com/douglascrockford/JSON-js
+json2 https://github.com/douglascrockford/JSON-js
 
-qunithttp://qunitjs.com/
+qunit http://qunitjs.com/
 
-vuejshttp://vuejs.org/
+vuejs http://vuejs.org/
 
 That's all.Have Fun.

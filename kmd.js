@@ -314,7 +314,7 @@
             element.focus();
             /** @type {string} */
             value = '(function (n) { var f = !1, l = /xyz/.test(function () { xyz }) ? /\b_super\b/ : /.*/, o = function () { }, t, r, s, u, c, e; for (o.extend = function (n) { function i() { !f && this.init && this.init.apply(this, arguments) } var o = this.prototype, e, t, r, u; f = !0, e = new this, f = !1; for (t in n) t != "statics" && (e[t] = typeof n[t] == "function" && typeof o[t] == "function" && l.test(n[t]) ? function (n, t) { return function () { var r = this._super, i; return this._super = o[n], i = t.apply(this, arguments), this._super = r, i } }(t, n[t]) : n[t]); for (r in this) this.hasOwnProperty(r) && r != "extend" && (i[r] = this[r]); if (n.statics) for (u in n.statics) n.statics.hasOwnProperty(u) && (i[u] = n.statics[u]); return i.prototype = e, i.prototype.constructor = i, i.extend = arguments.callee, i }, n.__class = o, t = {}, t.modules = {}, t.all =' +
-            exports.stringify(r) + ', r = 0, s = t.all.length; r < s; r++) { var i = t.all[r], h = [], a = new Function(i.a, i.b); for (u = 0, c = i.d.length; u < c; u++) h.push(t.modules[i.d[u]]); e = a.apply(null, h),t.modules[i.c] = e } new t.modules["' + a + '.Main"] })(this)';
+            exports.stringify(r).replace(/\s+/g, " ") + ', r = 0, s = t.all.length; r < s; r++) { var i = t.all[r], h = [], a = new Function(i.a, i.b); for (u = 0, c = i.d.length; u < c; u++) h.push(t.modules[i.d[u]]); e = a.apply(null, h),t.modules[i.c] = e } new t.modules["' + a + '.Main"] })(this)';
             /** @type {string} */
             element.value = value;
         }

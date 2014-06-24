@@ -1,9 +1,8 @@
-﻿/* Dependence  Visualization for KMD.js
+﻿/* KMD.js Kill AMD and CMD
  * By 当耐特 http://weibo.com/iamleizhang
  * KMD.js http://kmdjs.github.io/
  * blog: http://www.cnblogs.com/iamzhanglei/
  * My website:http://htmlcssjs.duapp.com/
- * thanks to http://raphaeljs.com/
  * MIT Licensed.
  */
 (function (exports, global) {

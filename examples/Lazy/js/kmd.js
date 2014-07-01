@@ -43,7 +43,7 @@
     function refrence2(className, deps, foctory, fullname) {
         var body = foctory.replace(/"function[\s\S]*?\}"/g, function (str) {
             return str.substr(1, str.length - 2);
-        }).replace(/\\r\\n([\s]*?)\/\/([\s\S]*?)(?=\\r\\n)/g, "").replace(/(\/\*[\s\S]*\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, "").replace(/\\t/g, "").replace(/\\/g, "");
+        }).replace(/(\\r)?\\n(\\t)?([\s]*?)\/\/([\s\S]*?)(?=(\\r)?\\n(\\t)?)/g, "").replace(/(\/\*[\s\S]*\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, "").replace(/\\t/g, "").replace(/\\/g, "");
         body = js_beautify(body), isDebug && log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js");
         var fn = Function(body), ref = getRef(fn);
         if (remove(ref, "__class"), rLen = ref.length, pendingModules.push({

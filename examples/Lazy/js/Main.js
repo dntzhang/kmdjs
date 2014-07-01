@@ -14,13 +14,6 @@ define("Main",["Util"], {
         var balls = [];
         crtBtn.onclick = function () {
             //lazy here
-            //kmdjs.get("HelloKMD.Ball", function (Ball) {
-            //    var ball = new Ball(100, 100, 28, 1, 2, "KMD.js");
-            //    balls.push(ball);
-            //});
-            //support promise style next version？
-            //不给namespace则默认处于projname下
-            var aa = "dfsfd //ssdfsdfs";
             kmdjs.get("HelloKMD.Ball").then(function (Ball) {
                 var ball = new Ball(100, 100, 28, 1, 2, "KMD.js");
                 balls.push(ball);

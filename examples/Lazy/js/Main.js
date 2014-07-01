@@ -13,7 +13,6 @@ define("Main",["Util"], {
         var crtBtn = document.getElementById("crtBtn");
         var balls = [];
         crtBtn.onclick = function () {
-            //lazy here
             kmdjs.get("HelloKMD.Ball").then(function (Ball) {
                 var ball = new Ball(100, 100, 28, 1, 2, "KMD.js");
                 balls.push(ball);

@@ -58,7 +58,8 @@
                 b: body,
                 c: fullname,
                 d: []
-            }), checkModules[fullname] = 1, checkCpt(), undefined;
+            }), checkModules[fullname] = 1, initComplete ? checkModuleCpt() : checkMainCpt(),
+            undefined;
         }
         for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; rLen > k; k++) isInArray(classList, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
         pendingModules.push({
@@ -85,67 +86,7 @@
         }
         window.kmdmdinfo = kmdmdinfo;
     }
-    function refrence(deps, callback, className, hasDep) {
-        for (var i = 0, len = deps.length, moduleArr = [], moduleNameArr = []; len > i; i++) for (var key in modules) {
-            var index = key.lastIndexOf("."), ns = key.substring(0, index), cl = key.substring(index + 1, key.length);
-            ns === deps[i] && (moduleNameArr.push(cl), moduleArr.push(modules[key]));
-        }
-        var entire = ("" + callback).replace(/\/\/.*\r\n/g, "\r\n").replace(/"function[\s\S]*?\}"/g, function (str) {
-            return str.substr(1, str.length - 2);
-        }), body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}")) + "return " + className + ";";
-        body = body.replace(/\/\/[\s\S]*?\\r\\n/g, "").replace(/(\/\*[\s\S]*\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, "").replace(/\\t/g, "").replace(/\\/g, ""),
-        body = js_beautify(body, {
-            indent_size: "4",
-            indent_char: " ",
-            max_preserve_newlines: "5",
-            preserve_newlines: !0,
-            keep_array_indentation: !1,
-            break_chained_methods: !1,
-            indent_scripts: "normal",
-            brace_style: "collapse",
-            space_before_conditional: !0,
-            unescape_strings: !1,
-            wrap_line_length: "0",
-            space_after_anon_function: !0
-        });
-        var fn = Function(moduleNameArr, body);
-        if (hasDep) {
-            for (var ref = getRef(fn), rLen = ref.length, currentMN = deps[0] + "." + className, newArr = [], kk = 0, kkLen = deps.length; kkLen > kk; kk++) for (var k = 0; rLen > k; k++) isInArray(classList, deps[kk] + "." + ref[k]) && newArr.push(deps[kk] + "." + ref[k]);
-            pendingModules.push({
-                id: currentMN,
-                deps: newArr
-            });
-            for (var count = 0, k = 0; rLen > k; k++) {
-                var ns = nsmp[ref[k]];
-                request(mapping[ns], function () {
-                    if (count++, count == rLen) {
-                        for (moduleNameArr = [], moduleArr = [], i = 0; i < newArr.length; i++) {
-                            moduleArr.push(modules[newArr[i]]);
-                            var xx = newArr[i].split(".");
-                            moduleNameArr.push(xx[xx.length - 1]);
-                        }
-                        kmdmdinfo.push({
-                            a: moduleNameArr,
-                            b: body,
-                            c: currentMN,
-                            d: newArr
-                        }), modules[currentMN] = 1;
-                    }
-                    checkCpt();
-                });
-            }
-        } else pendingModules.push({
-            id: deps[0] + "." + className,
-            deps: []
-        }), kmdmdinfo.push({
-            a: [],
-            b: body,
-            c: deps[0] + "." + className,
-            d: []
-        }), modules[deps[0] + "." + className] = 1;
-        isDebug && log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js");
-    }
-    function checkCpt() {
+    function checkModuleCpt() {
         function catchAllDep(md) {
             pendingCount++, isInArray(arr, md.c) && remove(arr, md.c), arr.push(md.c), md && md.d.length > 0 ? (each(md.d, function (item) {
                 isInArray(arr, item) && remove(arr, item), arr.push(item);
@@ -153,9 +94,17 @@
                 each(kmdmdinfo, function (item2) {
                     return item2.c == item ? (next = item2, !1) : undefined;
                 }), catchAllDep(next);
-            }), pendingCount--, 0 == pendingCount && allModulesReady()) : pendingCount--;
+            }), pendingCount--) : pendingCount--;
         }
-        function allModulesReady() {
+        for (var i = 0; i < pendingModules.length; i++) for (var j = 0; j < pendingModules[i].deps.length; j++) if (!checkModules.hasOwnProperty(pendingModules[i].deps[j])) return !1;
+        if (currentPendingModuleFullName) {
+            pendingModules.length = 0, checkModules = {};
+            var mainDep;
+            each(kmdmdinfo, function (item) {
+                item.c == currentPendingModuleFullName && (mainDep = item);
+            });
+            var arr = [], pendingCount = 0;
+            catchAllDep(mainDep, 0);
             var buildArr = [];
             if (each(arr, function (item2) {
                 each(kmdmdinfo, function (item) {
@@ -168,13 +117,62 @@
             }
             });
             }), setTimeout(function () {
-                new modules[ProjName + ".Main"]();
+                var md = modules[currentPendingModuleFullName];
+                currentPendingModuleFullName = !1, define.pendingPms.resolve(md), define.pendingCallback && define.pendingCallback(md);
             }, 0), isBuild) {
+                var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
+                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = "copy the code to " + currentPendingModuleFullName + ".js ,then you can   use it in any project that using kmdjs ";
                 var codePanel = doc.createElement("textarea");
-                codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45"), codePanel.style.position = "absolute",
-                codePanel.style.left = "0px", codePanel.style.top = "0px", codePanel.style.zIndex = 1e4,
-                doc.body.appendChild(codePanel);
-                var cpCode = '(function (n) { var f = !1, l = /xyz/.test(function () { xyz }) ? /\b_super\b/ : /.*/, o = function () { }, t, r, s, u, c, e; for (o.extend = function (n) { function i() { !f && this.init && this.init.apply(this, arguments) } var o = this.prototype, e, t, r, u; f = !0, e = new this, f = !1; for (t in n) t != "statics" && (e[t] = typeof n[t] == "function" && typeof o[t] == "function" && l.test(n[t]) ? function (n, t) { return function () { var r = this._super, i; return this._super = o[n], i = t.apply(this, arguments), this._super = r, i } }(t, n[t]) : n[t]); for (r in this) this.hasOwnProperty(r) && r != "extend" && (i[r] = this[r]); if (n.statics) for (u in n.statics) n.statics.hasOwnProperty(u) && (i[u] = n.statics[u]); return i.prototype = e, i.prototype.constructor = i, i.extend = arguments.callee, i }, n.__class = o, t = {}, t.modules = {}, t.all =' + JSON.stringify(buildArr).replace(/\s+/g, " ") + ', r = 0, s = t.all.length; r < s; r++) { var i = t.all[r], h = [], a = new Function(i.a, i.b); for (u = 0, c = i.d.length; u < c; u++) h.push(t.modules[i.d[u]]); e = a.apply(null, h),t.modules[i.c] = e } new t.modules["' + ProjName + '.Main"] })(this)';
+                ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv),
+                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45"),
+                ctt.style.position = "absolute", ctt.style.left = "0px", ctt.style.left = "0px",
+                ctt.style.top = "0px", ctt.style.width = "100%", ctt.style.zIndex = 1e4, ctt.style.textAlign = "center";
+                var cpCode = "kmdjs.exec(" + JSON.stringify(buildArr).replace(/\s+/g, " ") + ")";
+                codePanel.value = cpCode, codePanel.focus(), codePanel.select();
+            }
+        }
+    }
+    function checkMainCpt() {
+        function catchAllDep(md) {
+            pendingCount++, isInArray(arr, md.c) && remove(arr, md.c), arr.push(md.c), md && md.d.length > 0 ? (each(md.d, function (item) {
+                isInArray(arr, item) && remove(arr, item), arr.push(item);
+                var next;
+                each(kmdmdinfo, function (item2) {
+                    return item2.c == item ? (next = item2, !1) : undefined;
+                }), catchAllDep(next);
+            }), pendingCount--) : pendingCount--;
+        }
+        for (var i = 0; i < pendingModules.length; i++) for (var j = 0; j < pendingModules[i].deps.length; j++) if (!checkModules.hasOwnProperty(pendingModules[i].deps[j])) return !1;
+        if (!kmdmaincpt) {
+            kmdmaincpt = !0, pendingModules.length = 0, checkModules = {};
+            var mainDep;
+            each(kmdmdinfo, function (item) {
+                item.c == ProjName + ".Main" && (mainDep = item);
+            });
+            var arr = [], pendingCount = 0;
+            catchAllDep(mainDep, 0);
+            var buildArr = [];
+            if (each(arr, function (item2) {
+                each(kmdmdinfo, function (item) {
+                    if (item.c == item2) {
+                        buildArr.push(item);
+                        var moduleArr = [], fnResult = Function(item.a, item.b);
+                        for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
+                        var obj = fnResult.apply(null, moduleArr);
+                        modules[item.c] = obj;
+            }
+            });
+            }), setTimeout(function () {
+                initComplete = !0, new modules[ProjName + ".Main"]();
+            }, 0), isBuild) {
+                var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
+                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = "copy the code to " + ProjName + ".js ";
+                var codePanel = doc.createElement("textarea");
+                ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv),
+                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45"),
+                ctt.style.position = "absolute", ctt.style.left = "0px", ctt.style.left = "0px",
+                ctt.style.top = "0px", ctt.style.width = "100%", ctt.style.zIndex = 1e4, ctt.style.textAlign = "center";
+                var cpCode = '(function(n){function a(n,t,i){var r=u.createElement("script"),e;i&&(e=isFunction(i)?i(n):i,e&&(r.charset=e)),v(r,t,n),r.async=!0,r.src=n,s=r,o?f.insertBefore(r,o):f.appendChild(r),s=null}function v(n,t,i){function r(i){n.onload=n.onerror=n.onreadystatechange=null,l.debug||f.removeChild(n),n=null,t(i)}var u="onload"in n;u?(n.onload=r,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&r()}}var t=function(n){this.thens=n||[],this.state="",this._CONSTANT={any:"any",number:"number",resolved:"resolved",rejected:"rejected",pending:"pending"}},r,i;t.prototype={resolve:function(){var f,s,c,i,l,r,u,e,o,h,n;if(this.state==this._CONSTANT.pending){this.state=this._CONSTANT.resolved;return}if(this.state===""){if(this.promiseArr){for(n=0,u=this.promiseArr.length;n<u;n++)this.promiseArr[n].resolveCount++;if(this.promiseArr[0].action!==this._CONSTANT.any){if(this.resolveCount!==this.promiseArr.length)return}else if(this.resolveCount>1)return}if(this.state=this._CONSTANT.resolved,this.thens)for(this.thens[0]&&this.thens[0].finallyCB&&this.thens[0].finallyCB.apply(null,arguments);f=this.thens.shift();){if(typeof f===this._CONSTANT.number){c=this,setTimeout(function(){var n=new t(c.thens);n.resolve()},f);break}if(i=f.done,l=f.action,i)if(i instanceof Array){for(r=[],n=0,u=i.length;n<u;n++)e=i[n],e instanceof t?(e.thens=this.thens,r.push(e)):(o=e.apply(null,arguments),o instanceof t&&(o.thens=this.thens,r.push(o)));if(h=r.length,h===0)continue;else{for(n=0;n<h;n++)r[n].promiseArr=r,r[n].action=l,r[n].resolveCount=0;break}}else{if(i instanceof t){i.thens=this.thens;break}else if(s=i.apply(null,arguments),s instanceof t){s.thens=this.thens;break}continue}}}},reject:function(){var n,i,r;if(this.state===""&&(!this.promiseArr||this.promiseArr[0].action!==this._CONSTANT.any||this.promiseArr[this.promiseArr.length-1]===this)&&(this.state=this._CONSTANT.rejected,this.thens))for(this.thens[0]&&this.thens[0].finallyCB&&this.thens[0].finallyCB.apply(null,arguments);n=this.thens.shift();){if(typeof n===this._CONSTANT.number){r=this,setTimeout(function(){var n=new t(r.thens);n.resolve()},n);break}if(n.fail){if(i=n.fail.apply(null,arguments),i instanceof t){i.thens=this.thens;break}continue}break}},then:function(n,t,i){return this.thens.push({done:n,fail:t,progress:i}),this}};var c=function(n){var i=new t;if(n)if(arguments.length>1)i.thens[0]={},i.thens[0].done=[],i.thens[0].done.push.apply(i.thens[0].done,arguments),setTimeout(function(){i.resolve()},1);else if(i=n(),i instanceof t)return i;return i},u=document,l={},f=u.head||u.getElementsByTagName("head")[0]||u.documentElement,o=f.getElementsByTagName("base")[0],s;r={},r.get=function(n){var t=c();return i.modules[n]?(setTimeout(function(){t.resolve(i.modules[n])},0),t):(a(n+".js",function(){t.resolve(i.modules[n])}),t)},r.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var t=n[r],e=[],h=new Function(t.a,t.b);for(u=0,o=t.d.length;u<o;u++)e.push(i.modules[t.d[u]]);s=h.apply(null,e),i.modules[t.c]=s}},n.kmdjs=r;var e=!1,y=/xyz/.test(function(){xyz})?/\b_super\b/:/.*/,h=function(){};h.extend=function(n){function i(){!e&&this.init&&this.init.apply(this,arguments)}var o=this.prototype,f,t,r,u;e=!0,f=new this,e=!1;for(t in n)t!="statics"&&(f[t]=typeof n[t]=="function"&&typeof o[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=o[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(u in n.statics)n.statics.hasOwnProperty(u)&&(i[u]=n.statics[u]);return i.prototype=f,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=h,i={},i.modules={},i.all=' + JSON.stringify(buildArr).replace(/\s+/g, " ") + ',r.exec(i.all),new i.modules["' + ProjName + '.Main"]})(this)';
                 codePanel.value = cpCode, codePanel.focus(), codePanel.select();
             }
             if (isView) {
@@ -195,16 +193,6 @@
                     });
                 });
             }
-        }
-        for (var i = 0; i < pendingModules.length; i++) for (var j = 0; j < pendingModules[i].deps.length; j++) if (!checkModules.hasOwnProperty(pendingModules[i].deps[j])) return !1;
-        if (!kmdmaincpt) {
-            kmdmaincpt = !0;
-            var mainDep;
-            each(kmdmdinfo, function (item) {
-                item.c == ProjName + ".Main" && (mainDep = item);
-            });
-            var arr = [], pendingCount = 0;
-            catchAllDep(mainDep, 0);
         }
     }
     function remove(arr, item) {
@@ -2845,18 +2833,21 @@
         return __class.prototype = prototype, __class.prototype.constructor = __class, __class.extend = arguments.callee,
         __class;
     };
-    var doc = document, data = {}, head = doc.head || doc.getElementsByTagName("head")[0] || doc.documentElement, baseElement = head.getElementsByTagName("base")[0], currentlyAddingScript, interactiveScript, isView = !1, isDebug = !1, isBuild = !1, modules = {}, classList = [], baseUrl = getBaseUrl(), mapping = {}, cBaseUrl, nsmp = {}, dataMain, isBrowser = !("undefined" == typeof window || "undefined" == typeof navigator || !window.document), ProjName, pendingModules = [], kmdmdinfo = [], checkModules = {}, isObject = isType("Object"), isString = isType("String"), isArray = Array.isArray || isType("Array"), isFunction = isType("Function"), isBoolean = isType("Boolean");
+    var doc = document, data = {}, head = doc.head || doc.getElementsByTagName("head")[0] || doc.documentElement, baseElement = head.getElementsByTagName("base")[0], currentlyAddingScript, interactiveScript, isView = !1, isDebug = !1, isBuild = !1, modules = {}, classList = [], baseUrl = getBaseUrl(), mapping = {}, cBaseUrl, nsmp = {}, dataMain, initComplete = !1, isBrowser = !("undefined" == typeof window || "undefined" == typeof navigator || !window.document), ProjName, pendingModules = [], kmdmdinfo = [], checkModules = {}, isObject = isType("Object"), isString = isType("String"), isArray = Array.isArray || isType("Array"), isFunction = isType("Function"), isBoolean = isType("Boolean");
     define = function (name, deps, foctory) {
         var argc = arguments.length;
         if (1 == argc) throw "the class must take a name";
         2 == argc ? (foctory = deps, deps = []) : isString(deps) && (deps = [deps]);
         var mda = name.split(":"), fullname = mda[0], lastIndex = lastIndexOf(fullname, ".");
         -1 == lastIndex && (fullname = ProjName + "." + fullname, lastIndex = lastIndexOf(fullname, ".")),
+        initComplete && 0 == pendingModules.length && !currentPendingModuleFullName && (currentPendingModuleFullName = fullname),
         mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
         var baseClass = 1 == mda.length ? "__class" : ' __modules["' + mda[1] + '"]', className = fullname.substring(lastIndex + 1, fullname.length);
         deps.unshift(fullname.substring(0, lastIndex)), isInArray(deps, ProjName) || deps.unshift(ProjName),
         refrence2(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname);
-    }, define.build = function () {
+    };
+    var currentPendingModuleFullName;
+    define.build = function () {
         isBuild = !0, define.apply(null, arguments);
     }, define.view = function () {
         isView = !0, define.apply(null, arguments);
@@ -2865,33 +2856,7 @@
         return modules[fullname] ? callback ? (callback(modules[fullname]), pms = null) : setTimeout(function () {
             pms.resolve(modules[fullname]);
         }, 0) : request(mapping[fullname], function () {
-            function catchAllDep(md) {
-                md && md.d && each(md.d, function (item) {
-                    isInArray(arr, item) && remove(arr, item), arr.push(item);
-                    var next;
-                    each(kmdmdinfo, function (item2) {
-                        item2.c == item && (next = item2);
-                    }), catchAllDep(next);
-                });
-            }
-            var result;
-            if (each(kmdmdinfo, function (item) {
-                return item.c == fullname ? (result = item, !1) : undefined;
-            }), !result) return null;
-            var arr = [];
-            arr.push(result.c), catchAllDep(result);
-            var buildArr = [];
-            each(arr, function (item2) {
-                each(kmdmdinfo, function (item) {
-                    if (item.c == item2) {
-                        buildArr.push(item);
-                        var moduleArr = [], fnResult = Function(item.a, item.b);
-                        for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
-                        var obj = fnResult.apply(null, moduleArr);
-                        modules[item.c] = obj;
-                    }
-                });
-            }), callback ? callback(modules[fullname]) : pms.resolve(modules[fullname]);
+            define.pendingPms = pms, callback && (define.pendingCallback = callback);
         }), pms;
     }, kmdjs.get2 = function (fullname) {
         function catchAllDep(md) {
@@ -2923,8 +2888,13 @@
         }), modules[fullname];
     };
     var kmdmaincpt = !1;
-    define.pendingModules = pendingModules, request(baseUrl + dataMain + ".js", function () { }),
-    kmdjs.config = function (option) {
+    define.pendingModules = pendingModules, kmdjs.build = function (fullname) {
+        isBuild = !0;
+        var pms = Promise();
+        return request(mapping[fullname], function () {
+            define.pendingPms = pms;
+        }), pms;
+    }, request(baseUrl + dataMain + ".js", function () { }), kmdjs.config = function (option) {
         ProjName = option.name, cBaseUrl = option.baseUrl;
         for (var i = 0; i < option.classes.length; i++) {
             var item = option.classes[i];

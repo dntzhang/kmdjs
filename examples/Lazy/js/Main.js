@@ -10,31 +10,22 @@
 });
 define("Main",["Util"], {
     init: function () {
-        var crtBtn = document.getElementById("crtBtn");
+        var btn = document.getElementById("crtBtn");
         var balls = [];
-        crtBtn.onclick = function () {
-            //lazy here
-            //kmdjs.get("HelloKMD.Ball", function (Ball) {
-            //    var ball = new Ball(100, 100, 28, 1, 2, "KMD.js");
-            //    balls.push(ball);
-            //});
-            //support promise style next version？
-            //不给namespace则默认处于projname下
-            var aa = "dfsfd //ssdfsdfs";
+        btn.onclick = function () {
+            // 不给namespace则默认处于projname下
             kmdjs.get("HelloKMD.Ball").then(function (Ball) {
-                var ball = new Ball(100, 100, 28, 1, 2, "KMD.js");
+                var ball = new Ball(110, 110, 28, 1, -2, "KMD.js");
                 balls.push(ball);
-            });
-          
-        }
+            })            
+        }        
         var vp = Bom.getViewport();
         setInterval(function () {
-            for (var i = 0, len = balls.length; i < len; i++) {
-                var ball = balls[i], x = ball.position.x, y = ball.position.y;
-              
-                (x + ball.r * 2 > vp[2] || x < 0) && (ball.vx *= -1);
-                (y + ball.r * 2 > vp[3] || y < 0) && (ball.vy *= -1);
-            }          
-        }, 15)
+            for (var i = 0; i < balls.length; i++) {
+                var item = balls[i];
+                (item.position.x + item.r * 2 > vp[2] || item.position.x < 0) && (item.vx *= -1);
+                (item.position.y + item.r * 2 > vp[3] || item.position.y < 0) && (item.vy *= -1);
+            }        
+        }, 100);
     }
 })

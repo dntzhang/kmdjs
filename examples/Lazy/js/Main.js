@@ -25,7 +25,9 @@ define("Main",["Util"], {
                 var item = balls[i];
                 (item.position.x + item.r * 2 > vp[2] || item.position.x < 0) && (item.vx *= -1);
                 (item.position.y + item.r * 2 > vp[3] || item.position.y < 0) && (item.vy *= -1);
-            }        
+            }
+
+            //如果这里改成15，就是ball的定时器一样，导致的结果就是小球在ie6下不反弹...
         }, 100);
     }
 })

@@ -4,6 +4,8 @@ AMD and CMD are dead.
 
 many ideas are from other great projects, although some of them will die.but still thanks to:
 
+UglifyJS2 https://github.com/mishoo/UglifyJS2
+
 windjs http://windjs.org/cn/
 
 jsbeautifier http://jsbeautifier.org/
@@ -29,5 +31,7 @@ json2 https://github.com/douglascrockford/JSON-js
 qunit http://qunitjs.com/
 
 vuejs http://vuejs.org/
+
+blobjs https://github.com/eligrey/Blob.js
 
 That's all.Have Fun.

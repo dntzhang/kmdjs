@@ -2,7 +2,8 @@
     name:"HelloKMD",
     baseUrl: "js",
     classes: [
-        { name: "HelloKMD.Ball"  },
+        { name: "HelloKMD.Ball" },
+            { name: "HelloKMD.Test" },
         { name: "Util.Bom", url: "Util" },
         { name: "Util.Vector2", url: "Util" }
     ]
@@ -14,10 +15,17 @@ define("Main",["Util"], {
         var balls = [];
         btn.onclick = function () {
             // 不给namespace则默认处于projname下
-            kmdjs.get("HelloKMD.Ball").then(function (Ball) {
-                var ball = new Ball(110, 110, 28, 1, -2, "KMD.js");
+            //kmdjs.get(["Ball", "Test"]).then(function (Ball, Test) {
+            //    var cc = new Test(100);
+            //    var ball = new Ball(cc.x, 110, 28, 1, -2, "KMD.js");
+            //    balls.push(ball);
+            //})
+            kmdjs.get(["Ball", "Test"], function (Ball, Test) {
+                var cc = new Test(300);
+                var ball = new Ball(cc.x, 110, 28, 1, -2, "KMD.js");
                 balls.push(ball);
-            })            
+
+            })
         }        
         var vp = Bom.getViewport();
         setInterval(function () {

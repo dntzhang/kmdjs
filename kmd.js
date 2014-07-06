@@ -1,4 +1,4 @@
-﻿/* KMD.js Kill AMD and CMD
+﻿/* KMD.js v0.0.6 Kill AMD and CMD
  * By 当耐特 http://weibo.com/iamleizhang
  * KMD.js http://kmdjs.github.io/
  * blog: http://www.cnblogs.com/iamzhanglei/
@@ -7,74 +7,6 @@
  * MIT Licensed.
  */
 !function (JSON, global, undefined) {
-    if ('function' !== typeof Array.prototype.reduce) {
-        Array.prototype.reduce = function (callback, opt_initialValue) {
-            'use strict';
-            if (null === this || 'undefined' === typeof this) {
-                // At the moment all modern browsers, that support strict mode, have
-                // native implementation of Array.prototype.reduce. For instance, IE8
-                // does not support strict mode, so this check is actually useless.
-                throw new TypeError(
-                    'Array.prototype.reduce called on null or undefined');
-            }
-            if ('function' !== typeof callback) {
-                throw new TypeError(callback + ' is not a function');
-            }
-            var index, value,
-                length = this.length >>> 0,
-                isValueSet = false;
-            if (1 < arguments.length) {
-                value = opt_initialValue;
-                isValueSet = true;
-            }
-            for (index = 0; length > index; ++index) {
-                if (this.hasOwnProperty(index)) {
-                    if (isValueSet) {
-                        value = callback(value, this[index], index, this);
-                    }
-                    else {
-                        value = this[index];
-                        isValueSet = true;
-                    }
-                }
-            }
-            if (!isValueSet) {
-                throw new TypeError('Reduce of empty array with no initial value');
-            }
-            return value;
-        };
-    }
-    if (!Array.prototype.filter) {
-        Array.prototype.filter = function (fun /*, thisArg */) {
-            "use strict";
-
-            if (this === void 0 || this === null)
-                throw new TypeError();
-
-            var t = Object(this);
-            var len = t.length >>> 0;
-            if (typeof fun !== "function")
-                throw new TypeError();
-
-            var res = [];
-            var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-            for (var i = 0; i < len; i++) {
-                if (i in t) {
-                    var val = t[i];
-
-                    // NOTE: Technically this should Object.defineProperty at
-                    //       the next index, as push can be affected by
-                    //       properties on Object.prototype and Array.prototype.
-                    //       But that method's new, and collisions should be
-                    //       rare, so use the more-compatible alternative.
-                    if (fun.call(thisArg, val, i, t))
-                        res.push(val);
-                }
-            }
-
-            return res;
-        };
-    }
     function request(url, callback, charset) {
         var node = doc.createElement("script");
         if (charset) {
@@ -96,14 +28,6 @@
             /loaded|complete/.test(node.readyState) && onload();
         };
     }
-    function getCurrentScript() {
-        if (currentlyAddingScript) return currentlyAddingScript;
-        if (interactiveScript && "interactive" === interactiveScript.readyState) return interactiveScript;
-        for (var scripts = head.getElementsByTagName("script"), i = scripts.length - 1; i >= 0; i--) {
-            var script = scripts[i];
-            if ("interactive" === script.readyState) return interactiveScript = script;
-        }
-    }
     function isType(type) {
         return function(obj) {
             return Object.prototype.toString.call(obj) === "[object " + type + "]";
@@ -112,8 +36,8 @@
     function compressor(fn) {
         var ast = UglifyJS.parse("" + fn);
         ast.figure_out_scope();
-        var sq = UglifyJS.Compressor();
-        compressed_ast = ast.transform(sq), compressed_ast.compute_char_frequency(), compressed_ast.mangle_names();
+        var sq = UglifyJS.Compressor(), compressed_ast = ast.transform(sq);
+        compressed_ast.compute_char_frequency(), compressed_ast.mangle_names();
         var code = compressed_ast.print_to_string();
         return code;
     }
@@ -128,21 +52,7 @@
             body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
         }
         var ref = getRef(fn);
-        if (remove(ref, "__class"), rLen = ref.length, pendingModules.push({
-            id: fullname,
-            deps: []
-        }), 0 == rLen) {
-            var isPush = !1;
-            return each(kmdmdinfo, function(item) {
-                return item.c == fullname ? (isPush = !0, !1) : undefined;
-            }), isPush || kmdmdinfo.push({
-                a: [],
-                b: body,
-                c: fullname,
-                d: []
-            }), checkModules[fullname] = 1, initComplete ? checkModuleCpt() : checkMainCpt(), 
-            undefined;
-        }
+        getLazyMd(fn), remove(ref, "__class"), rLen = ref.length;
         for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; rLen > k; k++) isInArray(classList, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
         pendingModules.push({
             id: fullname,
@@ -154,41 +64,44 @@
             moduleNameArr.push(xx[xx.length - 1]);
         }
         var isPush = !1;
-        each(kmdmdinfo, function(item) {
+        if (each(kmdmdinfo, function(item) {
             return item.c == fullname ? (isPush = !0, !1) : undefined;
         }), isPush || kmdmdinfo.push({
             a: moduleNameArr,
             b: body,
             c: fullname,
             d: newArr
-        }), checkModules[fullname] = 1;
-        for (var k = 0; rLen > k; k++) {
+        }), checkModules[fullname] = 1, 0 != rLen || isBuild) for (var k = 0; rLen > k; k++) {
             var ns = nsmp[ref[k]];
-            request(mapping[ns], function() {});
-        }
-        window.kmdmdinfo = kmdmdinfo;
+            allPending.push(ns), function(ns) {
+                request(mapping[ns], function() {
+                    remove(allPending, ns), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+                });
+            }(ns);
+        } else currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+        window.allPending = allPending;
     }
-    function checkModuleCpt() {
-        function catchAllDep(md) {
-            pendingCount++, isInArray(arr, md.c) && remove(arr, md.c), arr.push(md.c), md && md.d.length > 0 ? (each(md.d, function(item) {
-                isInArray(arr, item) && remove(arr, item), arr.push(item);
-                var next;
-                each(kmdmdinfo, function(item2) {
-                    return item2.c == item ? (next = item2, !1) : undefined;
-                }), catchAllDep(next);
-            }), pendingCount--) : pendingCount--;
-        }
-        for (var i = 0; i < pendingModules.length; i++) for (var j = 0; j < pendingModules[i].deps.length; j++) if (!checkModules.hasOwnProperty(pendingModules[i].deps[j])) return !1;
-        if (currentPendingModuleFullName) {
-            pendingModules.length = 0, checkModules = {};
+    function getBuildArr(fns) {
+        var buildArrs = [];
+        return each(fns, function(currentFullname) {
+            function catchAllDep(md) {
+                pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
+                md && md.d.length > 0 ? (each(md.d, function(item) {
+                    isInArray(arr, item) && remove(arr, item), arr.push(item);
+                    var next;
+                    each(kmdmdinfo, function(item2) {
+                        return item2.c == item ? (next = item2, !1) : undefined;
+                    }), next && catchAllDep(next);
+                }), pendingCount--) : pendingCount--;
+            }
             var mainDep;
             each(kmdmdinfo, function(item) {
-                item.c == currentPendingModuleFullName && (mainDep = item);
+                item.c == currentFullname && (mainDep = item);
             });
             var arr = [], pendingCount = 0;
-            catchAllDep(mainDep, 0);
+            catchAllDep(mainDep);
             var buildArr = [];
-            if (each(arr, function(item2) {
+            each(arr, function(item2) {
                 each(kmdmdinfo, function(item) {
                     if (item.c == item2) {
                         buildArr.push(item);
@@ -198,34 +111,74 @@
                         modules[item.c] = obj;
                     }
                 });
+            }), buildArrs.push({
+                name: currentFullname,
+                buildArr: buildArr
+            });
+        }), buildArrs;
+    }
+    function checkModuleCpt() {
+        if (!(allPending.length > 0) && 0 != currentPendingModuleFullName.length) {
+            pendingModules.length = 0, checkModules = {};
+            var buildArrs = [];
+            each(currentPendingModuleFullName, function(currentFullname) {
+                function catchAllDep(md) {
+                    pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
+                    md && md.d.length > 0 ? (each(md.d, function(item) {
+                        isInArray(arr, item) && remove(arr, item), arr.push(item);
+                        var next;
+                        each(kmdmdinfo, function(item2) {
+                            return item2.c == item ? (next = item2, !1) : undefined;
+                        }), next && catchAllDep(next);
+                    }), pendingCount--) : pendingCount--;
+                }
+                var mainDep;
+                each(kmdmdinfo, function(item) {
+                    item.c == currentFullname && (mainDep = item);
+                });
+                var arr = [], pendingCount = 0;
+                catchAllDep(mainDep);
+                var buildArr = [];
+                each(arr, function(item2) {
+                    each(kmdmdinfo, function(item) {
+                        if (item.c == item2) {
+                            buildArr.push(item);
+                            var moduleArr = [], fnResult = Function(item.a, item.b);
+                            for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
+                            var obj = fnResult.apply(null, moduleArr);
+                            modules[item.c] = obj;
+                        }
+                    });
+                }), buildArrs.push({
+                    name: currentFullname,
+                    buildArr: buildArr
+                });
             }), setTimeout(function() {
-                var md = modules[currentPendingModuleFullName];
-                currentPendingModuleFullName = !1, define.pendingPms.resolve(md), define.pendingCallback && define.pendingCallback(md);
-            }, 0), isBuild) {
+                for (var mdArr = [], i = 0, len = currentPendingModuleFullName.length; len > i; i++) modules[currentPendingModuleFullName[i]] && mdArr.push(modules[currentPendingModuleFullName[i]]);
+                currentPendingModuleFullName.length = 0, define.pendingCallback && define.pendingCallback.apply(null, mdArr);
+            }, 0), isMDBuild && (each(buildArrs, function(item) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
-                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = "copy the code to " + currentPendingModuleFullName + ".js ,then you can   use it in any project that using kmdjs ";
+                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = item.name + ".js  ";
                 var codePanel = doc.createElement("textarea");
                 ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
-                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45"), 
-                ctt.style.position = "absolute", ctt.style.left = "0px", ctt.style.left = "0px", 
-                ctt.style.top = "0px", ctt.style.width = "100%", ctt.style.zIndex = 1e4, ctt.style.textAlign = "center";
-                var cpCode = "kmdjs.exec(" + JSON.stringify(buildArr).replace(/\s+/g, " ") + ")";
+                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45");
+                var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ")";
                 codePanel.value = cpCode, codePanel.focus(), codePanel.select();
-            }
+            }), isMDBuild = !1);
         }
     }
     function checkMainCpt() {
         function catchAllDep(md) {
-            pendingCount++, isInArray(arr, md.c) && remove(arr, md.c), arr.push(md.c), md && md.d.length > 0 ? (each(md.d, function(item) {
+            pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
+            md && md.d.length > 0 ? (each(md.d, function(item) {
                 isInArray(arr, item) && remove(arr, item), arr.push(item);
                 var next;
                 each(kmdmdinfo, function(item2) {
                     return item2.c == item ? (next = item2, !1) : undefined;
-                }), catchAllDep(next);
+                }), next && catchAllDep(next);
             }), pendingCount--) : pendingCount--;
         }
-        for (var i = 0; i < pendingModules.length; i++) for (var j = 0; j < pendingModules[i].deps.length; j++) if (!checkModules.hasOwnProperty(pendingModules[i].deps[j])) return !1;
-        if (!kmdmaincpt) {
+        if (!(allPending.length > 0 || kmdmaincpt)) {
             kmdmaincpt = !0, pendingModules.length = 0, checkModules = {};
             var mainDep;
             each(kmdmdinfo, function(item) {
@@ -245,17 +198,42 @@
                     }
                 });
             }), setTimeout(function() {
-                initComplete = !0, new modules[ProjName + ".Main"]();
+                new modules[ProjName + ".Main"]();
             }, 0), isBuild) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
-                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = "copy the code to " + ProjName + ".js ";
+                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = ProjName + ".js ";
                 var codePanel = doc.createElement("textarea");
                 ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
-                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45"), 
-                ctt.style.position = "absolute", ctt.style.left = "0px", ctt.style.left = "0px", 
-                ctt.style.top = "0px", ctt.style.width = "100%", ctt.style.zIndex = 1e4, ctt.style.textAlign = "center";
-                var cpCode = '(function(n){function a(n,t,i){var r=u.createElement("script"),e;i&&(e=isFunction(i)?i(n):i,e&&(r.charset=e)),v(r,t,n),r.async=!0,r.src=n,s=r,o?f.insertBefore(r,o):f.appendChild(r),s=null}function v(n,t,i){function r(i){n.onload=n.onerror=n.onreadystatechange=null,l.debug||f.removeChild(n),n=null,t(i)}var u="onload"in n;u?(n.onload=r,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&r()}}var t=function(n){this.thens=n||[],this.state="",this._CONSTANT={any:"any",number:"number",resolved:"resolved",rejected:"rejected",pending:"pending"}},r,i;t.prototype={resolve:function(){var f,s,c,i,l,r,u,e,o,h,n;if(this.state==this._CONSTANT.pending){this.state=this._CONSTANT.resolved;return}if(this.state===""){if(this.promiseArr){for(n=0,u=this.promiseArr.length;n<u;n++)this.promiseArr[n].resolveCount++;if(this.promiseArr[0].action!==this._CONSTANT.any){if(this.resolveCount!==this.promiseArr.length)return}else if(this.resolveCount>1)return}if(this.state=this._CONSTANT.resolved,this.thens)for(this.thens[0]&&this.thens[0].finallyCB&&this.thens[0].finallyCB.apply(null,arguments);f=this.thens.shift();){if(typeof f===this._CONSTANT.number){c=this,setTimeout(function(){var n=new t(c.thens);n.resolve()},f);break}if(i=f.done,l=f.action,i)if(i instanceof Array){for(r=[],n=0,u=i.length;n<u;n++)e=i[n],e instanceof t?(e.thens=this.thens,r.push(e)):(o=e.apply(null,arguments),o instanceof t&&(o.thens=this.thens,r.push(o)));if(h=r.length,h===0)continue;else{for(n=0;n<h;n++)r[n].promiseArr=r,r[n].action=l,r[n].resolveCount=0;break}}else{if(i instanceof t){i.thens=this.thens;break}else if(s=i.apply(null,arguments),s instanceof t){s.thens=this.thens;break}continue}}}},reject:function(){var n,i,r;if(this.state===""&&(!this.promiseArr||this.promiseArr[0].action!==this._CONSTANT.any||this.promiseArr[this.promiseArr.length-1]===this)&&(this.state=this._CONSTANT.rejected,this.thens))for(this.thens[0]&&this.thens[0].finallyCB&&this.thens[0].finallyCB.apply(null,arguments);n=this.thens.shift();){if(typeof n===this._CONSTANT.number){r=this,setTimeout(function(){var n=new t(r.thens);n.resolve()},n);break}if(n.fail){if(i=n.fail.apply(null,arguments),i instanceof t){i.thens=this.thens;break}continue}break}},then:function(n,t,i){return this.thens.push({done:n,fail:t,progress:i}),this}};var c=function(n){var i=new t;if(n)if(arguments.length>1)i.thens[0]={},i.thens[0].done=[],i.thens[0].done.push.apply(i.thens[0].done,arguments),setTimeout(function(){i.resolve()},1);else if(i=n(),i instanceof t)return i;return i},u=document,l={},f=u.head||u.getElementsByTagName("head")[0]||u.documentElement,o=f.getElementsByTagName("base")[0],s;r={},r.get=function(n){var t=c();return i.modules[n]?(setTimeout(function(){t.resolve(i.modules[n])},0),t):(a(n+".js",function(){t.resolve(i.modules[n])}),t)},r.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var t=n[r],e=[],h=new Function(t.a,t.b);for(u=0,o=t.d.length;u<o;u++)e.push(i.modules[t.d[u]]);s=h.apply(null,e),i.modules[t.c]=s}},n.kmdjs=r;var e=!1,y=/xyz/.test(function(){xyz})?/\b_super\b/:/.*/,h=function(){};h.extend=function(n){function i(){!e&&this.init&&this.init.apply(this,arguments)}var o=this.prototype,f,t,r,u;e=!0,f=new this,e=!1;for(t in n)t!="statics"&&(f[t]=typeof n[t]=="function"&&typeof o[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=o[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(u in n.statics)n.statics.hasOwnProperty(u)&&(i[u]=n.statics[u]);return i.prototype=f,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=h,i={},i.modules={},i.all=' + JSON.stringify(buildArr).replace(/\s+/g, " ") + ',r.exec(i.all),new i.modules["' + ProjName + '.Main"]})(this)';
-                codePanel.value = cpCode, codePanel.focus(), codePanel.select();
+                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
+                var cpCode = '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\b_super\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.init&&this.init.apply(this,arguments)}var o=this.prototype,e,t,r,u;f=!0,e=new this,f=!1;for(t in n)t!="statics"&&(e[t]=typeof n[t]=="function"&&typeof o[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=o[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(u in n.statics)n.statics.hasOwnProperty(u)&&(i[u]=n.statics[u]);return i.prototype=e,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},t.all=' + JSON.stringify(buildArr).replace(/\s+/g, " ") + ',u.exec(t.all),new t.modules["' + ProjName + '.Main"]})(this)';
+                if (codePanel.value = cpCode, codePanel.focus(), codePanel.select(), window.URL.createObjectURL) {
+                    var fileParts = [ cpCode ], bb = new Blob(fileParts, {
+                        type: "text/plain"
+                    }), dnlnk = window.URL.createObjectURL(bb), dlLink = document.createElement("a");
+                    dlLink.setAttribute("href", dnlnk), dlLink.setAttribute("download", ProjName + ".Main.js"), 
+                    dlLink.click();
+                }
+                var lmclone = [];
+                each(lazyMdArr, function(item) {
+                    lmclone.push(item);
+                }), kmdjs.get(lazyMdArr, function() {
+                    var lzBuildArrs = getBuildArr(lmclone);
+                    each(lzBuildArrs, function(item) {
+                        var ctt = doc.createElement("div"), msgDiv = doc.createElement("div");
+                        msgDiv.innerHTML = item.name + ".js ";
+                        var codePanel = doc.createElement("textarea");
+                        ctt.appendChild(codePanel), ctt.appendChild(msgDiv), doc.body.appendChild(ctt), 
+                        codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
+                        var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ")", fileParts = [ cpCode ];
+                        if (codePanel.value = cpCode, window.URL.createObjectURL) {
+                            var bb = new Blob(fileParts, {
+                                type: "text/plain"
+                            }), dnlnk = window.URL.createObjectURL(bb), dlLink = document.createElement("a");
+                            dlLink.setAttribute("href", dnlnk), dlLink.setAttribute("download", item.name + ".js"), 
+                            dlLink.click();
+                        }
+                    });
+                });
             }
             if (isView) {
                 var holder = document.createElement("div");
@@ -307,6 +285,22 @@
         var vars = scope.variables._values;
         return Object.prototype.hasOwnProperty.call(vars, "$" + name) ? !0 : scope.parent_scope ? isInScopeChainVariables(scope.parent_scope, name) : !1;
     }
+    function getLazyMd(fn) {
+        var fnStr = "" + fn, aa = fnStr.match(/kmdjs.get\([\s\S]*?\)/g);
+        if (aa) for (var i = 0, len = aa.length; len > i; i++) {
+            var item = aa[i].replace(/\"|\'/g, ""), l2 = lastIndexOf(item, "]"), l1 = lastIndexOf(item, "[") + 1;
+            if (-1 != l2) {
+                var md = item.substring(l1, l2).split(",");
+                each(md, function(item2) {
+                    item2 = item2.trim(), -1 == lastIndexOf(item2, ".") && (item2 = ProjName + "." + item2), 
+                    isInArray(lazyMdArr, item2) || lazyMdArr.push(item2);
+                });
+            } else {
+                var matchMd = aa[i].match(/("\w*")|('\w*')/), md = matchMd[0].replace(/\"|\'/g, "");
+                -1 == lastIndexOf(md, ",") && (md = ProjName + "." + md), isInArray(lazyMdArr, md) || lazyMdArr.push(md);
+            }
+        }
+    }
     function getRef(fn) {
         var U2 = UglifyJS, ast = U2.parse("" + fn);
         ast.figure_out_scope();
@@ -338,7 +332,7 @@
                     var arr = src.split("/");
                     arr.pop(), baseUrl = arr.length ? arr.join("/") + "/" : "./";
                     var dm = scrp.getAttribute("data-main"), arr2 = dm.split("?");
-                    dataMain = arr2[0], arr2.length > 1 && ("build" == arr2[1] ? isBuild = !0 : isView = !0);
+                    dataMain = arr2[0], dataMain = dataMain.replace(/.js/g, ""), arr2.length > 1 && ("build" == arr2[1] ? isBuild = !0 : isView = !0);
                     break;
                 }
             }
@@ -671,7 +665,78 @@
         }
         return output.join("").replace(/[\n ]+$/, "");
     }
-    !function(n) {
+    !function(view) {
+        "use strict";
+        if (view.URL = view.URL || view.webkitURL, view.Blob && view.URL) try {
+            return new Blob(), undefined;
+        } catch (e) {}
+        var BlobBuilder = view.BlobBuilder || view.WebKitBlobBuilder || view.MozBlobBuilder || function(view) {
+            var get_class = function(object) {
+                return Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1];
+            }, FakeBlobBuilder = function() {
+                this.data = [];
+            }, FakeBlob = function(data, type, encoding) {
+                this.data = data, this.size = data.length, this.type = type, this.encoding = encoding;
+            }, FBB_proto = FakeBlobBuilder.prototype, FB_proto = FakeBlob.prototype, FileReaderSync = view.FileReaderSync, FileException = function(type) {
+                this.code = this[this.name = type];
+            }, file_ex_codes = "NOT_FOUND_ERR SECURITY_ERR ABORT_ERR NOT_READABLE_ERR ENCODING_ERR NO_MODIFICATION_ALLOWED_ERR INVALID_STATE_ERR SYNTAX_ERR".split(" "), file_ex_code = file_ex_codes.length, real_URL = view.URL || view.webkitURL || view, real_create_object_URL = real_URL.createObjectURL, real_revoke_object_URL = real_URL.revokeObjectURL, URL = real_URL, btoa = view.btoa, atob = view.atob, ArrayBuffer = view.ArrayBuffer, Uint8Array = view.Uint8Array;
+            for (FakeBlob.fake = FB_proto.fake = !0; file_ex_code--; ) FileException.prototype[file_ex_codes[file_ex_code]] = file_ex_code + 1;
+            return real_URL.createObjectURL || (URL = view.URL = {}), URL.createObjectURL = function(blob) {
+                var data_URI_header, type = blob.type;
+                return null === type && (type = "application/octet-stream"), blob instanceof FakeBlob ? (data_URI_header = "data:" + type, 
+                "base64" === blob.encoding ? data_URI_header + ";base64," + blob.data : "URI" === blob.encoding ? data_URI_header + "," + decodeURIComponent(blob.data) : btoa ? data_URI_header + ";base64," + btoa(blob.data) : data_URI_header + "," + encodeURIComponent(blob.data)) : real_create_object_URL ? real_create_object_URL.call(real_URL, blob) : undefined;
+            }, URL.revokeObjectURL = function(object_URL) {
+                "data:" !== object_URL.substring(0, 5) && real_revoke_object_URL && real_revoke_object_URL.call(real_URL, object_URL);
+            }, FBB_proto.append = function(data) {
+                var bb = this.data;
+                if (Uint8Array && (data instanceof ArrayBuffer || data instanceof Uint8Array)) {
+                    for (var str = "", buf = new Uint8Array(data), i = 0, buf_len = buf.length; buf_len > i; i++) str += String.fromCharCode(buf[i]);
+                    bb.push(str);
+                } else if ("Blob" === get_class(data) || "File" === get_class(data)) {
+                    if (!FileReaderSync) throw new FileException("NOT_READABLE_ERR");
+                    var fr = new FileReaderSync();
+                    bb.push(fr.readAsBinaryString(data));
+                } else data instanceof FakeBlob ? "base64" === data.encoding && atob ? bb.push(atob(data.data)) : "URI" === data.encoding ? bb.push(decodeURIComponent(data.data)) : "raw" === data.encoding && bb.push(data.data) : ("string" != typeof data && (data += ""), 
+                bb.push(unescape(encodeURIComponent(data))));
+            }, FBB_proto.getBlob = function(type) {
+                return arguments.length || (type = null), new FakeBlob(this.data.join(""), type, "raw");
+            }, FBB_proto.toString = function() {
+                return "[object BlobBuilder]";
+            }, FB_proto.slice = function(start, end, type) {
+                var args = arguments.length;
+                return 3 > args && (type = null), new FakeBlob(this.data.slice(start, args > 1 ? end : this.data.length), type, this.encoding);
+            }, FB_proto.toString = function() {
+                return "[object Blob]";
+            }, FB_proto.close = function() {
+                this.size = 0, delete this.data;
+            }, FakeBlobBuilder;
+        }(view);
+        view.Blob = function(blobParts, options) {
+            var type = options ? options.type || "" : "", builder = new BlobBuilder();
+            if (blobParts) for (var i = 0, len = blobParts.length; len > i; i++) builder.append(blobParts[i]);
+            return builder.getBlob(type);
+        };
+    }("undefined" != typeof self && self || "undefined" != typeof window && window || this.content || this), 
+    "function" != typeof Array.prototype.reduce && (Array.prototype.reduce = function(callback, opt_initialValue) {
+        "use strict";
+        if (null === this || undefined === this) throw new TypeError("Array.prototype.reduce called on null or undefined");
+        if ("function" != typeof callback) throw new TypeError(callback + " is not a function");
+        var index, value, length = this.length >>> 0, isValueSet = !1;
+        for (1 < arguments.length && (value = opt_initialValue, isValueSet = !0), index = 0; length > index; ++index) this.hasOwnProperty(index) && (isValueSet ? value = callback(value, this[index], index, this) : (value = this[index], 
+        isValueSet = !0));
+        if (!isValueSet) throw new TypeError("Reduce of empty array with no initial value");
+        return value;
+    }), Array.prototype.filter || (Array.prototype.filter = function(fun) {
+        "use strict";
+        if (this === void 0 || null === this) throw new TypeError();
+        var t = Object(this), len = t.length >>> 0;
+        if ("function" != typeof fun) throw new TypeError();
+        for (var res = [], thisArg = arguments.length >= 2 ? arguments[1] : void 0, i = 0; len > i; i++) if (i in t) {
+            var val = t[i];
+            fun.call(thisArg, val, i, t) && res.push(val);
+        }
+        return res;
+    }), function(n) {
         var r, i, o = "0.4.2", e = "hasOwnProperty", f = /[\.\/]/, s = "*", h = function() {}, c = function(n, t) {
             return n - t;
         }, u = {
@@ -7669,168 +7734,6 @@
     }({}, function() {
         return this;
     }());
-    var _promise = function(thens) {
-        this.thens = thens || [], this.state = "", this._CONSTANT = {
-            any: "any",
-            number: "number",
-            resolved: "resolved",
-            rejected: "rejected",
-            pending: "pending"
-        };
-    };
-    _promise.prototype = {
-        resolve: function() {
-            if (this.state == this._CONSTANT.pending) return this.state = this._CONSTANT.resolved, 
-            undefined;
-            if ("" === this.state) {
-                if (this.promiseArr) {
-                    for (var i = 0, j = this.promiseArr.length; j > i; i++) this.promiseArr[i].resolveCount++;
-                    if (this.promiseArr[0].action !== this._CONSTANT.any) {
-                        if (this.resolveCount !== this.promiseArr.length) return;
-                    } else if (this.resolveCount > 1) return;
-                }
-                if (this.state = this._CONSTANT.resolved, this.thens) {
-                    this.thens[0] && this.thens[0].finallyCB && this.thens[0].finallyCB.apply(null, arguments);
-                    for (var t, n; t = this.thens.shift(); ) {
-                        if (typeof t === this._CONSTANT.number) {
-                            var self = this;
-                            setTimeout(function() {
-                                var prms = new _promise(self.thens);
-                                prms.resolve();
-                            }, t);
-                            break;
-                        }
-                        var doneFn = t.done, action = t.action;
-                        if (doneFn) {
-                            if (doneFn instanceof Array) {
-                                for (var arr = [], i = 0, j = doneFn.length; j > i; i++) {
-                                    var df = doneFn[i];
-                                    if (df instanceof _promise) df.thens = this.thens, arr.push(df); else {
-                                        var m = df.apply(null, arguments);
-                                        m instanceof _promise && (m.thens = this.thens, arr.push(m));
-                                    }
-                                }
-                                var l = arr.length;
-                                if (0 === l) continue;
-                                for (var i = 0; l > i; i++) arr[i].promiseArr = arr, arr[i].action = action, arr[i].resolveCount = 0;
-                                break;
-                            }
-                            if (doneFn instanceof _promise) {
-                                doneFn.thens = this.thens;
-                                break;
-                            }
-                            if (n = doneFn.apply(null, arguments), n instanceof _promise) {
-                                n.thens = this.thens;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        reject: function() {
-            if ("" === this.state && (!this.promiseArr || this.promiseArr[0].action !== this._CONSTANT.any || this.promiseArr[this.promiseArr.length - 1] === this) && (this.state = this._CONSTANT.rejected, 
-            this.thens)) {
-                this.thens[0] && this.thens[0].finallyCB && this.thens[0].finallyCB.apply(null, arguments);
-                for (var t, n; t = this.thens.shift(); ) {
-                    if (typeof t === this._CONSTANT.number) {
-                        var self = this;
-                        setTimeout(function() {
-                            var prms = new _promise(self.thens);
-                            prms.resolve();
-                        }, t);
-                        break;
-                    }
-                    {
-                        if (!t.fail) break;
-                        if (n = t.fail.apply(null, arguments), n instanceof _promise) {
-                            n.thens = this.thens;
-                            break;
-                        }
-                    }
-                }
-            }
-        },
-        notify: function() {
-            var t = this.thens[0];
-            t.progress.apply(null, arguments);
-        },
-        then: function(done, fail, progress) {
-            return this.thens.push({
-                done: done,
-                fail: fail,
-                progress: progress
-            }), this;
-        },
-        any: function(done, fail, progress) {
-            return this.thens.push({
-                done: done,
-                fail: fail,
-                progress: progress,
-                action: this._CONSTANT.any
-            }), this;
-        },
-        done: function(done) {
-            return 0 === this.thens.length || this.thens[this.thens.length - 1].done ? this.thens.push({
-                done: done
-            }) : this.thens[this.thens.length - 1].done = done, this;
-        },
-        fail: function(fail) {
-            return 0 === this.thens.length || this.thens[this.thens.length - 1].fail ? this.thens.push({
-                fail: fail
-            }) : this.thens[this.thens.length - 1].fail = fail, this;
-        },
-        progress: function(progress) {
-            return 0 === this.thens.length || this.thens[this.thens.length - 1].progress ? this.thens.push({
-                progress: progress
-            }) : this.thens[this.thens.length - 1].progress = progress, this;
-        },
-        ensure: function(finallyCB) {
-            return 0 === this.thens.length || this.thens[this.thens.length - 1].finallyCB ? this.thens.push({
-                finallyCB: finallyCB
-            }) : this.thens[this.thens.length - 1].finallyCB = finallyCB, this;
-        },
-        always: function(alwaysCB, progress) {
-            return this.thens.push({
-                done: alwaysCB,
-                fail: alwaysCB,
-                progress: progress
-            }), this;
-        },
-        wait: function(ms) {
-            return this.thens.push(~~ms), this;
-        }
-    };
-    var Promise = function(parameter) {
-        var prms = new _promise();
-        if (parameter) if (arguments.length > 1) prms.thens[0] = {}, prms.thens[0].done = [], 
-        prms.thens[0].done.push.apply(prms.thens[0].done, arguments), setTimeout(function() {
-            prms.resolve();
-        }, 1); else if (prms = parameter(), prms instanceof _promise) return prms;
-        return prms;
-    };
-    Promise.when = function() {
-        var prms = new _promise();
-        return prms.thens[0] = {}, prms.thens[0].done = [], prms.thens[0].done.push.apply(prms.thens[0].done, arguments), 
-        setTimeout(function() {
-            prms.resolve();
-        }, 1), prms;
-    }, Promise.any = function() {
-        var prms = new _promise();
-        return prms.thens[0] = {}, prms.thens[0].action = prms._CONSTANT.any, prms.thens[0].done = [], 
-        prms.thens[0].done.push.apply(prms.thens[0].done, arguments), setTimeout(function() {
-            prms.resolve();
-        }, 1), prms;
-    }, Promise.timeout = function(promise, ms) {
-        return setTimeout(function() {
-            promise.reject();
-        }, ms), promise;
-    }, Promise.gtTime = function(promise, ms) {
-        return promise.state = promise._CONSTANT.pending, setTimeout(function() {
-            promise.state == promise._CONSTANT.resolved && (promise.state = "", promise.resolve()), 
-            promise.state = "";
-        }, ms), promise;
-    };
     var define, kmdjs = {}, initializing = !1, fnTest = /xyz/.test(function() {}) ? /\b_super\b/ : /.*/, __class = function() {};
     __class.extend = function(prop) {
         function __class() {
@@ -7970,40 +7873,48 @@
                 }, e.drag(i, r);
             }, o(n.data);
         }
-    }), doc = document, data = {}, head = doc.head || doc.getElementsByTagName("head")[0] || doc.documentElement, baseElement = head.getElementsByTagName("base")[0], currentlyAddingScript, interactiveScript, isView = !1, isDebug = !1, isBuild = !1, modules = {}, classList = [], baseUrl = getBaseUrl(), mapping = {}, cBaseUrl, nsmp = {}, dataMain, initComplete = !1, isBrowser = !("undefined" == typeof window || "undefined" == typeof navigator || !window.document), ProjName, pendingModules = [], kmdmdinfo = [], checkModules = {}, isObject = isType("Object"), isString = isType("String"), isArray = Array.isArray || isType("Array"), isFunction = isType("Function"), isBoolean = isType("Boolean");
+    }), doc = document, data = {}, head = doc.head || doc.getElementsByTagName("head")[0] || doc.documentElement, baseElement = head.getElementsByTagName("base")[0], currentlyAddingScript, interactiveScript, isView = !1, isDebug = !1, isBuild = !1, modules = {}, classList = [], baseUrl = getBaseUrl(), mapping = {}, cBaseUrl, nsmp = {}, dataMain, isBrowser = !("undefined" == typeof window || "undefined" == typeof navigator || !window.document), ProjName, pendingModules = [], kmdmdinfo = [], lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], isObject = isType("Object"), isString = isType("String"), isArray = Array.isArray || isType("Array"), isFunction = isType("Function"), isBoolean = isType("Boolean");
     define = function(name, deps, foctory) {
         var argc = arguments.length;
         if (1 == argc) throw "the class must take a name";
         2 == argc ? (foctory = deps, deps = []) : isString(deps) && (deps = [ deps ]);
         var mda = name.split(":"), fullname = mda[0], lastIndex = lastIndexOf(fullname, ".");
         -1 == lastIndex && (fullname = ProjName + "." + fullname, lastIndex = lastIndexOf(fullname, ".")), 
-        initComplete && 0 == pendingModules.length && !currentPendingModuleFullName && (currentPendingModuleFullName = fullname), 
         mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
         var baseClass = 1 == mda.length ? "__class" : ' __modules["' + mda[1] + '"]', className = fullname.substring(lastIndex + 1, fullname.length);
         deps.unshift(fullname.substring(0, lastIndex)), isInArray(deps, ProjName) || deps.unshift(ProjName), 
         refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname);
     };
-    var currentPendingModuleFullName;
+    var currentPendingModuleFullName = [];
     define.build = function() {
         isBuild = !0, define.apply(null, arguments);
     }, define.view = function() {
         isView = !0, define.apply(null, arguments);
     }, kmdjs.get = function(fullname, callback) {
-        var pms = Promise();
-        return modules[fullname] ? callback ? (callback(modules[fullname]), pms = null) : setTimeout(function() {
-            pms.resolve(modules[fullname]);
-        }, 0) : request(mapping[fullname], function() {
-            define.pendingPms = pms, callback && (define.pendingCallback = callback);
-        }), pms;
+        isString(fullname) && (fullname = [ fullname ]);
+        for (var i = 0, len = fullname.length; len > i; i++) -1 == lastIndexOf(fullname[i], ".") && (fullname[i] = ProjName + "." + fullname[i]);
+        currentPendingModuleFullName = fullname;
+        for (var loaded = !0, mdArr = [], i = 0, len = fullname.length; len > i; i++) modules[fullname[i]] ? mdArr.push(modules[fullname[i]]) : loaded = !1;
+        if (loaded) callback && callback.apply(null, mdArr); else for (var i = 0, len = fullname.length; len > i; i++) if (!modules[fullname[i]]) {
+            var ns = fullname[i];
+            allPending.push(ns), function(ns) {
+                request(mapping[ns], function() {
+                    callback && (define.pendingCallback = callback), remove(allPending, ns), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+                });
+            }(ns);
+        }
     };
     var kmdmaincpt = !1;
     define.pendingModules = pendingModules, kmdjs.build = function(fullname) {
-        isBuild = !0;
-        var pms = Promise();
-        return request(mapping[fullname], function() {
-            define.pendingPms = pms;
-        }), pms;
-    }, request(baseUrl + dataMain + ".js", function() {}), kmdjs.config = function(option) {
+        currentPendingModuleFullName = [ fullname ], isMDBuild = !0, allPending.push(fullname), 
+        request(mapping[fullname], function() {
+            remove(allPending, fullname), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+        });
+    }, String.prototype.trim || (String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, "");
+    }), allPending.push("Main"), request(dataMain + ".js", function() {
+        remove(allPending, "Main"), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+    }), kmdjs.config = function(option) {
         ProjName = option.name, cBaseUrl = option.baseUrl;
         for (var i = 0; i < option.classes.length; i++) {
             var item = option.classes[i];

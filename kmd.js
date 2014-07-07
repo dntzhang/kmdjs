@@ -1,4 +1,4 @@
-﻿/* KMD.js v0.0.6 Kill AMD and CMD
+﻿/* KMD.js Kill AMD and CMD
  * By 当耐特 http://weibo.com/iamleizhang
  * KMD.js http://kmdjs.github.io/
  * blog: http://www.cnblogs.com/iamzhanglei/
@@ -6,7 +6,7 @@
  * Many thanks to https://github.com/mishoo/UglifyJS2 and http://raphaeljs.com/   
  * MIT Licensed.
  */
-!function (JSON, global, undefined) {
+!function(JSON, global, undefined) {
     function request(url, callback, charset) {
         var node = doc.createElement("script");
         if (charset) {
@@ -28,6 +28,14 @@
             /loaded|complete/.test(node.readyState) && onload();
         };
     }
+    function getCurrentScript() {
+        if (currentlyAddingScript) return currentlyAddingScript;
+        if (interactiveScript && "interactive" === interactiveScript.readyState) return interactiveScript;
+        for (var scripts = head.getElementsByTagName("script"), i = scripts.length - 1; i >= 0; i--) {
+            var script = scripts[i];
+            if ("interactive" === script.readyState) return interactiveScript = script;
+        }
+    }
     function isType(type) {
         return function(obj) {
             return Object.prototype.toString.call(obj) === "[object " + type + "]";
@@ -47,7 +55,7 @@
         }).replace(/(\\r)?\\n(\\t)?([\s]*?)\/\/([\s\S]*?)(?=(\\r)?\\n(\\t)?)/g, "").replace(/(\/\*[\s\S]*\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, "").replace(/\\t/g, "").replace(/\\/g, "");
         body = js_beautify(body), isDebug && log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js");
         var fn = Function(body);
-        if (isBuild||isMDBuild) {
+        if (isBuild || isMDBuild) {
             var entire = compressor(fn);
             body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
         }
@@ -158,13 +166,21 @@
                 currentPendingModuleFullName.length = 0, define.pendingCallback && define.pendingCallback.apply(null, mdArr);
             }, 0), isMDBuild && (each(buildArrs, function(item) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
-                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = item.name + ".js  ";
+                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = item.name + ".js";
                 var codePanel = doc.createElement("textarea");
                 ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
                 doc.body.appendChild(ctt), codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45");
                 var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ")";
-                codePanel.value = cpCode, codePanel.focus(), codePanel.select();
+                codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, item.name + ".js");
             }), isMDBuild = !1);
+        }
+    }
+    function downloadFile(code, fileName) {
+        if (window.URL.createObjectURL) {
+            var fileParts = [ code ], bb = new Blob(fileParts, {
+                type: "text/plain"
+            }), dnlnk = window.URL.createObjectURL(bb), dlLink = document.createElement("a");
+            dlLink.setAttribute("href", dnlnk), dlLink.setAttribute("download", fileName), dlLink.click();
         }
     }
     function checkMainCpt() {
@@ -206,13 +222,7 @@
                 ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
                 doc.body.appendChild(ctt), codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
                 var cpCode = '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\b_super\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.init&&this.init.apply(this,arguments)}var o=this.prototype,e,t,r,u;f=!0,e=new this,f=!1;for(t in n)t!="statics"&&(e[t]=typeof n[t]=="function"&&typeof o[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=o[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(u in n.statics)n.statics.hasOwnProperty(u)&&(i[u]=n.statics[u]);return i.prototype=e,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},t.all=' + JSON.stringify(buildArr).replace(/\s+/g, " ") + ',u.exec(t.all),new t.modules["' + ProjName + '.Main"]})(this)';
-                if (codePanel.value = cpCode, codePanel.focus(), codePanel.select(), window.URL.createObjectURL) {
-                    var fileParts = [ cpCode ], bb = new Blob(fileParts, {
-                        type: "text/plain"
-                    }), dnlnk = window.URL.createObjectURL(bb), dlLink = document.createElement("a");
-                    dlLink.setAttribute("href", dnlnk), dlLink.setAttribute("download", ProjName + ".Main.js"), 
-                    dlLink.click();
-                }
+                codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, ProjName + ".Main.js");
                 var lmclone = [];
                 each(lazyMdArr, function(item) {
                     lmclone.push(item);
@@ -224,14 +234,8 @@
                         var codePanel = doc.createElement("textarea");
                         ctt.appendChild(codePanel), ctt.appendChild(msgDiv), doc.body.appendChild(ctt), 
                         codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
-                        var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ")", fileParts = [ cpCode ];
-                        if (codePanel.value = cpCode, window.URL.createObjectURL) {
-                            var bb = new Blob(fileParts, {
-                                type: "text/plain"
-                            }), dnlnk = window.URL.createObjectURL(bb), dlLink = document.createElement("a");
-                            dlLink.setAttribute("href", dnlnk), dlLink.setAttribute("download", item.name + ".js"), 
-                            dlLink.click();
-                        }
+                        var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ")";
+                        codePanel.value = cpCode, downloadFile(cpCode, item.name + ".js");
                     });
                 });
             }

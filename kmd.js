@@ -47,7 +47,7 @@
         }).replace(/(\\r)?\\n(\\t)?([\s]*?)\/\/([\s\S]*?)(?=(\\r)?\\n(\\t)?)/g, "").replace(/(\/\*[\s\S]*\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, "").replace(/\\t/g, "").replace(/\\/g, "");
         body = js_beautify(body), isDebug && log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js");
         var fn = Function(body);
-        if (isBuild) {
+        if (isBuild||isMDBuild) {
             var entire = compressor(fn);
             body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
         }

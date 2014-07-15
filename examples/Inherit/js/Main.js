@@ -4,7 +4,8 @@ kmdjs.config({
     baseUrl: "js",
     classes: [
         { name: "HelloKMD.Animal" },
-        { name: "HelloKMD.Pig" }
+        { name: "HelloKMD.Pig" },
+        { name: "HelloKMD.PigSub" }
     ]
 
 });
@@ -36,6 +37,11 @@ define("Main", {
         });
         test("Test Static Method Inherit", function () {
             equal(Pig.TestStaticsMethod(), 2);
+        });
+
+        var ps = new PigSub();
+        test("Test Static Method Inherit", function () {
+            equal(PigSub.TestStaticsMethod(), 2);
         });
     }
 })

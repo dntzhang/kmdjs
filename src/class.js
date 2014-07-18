@@ -47,24 +47,36 @@ __class.extend = function (prop) {
             this.init.apply(this, arguments);
     }
 
+    //继承父类的静态属性
     for (var key in this) {
         if (this.hasOwnProperty(key) && key != "extend")
             __class[key] = this[key];
     }
-   
-    if (prop.statics) {
-        for (var name in prop.statics) {
-            if (name == "init") {
-                prop["statics"][name].call(__class);
-            } else {
-                if (prop.statics.hasOwnProperty(name)) {
-                    __class[name] = prop.statics[name];
-                }
-            }
-        }
-    }
+    //覆盖父类的静态属性
+    //if (prop.statics) {
+    //    for (var item in prop.statics) {
+    //        if (prop.statics.hasOwnProperty(item))
+    //            __class[item] = prop.statics[item];
+    //    }
+    //}
+  
+
     // Populate our constructed prototype object
     __class.prototype = prototype;
+
+
+    //覆盖父类的静态属性
+    if (prop.statics) {
+        for (var name in prop.statics) {
+            if (prop.statics.hasOwnProperty(name)) {
+                __class[name] = prop.statics[name];
+                if (name == "init") {
+                    __class[name]();
+                }
+            }
+
+        }
+    }
 
     // Enforce the constructor to be what we expect
     __class.prototype.constructor = __class;

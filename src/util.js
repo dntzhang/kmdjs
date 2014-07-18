@@ -5,6 +5,9 @@
  * Many thanks to https://github.com/mishoo/UglifyJS2 
  * MIT Licensed.
  */
+; (function () {
+
+
 function isType(type) {
     return function (obj) {
         return Object.prototype.toString.call(obj) === '[object ' + type + ']'

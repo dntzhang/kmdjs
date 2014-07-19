@@ -110,6 +110,16 @@ define("Main", ["Ket.Base","Ket.Util"], {
         //or------------------------
         var $ = Jquery.mock();
         $("#test").css("width", "300px").css("height", "20px").css("backgroundColor", "green").css("color", "white").css("textAlign", "center").html("Ket - Kmdjs Extension Tools");
+
+        $.ajax({
+            url: "test.json",
+            type: "json",
+            success: function (aa) {
+                var div = document.createElement("div");
+                div.innerHTML = "get by ket ajax request:" + aa.responseJSON.a;
+                document.body.appendChild(div);
+            }
+        })
     }
 })
 

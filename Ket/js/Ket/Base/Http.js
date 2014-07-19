@@ -1,6 +1,6 @@
 ﻿define("Ket.Base.Http", {
     statics: {
-        "ajax": function (option) {
+        ajax: function (option) {
             var encodeUriComponent = function (sStr) {
                 sStr = encodeURIComponent(sStr);
                 sStr = sStr.replace(/~/g, "%7E");
@@ -130,7 +130,7 @@
             }, timeout);
             return httpRequest;
         },
-        "loadScript": function (option) {
+        loadScript: function (option) {
             var doc = document;
             var head = doc.head || doc.getElementsByTagName("head")[0] || doc.documentElement;
             var baseElement = head.getElementsByTagName("base")[0];
@@ -175,7 +175,7 @@
                 }
             }
         },
-        "jsonp": function (option) {
+        jsonp: function (option) {
             var uuid = guid();
             var functionName = "KetJsonpCallback_" + uuid;
             window[functionName] = function (data) {

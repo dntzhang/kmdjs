@@ -8484,351 +8484,959 @@ var JSLINT = (function () {
 
 }());
 //https://raw.githubusercontent.com/amb26/JSLint/97ae0eb0605811e4b6b6a348c63d5222d51315d4/fulljslint.js
-!function(global, undefined) {
+//ug2==>Object.create(null)===>{}
+; (function (global, undefined) {
+
+
+
+
+    var define, kmdjs = {};
+
+
+
+
+    var isView = false, isDebug = false, isBuild = false, modules = {}, classList = [], baseUrl = getBaseUrl(), mapping = {}, cBaseUrl, nsmp = {}, dataMain;
+    var isBrowser = !!(typeof window !== 'undefined' && typeof navigator !== 'undefined' && window.document);
+    var ProjName;
+    // var pendingModules = [];
+    var kmdmdinfo = [];
+    var lazyMdArr = [];
+    var isMDBuild = false;
+    //防止IE9命中cache
+    var checkModules = {};
+    var allPending = [];
+
+    var conflictMapping = {};
+
     function findScope(node) {
-        function chain(node) {
-            node.property ? chain(node.expression) : (sp = node.scope, name = node.name);
-        }
         var sp;
-        return chain(node), {
-            sp: sp,
-            name: name
-        };
+        function chain(node) {
+            if (node.property) {
+                chain(node.expression);
+            } else {
+                sp = node.scope;
+                name = node.name;
+            }
+        }
+        chain(node);
+        return { sp: sp, name: name };
+
     }
     function getRefWithNS(fn) {
-        var U2 = UglifyJS, code = "" + fn, ast = U2.parse(code);
+        var U2 = UglifyJS;
+        var code = fn.toString();
+        var ast = U2.parse(code);
+        //  console.log(ast);
         ast.figure_out_scope();
-        var result = [], result2 = [], walker = new U2.TreeWalker(function(node) {
+        var result = [], result2 = [];
+        var walker = new U2.TreeWalker(function (node) {
             if (node instanceof UglifyJS.AST_Dot) {
-                var ob = findScope(node), name = (node.expression, ob.name), scope = ob.sp;
-                if (name && "this" != name && !(name in window) && !isInScopeChainVariables(scope, name)) {
+                //console.log(node);
+                var ob = findScope(node);
+
+                //   alert(scope);
+                var ex = node.expression, name = ob.name, scope = ob.sp;
+                if (name && name != "this" && !(name in window) && !isInScopeChainVariables(scope, name)) {
                     var p = walker.parent();
-                    if (p instanceof UglifyJS.AST_New) result.push(p), result2.push(node); else if (!(p instanceof UglifyJS.AST_Dot)) if (p instanceof UglifyJS.AST_VarDef) p.value.expression instanceof UglifyJS.AST_Dot && (result2.push(node), 
-                    result.push(node)); else if (p instanceof UglifyJS.AST_Call) {
-                        if (p.expression.expression instanceof UglifyJS.AST_Dot) result2.push(node), result.push(node); else if (p.args.length > 0) for (var i = 0, len = p.args.length; len > i; i++) p.args[i].expression instanceof UglifyJS.AST_Dot && (result2.push(node), 
-                        result.push(node));
-                    } else p instanceof UglifyJS.AST_SimpleStatement && p.body.expression instanceof UglifyJS.AST_Dot && (result2.push(node), 
-                    result.push(node));
+
+                    if (p instanceof UglifyJS.AST_New) {
+                        result.push(p);
+                        result2.push(node);
+                    } else if (!(p instanceof UglifyJS.AST_Dot)) {
+                        if (p instanceof UglifyJS.AST_VarDef) {
+                            if (p.value.expression instanceof UglifyJS.AST_Dot) {
+                                result2.push(node);
+                                result.push(node);
+                            }
+                        } else if (p instanceof UglifyJS.AST_Call) {
+                            if (p.expression.expression instanceof UglifyJS.AST_Dot) {
+                                result2.push(node);
+                                result.push(node);
+                            } else if (p.args.length > 0) {
+                                for (var i = 0, len = p.args.length; i < len; i++) {
+                                    if (p.args[i].expression instanceof UglifyJS.AST_Dot) {
+                                        result2.push(node);
+                                        result.push(node);
+                                    }
+
+                                }
+                            }
+                        } else if (p instanceof UglifyJS.AST_SimpleStatement) {
+                            if (p.body.expression instanceof UglifyJS.AST_Dot) {
+                                result2.push(node);
+                                result.push(node);
+                            }
+
+                        }
+                    }
+
                 }
             }
         });
+
+
         ast.walk(walker);
-        for (var i = result.length; --i >= 0; ) {
-            var replacement, fns, node = result[i], start_pos = node.start.pos, end_pos = node.end.endpos;
-            node instanceof UglifyJS.AST_New ? (fns = chainNS(node.expression), replacement = new U2.AST_New({
-                expression: new U2.AST_SymbolRef({
-                    name: fns
-                }),
-                args: node.args
-            }).print_to_string({
-                beautify: !0
-            })) : (fns = chainNS(node), replacement = new U2.AST_Dot({
-                expression: new U2.AST_SymbolRef({
-                    name: fns
-                }),
-                property: node.property
-            }).print_to_string({
-                beautify: !0
-            })), isInArray(classList, fns.replace(/_/g, ".")) && (code = splice_string(code, start_pos, end_pos, replacement));
+
+
+        for (var i = result.length; --i >= 0;) {
+            var node = result[i];
+            var start_pos = node.start.pos;
+            var end_pos = node.end.endpos;
+            var replacement,fns;
+            if (node instanceof UglifyJS.AST_New) {
+                fns=chainNS(node.expression);
+                replacement = new U2.AST_New({
+                    expression: new U2.AST_SymbolRef({ name: fns }),
+                    args: node.args
+                }).print_to_string({ beautify: true });
+            } else {
+                fns= chainNS(node);
+                replacement = new U2.AST_Dot({
+                    expression: new U2.AST_SymbolRef({ name:fns }),
+                    property: node.property
+                }).print_to_string({ beautify: true });
+            }
+            if(isInArray(classList, fns.replace(/_/g,"."))) {              
+                code = splice_string(code, start_pos, end_pos, replacement);
+            }
         }
-        for (var i = 0; i < result2.length; i++) conflictMapping.hasOwnProperty(result2[i].property) ? conflictMapping[result2[i].property + Math.random()] = chainNS(result2[i]) : conflictMapping[result2[i].property] = chainNS(result2[i]);
+
+        for (var i = 0; i < result2.length; i++) {
+            if (conflictMapping.hasOwnProperty(result2[i].property)) {
+                conflictMapping[result2[i].property + Math.random()] = chainNS(result2[i]);
+            } else {
+                conflictMapping[result2[i].property] = chainNS(result2[i]);
+            }
+
+        }
         return code;
     }
     function chainNS(node) {
-        function chain(node) {
-            node.property ? (result.unshift(node.property), chain(node.expression)) : result.unshift(node.name);
-        }
         var result = [];
-        return chain(node), result.join("_");
+        function chain(node) {
+            if (node.property) {
+                result.unshift(node.property);
+                chain(node.expression);
+            } else {
+                result.unshift(node.name);
+            }
+        }
+        chain(node);
+        return result.join("_");
+
     }
     function splice_string(str, begin, end, replacement) {
         return str.substr(0, begin) + replacement + str.substr(end);
     }
     function addSi(fn) {
+        var codeStr ="var a="+ fn.toString()+";";
+        //JSLINT最多可容忍10000个错误
+        JSLINT.jslint(codeStr, { maxerr: 10000 });
+        for (var i = 0, len = JSLINT.errors.length; i < len; i++) {
+         
+            var item = JSLINT.errors[i];
+            if (item && item.a == ";") {
+                codeStr = addOneSI(codeStr, item.line - 1, item.evidence);
+            }
+        };
+
         function addOneSI(codeStr, index, evidence) {
             var arr = codeStr.split("\n");
-            return arr[index] = evidence + ";", arr.join("\n");
+            arr[index] = evidence+";";
+            return arr.join("\n");
         }
-        var codeStr = "var a=" + fn + ";";
-        JSLINT.jslint(codeStr, {
-            maxerr: 1e4
-        });
-        for (var i = 0, len = JSLINT.errors.length; len > i; i++) {
-            var item = JSLINT.errors[i];
-            item && ";" == item.a && (codeStr = addOneSI(codeStr, item.line - 1, item.evidence));
-        }
-        return codeStr.substring(6, codeStr.length - 1);
+        return codeStr.substring(6, codeStr.length-1);
     }
+    define = function (name, deps, foctory) {
+
+        var argc = arguments.length;
+        if (argc == 1) {
+            throw "the class must take a name";
+        } else if (argc == 2) {
+            foctory = deps;
+            deps = [];
+        } else {
+            if (isString(deps)) {
+                deps = [deps];
+            }
+        }
+        var mda = name.split(":");
+        var fullname = mda[0];
+        var lastIndex = lastIndexOf(fullname, ".");
+
+        if (lastIndex == -1) {
+            fullname = ProjName + "." + fullname;
+            lastIndex = lastIndexOf(fullname, ".");
+        }
+        //if (initComplete && pendingModules.length == 0 && !currentPendingModuleFullName) {
+        //    currentPendingModuleFullName = fullname;
+        //}
+        if (mda.length > 1 && lastIndexOf(mda[1], ".") == -1) {
+            mda[1] = ProjName + "." + mda[1];
+        }
+        var baseClass = mda.length == 1 ? '__class' : ' __modules["' + mda[1] + '"]';
+        var className = fullname.substring(lastIndex + 1, fullname.length);
+        deps.unshift(fullname.substring(0, lastIndex));
+        if (!isInArray(deps, ProjName)) deps.unshift(ProjName);
+        //  console.log(className+"________-"+fullname)
+        refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname);
+
+    }
+    var currentPendingModuleFullName = [];
+    window.kmdmdinfo = kmdmdinfo;
     function compressor(fn) {
-        var ast = UglifyJS.parse("" + fn);
+        var ast = UglifyJS.parse(fn.toString());
         ast.figure_out_scope();
-        var sq = UglifyJS.Compressor(), compressed_ast = ast.transform(sq);
-        compressed_ast.compute_char_frequency(), compressed_ast.mangle_names();
+        var sq = UglifyJS.Compressor();
+        var compressed_ast = ast.transform(sq);
+        compressed_ast.compute_char_frequency();
+        compressed_ast.mangle_names();
         var code = compressed_ast.print_to_string();
         return code;
     }
     function refrence(className, deps, foctory, fullname) {
+        //  console.log(className + "________-" + fullname)
         conflictMapping = {};
-        var body = foctory.replace(/"function[\s\S]*?\}"/g, function(str) {
+        //.replace(/\\/g, "")改成.replace(/\\"/g, '"')是为了解决正则被替换的bug;
+        var body = foctory.replace(/"function[\s\S]*?\}"/g, function (str) {
             return str.substr(1, str.length - 2);
-        }).replace(/([\s]*?)\/\/([\s\S]*?)(?=(\\r)?\\n(\\t)?)/g, "").replace(/(\/\*[\s\S]*?\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, function(item, b, c) {
-            return "\\" == c.charAt(b - 1) ? item : "";
-        }).replace(/\\t/g, function(item, b, c) {
-            return "\\" == c.charAt(b - 1) ? item : "";
-        }).replace(/\\"/g, function(item, b, c) {
-            return "\\" == c.charAt(b - 1) ? item : '"';
-        }).replace(/\\'/g, function(item, b, c) {
-            return "\\" == c.charAt(b - 1) ? item : "'";
-        }).replace(/\\\\/g, "\\");
+        }).replace(/([\s]*?)\/\/([\s\S]*?)(?=(\\r)?\\n(\\t)?)/g, "").replace(/(\/\*[\s\S]*?\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, function (item, b, c) {
+            if (c.charAt(b - 1) == "\\") {
+                return item;
+            }
+            return "";
+        }).replace(/\\t/g, function (item, b, c) {
+            if (c.charAt(b - 1) == "\\") {
+                return item;
+            }
+            return "";
+        }).replace(/\\"/g, function (item, b, c) {
+            if (c.charAt(b - 1) == "\\") {
+                return item;
+            }
+            return '"';
+        }).replace(/\\'/g, function (item, b, c) {
+            if (c.charAt(b - 1) == "\\") {
+                return item;
+            }
+            return "'";
+        }).replace(/\\\\/g, '\\');
+
         body = js_beautify(body);
-        var fn = Function(body), ref = getRef(fn);
+
+
+        var fn = new Function(body);
+
+
+        var allFullNameDeps = [];
+        var ref = getRef(fn);
         remove(ref, "__class");
-        for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
-        var entire = (getNSRef(fn), getRefWithNS(fn));
-        if (body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}")), isDebug && (log(fullname + "  ref:" + ref), 
-        log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js")), (isBuild || isMDBuild) && !isDebug) {
-            var fx = Function(body), entire = compressor(fx);
-            body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
+        var newArr = [];
+        for (var i = 0, len = deps.length; i < len; i++) {
+            for (var k = 0; k < ref.length; k++) {
+                (isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k])) && newArr.push(deps[i] + "." + ref[k]);
+            }
         }
+        // console.log(newArr)
+        var nsRef = getNSRef(fn);
+
+        var entire = getRefWithNS(fn);
+        body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
+        if (isDebug) {
+            log(fullname + "  ref:" + ref.toString())
+            log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js");
+        }
+        // console.log(body)
+        //  console.log(conflictMapping)        if (isBuild || isMDBuild) {
+            if (!isDebug) {
+                var fx = new Function(body);
+                var entire = compressor(fx);
+                body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
+            }
+        }
+
+
+
+
+        //rLen = ref.length;
+        //for (var k in nsRef) {
+        //    var nsc = nsRef[k].ns;
+        //    var li = lastIndexOf(nsc, ".");
+        //    deps.push(nsc.substr(0, li));
+        //    ref.push(nsc.substr(li+1, nsc.length-1))
+        //}
         rLen = ref.length;
+        //pendingModules.push({ id: fullname, deps: [] });
+        //if (rLen == 0) {
+        //    var isPush = false;
+
+        //    each(kmdmdinfo, function (item) {
+        //        if (item.c == fullname) {
+        //            isPush = true;
+        //            return false;
+        //        }
+
+        //    })
+        //    if (!isPush) kmdmdinfo.push({ a: [], b: body, c: fullname, d: [] });
+        //    checkModules[fullname] = 1;
+        //    if (currentPendingModuleFullName.length > 0) {
+        //        alert(fullname)
+        //        checkModuleCpt();
+        //    } else {
+        //        checkMainCpt();
+
+        //    }
+        //    return;
+        //}
+        //var newArr = [];
+        //for (var i = 0, len = deps.length; i < len; i++) {
+        //    for (var k = 0; k < ref.length; k++) {
+        //        isInArray(classList, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
+        //    }
+        //}
+        //pendingModules.push({ id: fullname, deps: newArr });
         var moduleNameArr = [];
         for (i = 0; i < newArr.length; i++) {
             var xx = newArr[i].split(".");
             moduleNameArr.push(xx[xx.length - 1]);
         }
-        var isPush = !1;
-        each(kmdmdinfo, function(item) {
-            return item.c == fullname ? (isPush = !0, !1) : undefined;
-        });
-        for (var ck in conflictMapping) {
-            var fname = conflictMapping[ck], fnameReal = fname.replace(/_/g, ".");
-            isInArray(classList, fnameReal) && (moduleNameArr.push(fname), newArr.push(fnameReal));
-        }
-        if (isPush || kmdmdinfo.push({
-            a: moduleNameArr,
-            b: body,
-            c: fullname,
-            d: newArr
-        }), 0 != newArr.length || isBuild) for (var k = 0; k < newArr.length; k++) !function(ns) {
-            if (!define.modules[ns]) {
-                if (allPending.push(ns), !mapping[ns]) throw "no module named :" + ns;
-                request(mapping[ns], function() {
-                    remove(allPending, ns), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
-                });
+        //push里重复的进去
+        var isPush = false;
+
+        each(kmdmdinfo, function (item) {
+            if (item.c == fullname) {
+                isPush = true;
+                return false;
             }
-        }(newArr[k]); else currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+
+        })
+        //根据conflictMapping，加入kmdmdinfo
+        for (var ck in conflictMapping) {
+            var fname = conflictMapping[ck];
+            var fnameReal=fname.replace(/_/g, ".");
+            if(isInArray(classList,fnameReal)){
+                moduleNameArr.push(fname);
+                newArr.push(fnameReal);
+            }
+        }
+        if (!isPush) kmdmdinfo.push({ a: moduleNameArr, b: body, c: fullname, d: newArr });
+        // console.log(fullname)
+        //console.log(newArr)
+        if (newArr.length == 0 && !isBuild) {
+            if (currentPendingModuleFullName.length > 0) {
+                // alert(fullname)
+                checkModuleCpt();
+            } else {
+                checkMainCpt();
+
+            }
+        } else {
+            for (var k = 0; k < newArr.length; k++) {
+
+                //发请求前，check存在否
+
+                (function (ns) {
+                    //  console.log(ns)
+                    if (!define.modules[ns]) {
+                        allPending.push(ns);
+                        if (mapping[ns]) {
+                            request(mapping[ns], function () {
+                                remove(allPending, ns);
+                                // define.modules["MathHelper.Vector2"] = 1;
+                                if (currentPendingModuleFullName.length > 0) {
+                                    // alert(fullname)
+                                    checkModuleCpt();
+                                } else {
+                                    checkMainCpt();
+
+                                }
+                            })
+                        } else {
+                            throw "no module named :" + ns;
+                        }
+                    }
+                })(newArr[k])
+            }
+        }
         window.allPending = allPending;
     }
+
     function dotChain(node) {
+        var result = [], ep = node.end.endpos, bp;
         function chain(node) {
-            node.property ? (result.unshift(node.property), chain(node.expression)) : (bp = node.end.pos, 
-            result.unshift(node.name));
+            if (node.property) {
+                result.unshift(node.property);
+                chain(node.expression);
+            } else {
+                bp = node.end.pos
+                result.unshift(node.name);
+            }
         }
-        var bp, result = [], ep = node.end.endpos;
-        return chain(node), {
-            ns: result.join("."),
-            bp: bp,
-            ep: ep
-        };
+        chain(node);
+        return { ns: result.join("."), bp: bp, ep: ep };
     }
     function getTopName(node) {
-        function chain(node) {
-            node.property ? chain(node.expression) : cNode = node;
-        }
         var cNode;
-        return chain(node), {
-            name: cNode.name,
-            scope: cNode.scope
-        };
+        function chain(node) {
+            if (node.property) {
+
+                chain(node.expression);
+            } else {
+                cNode = node;
+            }
+        }
+        chain(node);
+        return { name: cNode.name, scope: cNode.scope };
     }
     function getNSRef(fn) {
-        var U2 = UglifyJS, ast = U2.parse("" + fn);
+        var U2 = UglifyJS;
+        var ast = U2.parse(fn.toString());
         ast.figure_out_scope();
         var allNS = [];
-        ast.walk(new U2.TreeWalker(function(node) {
+        ast.walk(new U2.TreeWalker(function (node) {
+
             if (node instanceof U2.AST_Dot) {
-                var cc = getTopName(node), name = (node.expression, cc.name), scope = cc.scope;
-                !name || "this" == name || name in window || isInScopeChainVariables(scope, name) || allNS.push(dotChain(node));
+
+                var cc = getTopName(node);
+                var ex = node.expression, name = cc.name, scope = cc.scope;
+
+                // var xxxx = isInScopeChainVariables(scope, name);
+
+                if (name && name != "this" && !(name in window) && !isInScopeChainVariables(scope, name)) {
+
+                    allNS.push(dotChain(node))
+                }
             }
         }));
-        for (var len = allNS.length, result = {}, i = 0; len > i; i++) {
+
+        var len = allNS.length;
+        var result = {};
+        for (var i = 0; i < len; i++) {
+
             var item = allNS[i];
-            result[item.bp] ? result[item.bp] == item.bp && item.ep > result[item.bp].ep && (result[item.bp] = item) : result[item.bp] = item;
+
+            if (!result[item.bp]) {
+                result[item.bp] = item;
+            } else {
+                if (result[item.bp] == item.bp && item.ep > result[item.bp].ep) {
+                    result[item.bp] = item;
+                }
+            }
         }
         return result;
+
     }
+    //kmdjs.use = function (c) {
+
+
+
+    //}
+
+    //var User = kmdjs.get("User",true);
+
+    //kmdjs.using(["Util", "HelloKMD"], {
+    //    init: function () {
+
+
+    //    }
+    //});
+
+    //kmdjs.use("User", {
+    //    init: function () {
+
+    //    }
+    //})
+
+    define.build = function () {
+        isBuild = true;
+        define.apply(null, arguments);
+    }
+    define.view = function () {
+        isView = true;
+        define.apply(null, arguments);
+    }
+    kmdjs.get = function (fullname, callback) {
+        if (isString(fullname)) {
+            fullname = [fullname];
+        }
+
+        for (var i = 0, len = fullname.length; i < len; i++) {
+            if (lastIndexOf(fullname[i], ".") == -1) {
+                fullname[i] = ProjName + "." + fullname[i];
+            }
+        }
+        currentPendingModuleFullName = fullname;
+
+        var loaded = true;
+        var mdArr = [];
+        for (var i = 0, len = fullname.length; i < len; i++) {
+            if (modules[fullname[i]]) {
+                mdArr.push(modules[fullname[i]]);
+            } else {
+
+                loaded = false;
+            }
+        }
+        if (loaded) {
+            if (callback) {
+                callback.apply(null, mdArr);
+
+            }
+
+        } else {
+            //   var count = 0;
+            for (var i = 0, len = fullname.length; i < len; i++) {
+
+                if (!modules[fullname[i]]) {
+                    var ns = fullname[i];
+                    allPending.push(ns);
+                    (function (ns) {
+                        if (mapping[ns]) {
+                            request(mapping[ns], function () {
+                                if (callback) define.pendingCallback = callback;
+                                remove(allPending, ns)
+                                if (currentPendingModuleFullName.length > 0) {
+                                    // alert(fullname)
+                                    checkModuleCpt();
+                                } else {
+                                    checkMainCpt();
+
+                                }
+                                //}
+                            })
+                        } else {
+                            throw "no module named :" + ns;
+                        }
+
+                    })(ns);
+                }
+            }
+
+        }
+    }
+
+
+    //防止多次执行main
+    var kmdmaincpt = false;
     function getBuildArr(fns) {
         var buildArrs = [];
-        return each(fns, function(currentFullname) {
-            function catchAllDep(md) {
-                pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
-                md && md.d.length > 0 ? (each(md.d, function(item) {
-                    isInArray(arr, item) && remove(arr, item), arr.push(item);
-                    var next;
-                    each(kmdmdinfo, function(item2) {
-                        return item2.c == item ? (next = item2, !1) : undefined;
-                    }), next && catchAllDep(next);
-                }), pendingCount--) : pendingCount--;
+        each(fns, function (currentFullname) {
+            if (lastIndexOf(currentFullname, ".") == -1) {
+                currentFullname = ProjName + "." + currentFullname;
             }
-            -1 == lastIndexOf(currentFullname, ".") && (currentFullname = ProjName + "." + currentFullname);
             var mainDep;
-            each(kmdmdinfo, function(item) {
-                item.c == currentFullname && (mainDep = item);
-            });
-            var arr = [], pendingCount = 0;
+            each(kmdmdinfo, function (item) {
+                if (item.c == currentFullname) {
+                    mainDep = item;
+                }
+            })
+            var arr = [];
+            var pendingCount = 0;
+            //  arr.push(ProjName + ".Main");
             catchAllDep(mainDep);
+
+            function catchAllDep(md) {
+                pendingCount++;
+                if (md && isInArray(arr, md.c)) {
+                    remove(arr, md.c);
+                }
+                if (md) arr.push(md.c);
+                if (md && md.d.length > 0) {
+                    each(md.d, function (item) {
+                        if (isInArray(arr, item)) {
+                            remove(arr, item);
+                        }
+                        arr.push(item);
+
+                        var next;
+
+                        each(kmdmdinfo, function (item2) {
+                            if (item2.c == item) {
+                                next = item2;
+                                return false;
+                            }
+                        })
+
+                        if (next) catchAllDep(next);
+                    })
+                    pendingCount--;
+                    //这里是递归最后执行的地方
+                    //      if (pendingCount == 0) allModulesReady();
+                } else {
+                    pendingCount--;
+                }
+            }
+
+            //   function allModulesReady() {
+
             var buildArr = [];
-            each(arr, function(item2) {
-                each(kmdmdinfo, function(item) {
+            each(arr, function (item2) {
+
+                each(kmdmdinfo, function (item) {
+
                     if (item.c == item2) {
                         buildArr.push(item);
-                        var moduleArr = [], fnResult = Function(item.a, item.b);
-                        for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
+                        var moduleArr = [];
+                        var fnResult = new Function(item.a, item.b);
+                        for (i = 0; i < item.d.length; i++) {
+
+                            moduleArr.push(modules[item.d[i]]);
+                        }
                         var obj = fnResult.apply(null, moduleArr);
                         modules[item.c] = obj;
                     }
-                });
-            }), buildArrs.push({
-                name: currentFullname,
-                buildArr: buildArr
-            });
-        }), buildArrs;
+
+                })
+            })
+            buildArrs.push({ name: currentFullname, buildArr: buildArr });
+        });
+
+        return buildArrs;
     }
     function checkModuleCpt() {
-        if (!(allPending.length > 0) && 0 != currentPendingModuleFullName.length) {
-            checkModules = {};
-            var buildArrs = [];
-            each(currentPendingModuleFullName, function(currentFullname) {
-                function catchAllDep(md) {
-                    pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
-                    md && md.d.length > 0 ? (each(md.d, function(item) {
-                        isInArray(arr, item) && remove(arr, item), arr.push(item);
-                        var next;
-                        each(kmdmdinfo, function(item2) {
-                            return item2.c == item ? (next = item2, !1) : undefined;
-                        }), next && catchAllDep(next);
-                    }), pendingCount--) : pendingCount--;
+        if (allPending.length > 0) return;
+        //for (var i = 0; i < pendingModules.length; i++) {
+        //    for (var j = 0; j < pendingModules[i].deps.length; j++) {
+        //        if (!checkModules.hasOwnProperty(pendingModules[i].deps[j])) return false;
+        //    }
+        //}
+        //todo限制重复进入该方法
+        if (currentPendingModuleFullName.length == 0) return;
+        //pendingModules.length = 0;
+        checkModules = {};
+        var buildArrs = [];
+        each(currentPendingModuleFullName, function (currentFullname) {
+            var mainDep;
+            each(kmdmdinfo, function (item) {
+
+                if (item.c == currentFullname) {
+                    mainDep = item;
                 }
-                var mainDep;
-                each(kmdmdinfo, function(item) {
-                    item.c == currentFullname && (mainDep = item);
-                });
-                var arr = [], pendingCount = 0;
-                catchAllDep(mainDep);
-                var buildArr = [];
-                each(arr, function(item2) {
-                    each(kmdmdinfo, function(item) {
-                        if (item.c == item2) {
-                            buildArr.push(item);
-                            var moduleArr = [], fnResult = Function(item.a, item.b);
-                            for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
-                            var obj = fnResult.apply(null, moduleArr);
-                            modules[item.c] = obj;
+            })
+            var arr = [];
+            var pendingCount = 0;
+            //  arr.push(ProjName + ".Main");
+            catchAllDep(mainDep);
+
+            function catchAllDep(md) {
+                pendingCount++;
+                if (md && isInArray(arr, md.c)) {
+                    remove(arr, md.c);
+                }
+                if (md) arr.push(md.c);
+                if (md && md.d.length > 0) {
+                    each(md.d, function (item) {
+                        if (isInArray(arr, item)) {
+                            remove(arr, item);
                         }
-                    });
-                }), buildArrs.push({
-                    name: currentFullname,
-                    buildArr: buildArr
-                });
-            }), setTimeout(function() {
-                for (var mdArr = [], i = 0, len = currentPendingModuleFullName.length; len > i; i++) modules[currentPendingModuleFullName[i]] && mdArr.push(modules[currentPendingModuleFullName[i]]);
-                currentPendingModuleFullName.length = 0, define.pendingCallback && define.pendingCallback.apply(null, mdArr);
-            }, 0), isMDBuild && (each(buildArrs, function(item) {
-                var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
-                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = item.name + ".js  ";
+                        arr.push(item);
+
+                        var next;
+
+                        each(kmdmdinfo, function (item2) {
+                            if (item2.c == item) {
+                                next = item2;
+                                return false;
+                            }
+                        })
+
+                        if (next) catchAllDep(next);
+                    })
+                    pendingCount--;
+                    //这里是递归最后执行的地方
+                    //      if (pendingCount == 0) allModulesReady();
+                } else {
+                    pendingCount--;
+                }
+            }
+
+            //   function allModulesReady() {
+
+            var buildArr = [];
+            each(arr, function (item2) {
+                each(kmdmdinfo, function (item) {
+
+                    if (item.c == item2) {
+                        buildArr.push(item);
+                        var moduleArr = [];
+                        var fnResult = new Function(item.a, item.b);
+                        for (i = 0; i < item.d.length; i++) {
+
+                            moduleArr.push(modules[item.d[i]]);
+                        }
+                        var obj = fnResult.apply(null, moduleArr);
+                        modules[item.c] = obj;
+                    }
+
+                })
+            })
+
+            buildArrs.push({ name: currentFullname, buildArr: buildArr });
+        })
+
+
+        //防止ie还没初始化完成该函数
+        setTimeout(function () {
+            var mdArr = [];
+            for (var i = 0, len = currentPendingModuleFullName.length; i < len; i++) {
+                if (modules[currentPendingModuleFullName[i]]) {
+                    mdArr.push(modules[currentPendingModuleFullName[i]]);
+                }
+            }
+            currentPendingModuleFullName.length = 0;
+            if (define.pendingCallback) {
+
+                define.pendingCallback.apply(null, mdArr);
+            }
+        }, 0);
+        //    }
+        if (isMDBuild) {
+            each(buildArrs, function (item) {
+                var ctt = doc.createElement("div");
+                var msgDiv = doc.createElement("div");
+                var titleDiv = doc.createElement("div");
+                titleDiv.innerHTML = "Build Complete!"
+                msgDiv.innerHTML = item.name + ".js  ";
                 var codePanel = doc.createElement("textarea");
-                ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
-                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45");
-                var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ")";
-                codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, item.name + ".js");
-            }), isMDBuild = !1);
+                ctt.appendChild(titleDiv);
+                ctt.appendChild(codePanel);
+                ctt.appendChild(msgDiv);
+
+                doc.body.appendChild(ctt);
+                codePanel.setAttribute("rows", "25");
+                codePanel.setAttribute("cols", "45");
+                //ctt.style.position = "absolute";
+                //ctt.style.left = "0px";
+                //ctt.style.left = "0px";
+                //ctt.style.top = "0px";
+
+                //ctt.style.width = "100%";
+                //ctt.style.zIndex = 10000;
+                //ctt.style.textAlign = "center";
+
+                var cpCode = 'kmdjs.exec(' + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ')';
+                codePanel.value = cpCode;
+                codePanel.focus();
+                codePanel.select();
+                downloadFile(cpCode, item.name + ".js");
+            })
+
+            isMDBuild = false;
         }
     }
     function downloadFile(code, fileName) {
         if (window.URL.createObjectURL) {
-            var fileParts = [ code ], bb = new Blob(fileParts, {
-                type: "text/plain"
-            }), dnlnk = window.URL.createObjectURL(bb), dlLink = document.createElement("a");
-            dlLink.setAttribute("href", dnlnk), dlLink.setAttribute("download", fileName), dlLink.click();
+            var fileParts = [code];
+
+            // Create a blob object.
+            var bb = new Blob(fileParts, { type: 'text/plain' });
+            var dnlnk = window.URL.createObjectURL(bb);
+            var dlLink = document.createElement("a");
+            dlLink.setAttribute('href', dnlnk);
+            dlLink.setAttribute('download', fileName);
+            dlLink.click();
         }
     }
     function checkMainCpt() {
+        //for (var i = 0; i < pendingModules.length; i++) {
+        //    for (var j = 0; j < pendingModules[i].deps.length; j++) {
+        //        if (!checkModules.hasOwnProperty(pendingModules[i].deps[j])) return false;
+        //    }
+        //}
+        if (allPending.length > 0) return;
+
+        if (kmdmaincpt) return;
+        kmdmaincpt = true;
+        //pendingModules.length = 0;
+        //checkModules = {};
+        var mainDep;
+        each(kmdmdinfo, function (item) {
+
+            if (item.c == ProjName + ".Main") {
+                mainDep = item;
+            }
+        })
+
+
+        var arr = [];
+        var pendingCount = 0;
+        //  arr.push(ProjName + ".Main");
+        catchAllDep(mainDep, 0);
+
         function catchAllDep(md) {
-            pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
-            md && md.d.length > 0 ? (each(md.d, function(item) {
-                isInArray(arr, item) && remove(arr, item), arr.push(item);
-                var next;
-                each(kmdmdinfo, function(item2) {
-                    return item2.c == item ? (next = item2, !1) : undefined;
-                }), next && catchAllDep(next);
-            }), pendingCount--) : pendingCount--;
+
+            pendingCount++;
+            if (md && isInArray(arr, md.c)) {
+                remove(arr, md.c);
+            }
+            if (md) arr.push(md.c);
+            if (md && md.d.length > 0) {
+                each(md.d, function (item) {
+                    if (isInArray(arr, item)) {
+                        remove(arr, item);
+                    }
+                    arr.push(item);
+
+                    var next;
+
+                    each(kmdmdinfo, function (item2) {
+                        if (item2.c == item) {
+                            next = item2;
+                            return false;
+                        }
+                    })
+
+                    if (next) catchAllDep(next);
+                })
+                pendingCount--;
+                //这里是递归最后执行的地方
+                //  if (pendingCount == 0) allModulesReady();
+            } else {
+                pendingCount--;
+            }
         }
-        if (!(allPending.length > 0 || kmdmaincpt)) {
-            kmdmaincpt = !0;
-            var mainDep;
-            each(kmdmdinfo, function(item) {
-                item.c == ProjName + ".Main" && (mainDep = item);
-            });
-            var arr = [], pendingCount = 0;
-            catchAllDep(mainDep, 0);
-            var buildArr = [];
-            if (each(arr, function(item2) {
-                each(kmdmdinfo, function(item) {
-                    if (item.c == item2) {
-                        buildArr.push(item);
-                        var moduleArr = [], fnResult = Function(item.a, item.b);
-                        for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
-                        var obj = fnResult.apply(null, moduleArr);
-                        modules[item.c] = obj;
-            }
-            });
-            }), setTimeout(function() {
-                new modules[ProjName + ".Main"]();
-            }, 0), isBuild) {
-                var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
-                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = ProjName + ".js ";
-                var codePanel = doc.createElement("textarea");
-                ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
-                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
-                var cpCode = '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\b_super\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.init&&this.init.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="init"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules,t.all=' + JSON.stringify(buildArr).replace(/\s+/g, " ") + ',u.exec(t.all),new t.modules["' + ProjName + '.Main"]})(this)';
-                codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, ProjName + ".Main.js");
-                var lmclone = [];
-                each(lazyMdArr, function(item) {
-                    lmclone.push(item);
-                }), kmdjs.get(lazyMdArr, function() {
-                    var lzBuildArrs = getBuildArr(lmclone);
-                    each(lzBuildArrs, function(item) {
-                        var ctt = doc.createElement("div"), msgDiv = doc.createElement("div");
-                        msgDiv.innerHTML = item.name + ".js ";
-                        var codePanel = doc.createElement("textarea");
-                        ctt.appendChild(codePanel), ctt.appendChild(msgDiv), doc.body.appendChild(ctt), 
-                        codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
-                        var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ")";
-                        codePanel.value = cpCode, downloadFile(cpCode, item.name + ".js");
-                    });
-                });
-            }
-            if (isView) {
-                var holder = document.createElement("div");
-                holder.setAttribute("id", "holder"), document.body.appendChild(holder);
-                for (var data = [], i = 0, len = buildArr.length; len > i; i++) {
-                    var item = buildArr[i];
-                    data.push({
-                        name: item.c,
-                        deps: item.d
-                    });
+
+        //   function allModulesReady() {
+
+        var buildArr = [];
+        each(arr, function (item2) {
+            each(kmdmdinfo, function (item) {
+
+                if (item.c == item2) {
+                    buildArr.push(item);
+                    var moduleArr = [];
+                    var fnResult = new Function(item.a, item.b);
+                    for (i = 0; i < item.d.length; i++) {
+
+                        moduleArr.push(modules[item.d[i]]);
+                    }
+                    var obj = fnResult.apply(null, moduleArr);
+                    modules[item.c] = obj;
                 }
-                new DepTree({
-                    renderTo: "holder",
-                    width: "820",
-                    height: "580",
-                    data: data
-                });
-            }
+
+            })
+        })
+
+        //防止ie还没初始化完成该函数
+        setTimeout(function () {
+            new modules[ProjName + ".Main"];
+        }, 0);
+
+
+        if (isBuild) {
+
+            var ctt = doc.createElement("div");
+            var msgDiv = doc.createElement("div");
+            var titleDiv = doc.createElement("div");
+            titleDiv.innerHTML = "Build Complete!"
+            msgDiv.innerHTML = ProjName + ".js ";
+            var codePanel = doc.createElement("textarea");
+            ctt.appendChild(titleDiv);
+            ctt.appendChild(codePanel);
+            ctt.appendChild(msgDiv);
+
+            doc.body.appendChild(ctt);
+            codePanel.setAttribute("rows", "8");
+            codePanel.setAttribute("cols", "55");
+            //ctt.style.position = "absolute";
+            //ctt.style.left = "0px";
+            //ctt.style.left = "0px";
+            //ctt.style.top = "0px";
+
+            //ctt.style.width = "100%";
+            //ctt.style.zIndex = 10000;
+            //ctt.style.textAlign = "center";
+            var cpCode = '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\b_super\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.init&&this.init.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="init"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules,t.all=' + JSON.stringify(buildArr).replace(/\s+/g, " ") + ',u.exec(t.all),new t.modules["' + ProjName + '.Main"]})(this)';
+
+            codePanel.value = cpCode;
+            codePanel.focus();
+            codePanel.select();
+
+            downloadFile(cpCode, ProjName + '.Main.js');
+
+            var lmclone = [];
+            each(lazyMdArr, function (item) {
+                lmclone.push(item);
+            })
+
+            kmdjs.get(lazyMdArr, function () {
+
+                var lzBuildArrs = getBuildArr(lmclone);
+                each(lzBuildArrs, function (item) {
+                    var ctt = doc.createElement("div");
+                    var msgDiv = doc.createElement("div");
+                    msgDiv.innerHTML = item.name + ".js ";
+                    var codePanel = doc.createElement("textarea");
+                    ctt.appendChild(codePanel);
+                    ctt.appendChild(msgDiv);
+
+                    doc.body.appendChild(ctt);
+                    codePanel.setAttribute("rows", "8");
+                    codePanel.setAttribute("cols", "55");
+
+
+                    var cpCode = 'kmdjs.exec(' + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ')';
+                    codePanel.value = cpCode;
+                    // Create a blob object.                   
+                    downloadFile(cpCode, item.name + '.js');
+                })
+            })
+
         }
+
+
+
+        if (isView) {
+            var holder = document.createElement("div");
+            holder.setAttribute("id", "holder");
+            document.body.appendChild(holder);
+
+
+            var data = [];
+            for (var i = 0, len = buildArr.length; i < len; i++) {
+                var item = buildArr[i];
+                data.push({ name: item.c, deps: item.d });
+
+            }
+            new DepTree(({
+                renderTo: "holder",
+                width: "820",
+                height: "580",
+                data: data
+            }))
+
+
+        }
+
+
+
+
+        //执行顺序,在ie下有bug,静态方法失效，手动分析依赖，控制执行顺序
+        //for (var k = kmdmdinfo.length-1; k >-1 ; k--) {
+        //    // kmdmdinfo.push({ a: moduleNameArr, b: body, c: currentMN });
+        //    var item = kmdmdinfo[k], moduleArr=[];
+        //    var fnResult = new Function(item.a, item.b);
+        //    for (i = 0; i < item.d.length; i++) {
+
+        //        moduleArr.push(modules[item.d[i]]);           
+        //    }
+
+        //    var obj = fnResult.apply(null, moduleArr);
+        //    modules[item.c] = obj;
+        //}
+
+
+
+
+
     }
     function remove(arr, item) {
-        for (var i = arr.length - 1; i > -1; i--) arr[i] == item && arr.splice(i, 1);
+        for (var i = arr.length - 1; i > -1; i--) {
+            if (arr[i] == item) {
+                arr.splice(i, 1);
+                //   break;
+            }
+        }
     }
     function each(arry, action) {
         for (var i = arry.length - 1; i > -1; i--) {
@@ -8836,129 +9444,268 @@ var JSLINT = (function () {
             if (isBoolean(result) && !result) break;
         }
     }
+
+    // define.pendingModules = pendingModules;
+
+    kmdjs.build = function (fullname) {
+        currentPendingModuleFullName = [fullname];
+        isMDBuild = true;
+        allPending.push(fullname);
+        if (mapping[fullname]) {
+            request(mapping[fullname], function () {
+                remove(allPending, fullname);
+                if (currentPendingModuleFullName.length > 0) {
+                    // alert(fullname)
+                    checkModuleCpt();
+                } else {
+                    checkMainCpt();
+
+                }
+            });
+        } else {
+            throw "no module named :" + ns;
+        }
+    }
+
+
     function stringifyWithFuncs(obj) {
-        Object.prototype.toJSON = function() {
-            var i, sobj = {};
-            for (i in this) this.hasOwnProperty(i) && (sobj[i] = "function" == typeof this[i] ? addSi(this[i]) : this[i]);
+        Object.prototype.toJSON = function () {
+            var sobj = {}, i;
+            for (i in this)
+                if (this.hasOwnProperty(i))
+                    if( typeof this[i] == 'function'){
+                        //补全分号
+                      
+                        sobj[i] = addSi(this[i]);
+                    }else{
+                        sobj[i] =this[i];
+
+                    }
+
             return sobj;
         };
+        //stringify老版本ie需要json2
         var str = JSON.stringify(obj);
-        return delete Object.prototype.toJSON, str;
+
+        delete Object.prototype.toJSON;
+
+        return str;
     }
     function lastIndexOf(str, word) {
         if (str.lastIndexOf) return str.lastIndexOf(word);
-        for (var len = word.length, i = str.length - 1 - len; i > -1; i--) if (word === str.substr(i, len)) return i;
+        var len = word.length;
+        for (var i = str.length - 1 - len; i > -1; i--) {
+            if (word === str.substr(i, len)) {
+                return i;
+            }
+        }
         return -1;
     }
     function isInArray(arr, item) {
-        for (var i = 0, j = arr.length; j > i; i++) if (arr[i] == item) return !0;
-        return !1;
+        for (var i = 0, j = arr.length; i < j; i++) {
+            if (arr[i] == item) {
+                return true;
+            }
+        }
+        return false;
     }
     function isInScopeChainVariables(scope, name) {
         var vars = scope.variables._values;
-        return Object.prototype.hasOwnProperty.call(vars, "$" + name) ? !0 : scope.parent_scope ? isInScopeChainVariables(scope.parent_scope, name) : !1;
+
+        //if (vars.hasOwnProperty("$" + name)) {
+        //    return true;
+        //}
+        //防止穿越两层prototype导致hasOwnProperty方法为undefined
+        if (Object.prototype.hasOwnProperty.call(vars, "$" + name)) {
+            return true;
+        }
+        if (scope.parent_scope) {
+            return isInScopeChainVariables(scope.parent_scope, name);
+        }
+        return false;
     }
+    if (!String.prototype.trim) {
+        String.prototype.trim = function () {
+            return this.replace(/^\s+|\s+$/g, '');
+        };
+    }
+
     function getRef(fn) {
-        var U2 = UglifyJS, ast = U2.parse("" + fn);
+        var U2 = UglifyJS;
+        var ast = U2.parse(fn.toString());
         ast.figure_out_scope();
         var result = [];
-        return ast.walk(new U2.TreeWalker(function(node) {
+        ast.walk(new U2.TreeWalker(function (node) {
             if (node instanceof U2.AST_New) {
                 var ex = node.expression, name = ex.name, scope = ex.scope;
-                !name || "this" == name || name in window || isInScopeChainVariables(scope, name) || isInArray(result, name) || result.push(name);
+                if (name && name != "this" && !(name in window) && !isInScopeChainVariables(scope, name)) {
+                    isInArray(result,name)||result.push(name);
+                }
             }
             if (node instanceof U2.AST_Dot) {
                 var ex = node.expression, name = ex.name, scope = ex.scope;
-                !name || "this" == name || name in window || isInScopeChainVariables(scope, name) || isInArray(result, name) || result.push(name);
+                if (name && name != "this" && !(name in window) && !isInScopeChainVariables(scope, name)) {
+                    isInArray(result,name)||result.push(name);
+                }
             }
             if (node instanceof U2.AST_SymbolRef) {
                 var name = node.name;
-                !name || "this" == name || name in window || isInScopeChainVariables(node.scope, name) || isInArray(result, name) || result.push(name);
-            }
-            if (node instanceof U2.AST_Call && "get" == node.expression.property && "kmdjs" == node.expression.expression.name) if (node.args[0].value) lazyMdArr.push(node.args[0].value); else for (var i = 0, len = node.args[0].elements.length; len > i; i++) {
-                var item = node.args[0].elements[i];
-                lazyMdArr.push(item.value);
-            }
-        })), result;
-    }
-    function log(msg) {
-        try {
-            console.log(msg);
-        } catch (ex) {}
-    }
-    function getBaseUrl() {
-        for (var baseUrl, scripts = doc.getElementsByTagName("script"), i = 0, len = scripts.length; len > i; i++) {
-            var scrp = scripts[i], srcL = scrp.getAttribute("src");
-            if (srcL) {
-                var src = srcL.toUpperCase(), arr = src.match(/\bKMD\b/g);
-                if (arr) {
-                    var m2 = src.match(/DEBUG/g);
-                    m2 && (isDebug = !0);
-                    var arr = src.split("/");
-                    arr.pop(), baseUrl = arr.length ? arr.join("/") + "/" : "./";
-                    var dm = scrp.getAttribute("data-main"), arr2 = dm.split("?");
-                    dataMain = arr2[0], dataMain = dataMain.replace(/.js/g, ""), arr2.length > 1 && ("build" == arr2[1] ? isBuild = !0 : isView = !0);
-                    break;
+                if (name && name != "this" && !(name in window) &&!isInScopeChainVariables(node.scope, name)) {
+                    isInArray(result,name)||result.push(name);
                 }
+            }
+            if (node instanceof U2.AST_Call) {
+                if (node.expression.property == "get" && node.expression.expression.name == "kmdjs") {
+                    if (node.args[0].value) {
+                        lazyMdArr.push(node.args[0].value);
+                    } else {
+                        for (var i = 0, len = node.args[0].elements.length; i < len; i++) {
+                            var item = node.args[0].elements[i];
+                            lazyMdArr.push(item.value);
+                        }
+                    };
+                }
+            }
+        }));
+
+        return result;
+    }
+
+    function log(msg) {
+        try { console.log(msg); } catch (ex) { }
+    }
+
+    function getBaseUrl() {
+        var baseUrl;
+        var scripts = doc.getElementsByTagName("script");
+
+        for (var i = 0, len = scripts.length; i < len; i++) {
+            var scrp = scripts[i];
+            var srcL = scrp.getAttribute("src");
+            if (!srcL) continue;
+            var src = srcL.toUpperCase();
+            var arr = src.match(/\bKMD\b/g);
+
+            if (arr) {
+                var m2 = src.match(/DEBUG/g);
+
+                if (m2) isDebug = true;
+                var arr = src.split('/');
+                arr.pop();
+                baseUrl = arr.length ? arr.join('/') + '/' : './';
+                var dm = scrp.getAttribute('data-main');
+                var arr2 = dm.split("?");
+
+                dataMain = arr2[0];
+                dataMain = dataMain.replace(/.js/g, "");
+                if (arr2.length > 1) {
+                    if (arr2[1] == "build") {
+
+                        isBuild = true;
+                    } else {
+                        isView = true
+                    }
+                }
+                break;
             }
         }
         return baseUrl;
     }
-    var define, cBaseUrl, dataMain, ProjName, kmdjs = {}, isView = !1, isDebug = !1, isBuild = !1, modules = {}, classList = [], mapping = (getBaseUrl(), 
-    {}), nsmp = {}, kmdmdinfo = (!("undefined" == typeof window || "undefined" == typeof navigator || !window.document), 
-    []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], conflictMapping = {};
-    define = function(name, deps, foctory) {
-        var argc = arguments.length;
-        if (1 == argc) throw "the class must take a name";
-        2 == argc ? (foctory = deps, deps = []) : isString(deps) && (deps = [ deps ]);
-        var mda = name.split(":"), fullname = mda[0], lastIndex = lastIndexOf(fullname, ".");
-        -1 == lastIndex && (fullname = ProjName + "." + fullname, lastIndex = lastIndexOf(fullname, ".")), 
-        mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
-        var baseClass = 1 == mda.length ? "__class" : ' __modules["' + mda[1] + '"]', className = fullname.substring(lastIndex + 1, fullname.length);
-        deps.unshift(fullname.substring(0, lastIndex)), isInArray(deps, ProjName) || deps.unshift(ProjName), 
-        refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname);
-    };
-    var currentPendingModuleFullName = [];
-    window.kmdmdinfo = kmdmdinfo, define.build = function() {
-        isBuild = !0, define.apply(null, arguments);
-    }, define.view = function() {
-        isView = !0, define.apply(null, arguments);
-    }, kmdjs.get = function(fullname, callback) {
-        isString(fullname) && (fullname = [ fullname ]);
-        for (var i = 0, len = fullname.length; len > i; i++) -1 == lastIndexOf(fullname[i], ".") && (fullname[i] = ProjName + "." + fullname[i]);
-        currentPendingModuleFullName = fullname;
-        for (var loaded = !0, mdArr = [], i = 0, len = fullname.length; len > i; i++) modules[fullname[i]] ? mdArr.push(modules[fullname[i]]) : loaded = !1;
-        if (loaded) callback && callback.apply(null, mdArr); else for (var i = 0, len = fullname.length; len > i; i++) if (!modules[fullname[i]]) {
-            var ns = fullname[i];
-            allPending.push(ns), function(ns) {
-                if (!mapping[ns]) throw "no module named :" + ns;
-                request(mapping[ns], function() {
-                    callback && (define.pendingCallback = callback), remove(allPending, ns), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
-                });
-            }(ns);
+
+
+    // request(baseUrl + "DepTree.js");
+
+    allPending.push("Main");
+    request(dataMain + ".js", function () {
+        remove(allPending, "Main");
+        if (currentPendingModuleFullName.length > 0) {
+            // alert(fullname)
+            checkModuleCpt();
+        } else {
+            checkMainCpt();
+
         }
-    };
-    var kmdmaincpt = !1;
-    kmdjs.build = function(fullname) {
-        if (currentPendingModuleFullName = [ fullname ], isMDBuild = !0, allPending.push(fullname), 
-        !mapping[fullname]) throw "no module named :" + ns;
-        request(mapping[fullname], function() {
-            remove(allPending, fullname), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
-        });
-    }, String.prototype.trim || (String.prototype.trim = function() {
-        return this.replace(/^\s+|\s+$/g, "");
-    }), allPending.push("Main"), request(dataMain + ".js", function() {
-        remove(allPending, "Main"), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
-    }), kmdjs.config = function(option) {
-        ProjName = option.name, cBaseUrl = option.baseUrl;
-        for (var i = 0; i < option.classes.length; i++) {
+    });
+    //ajax(baseUrl+ "Config.js", function (aa) {
+    //     classList = JSON.parse(aa);
+
+
+    //})
+
+    //function ajax(url, callback) {
+    //    var httpRequest;
+    //    if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+    //        httpRequest = new XMLHttpRequest();
+    //    } else if (window.ActiveXObject) { // IE
+    //        try {
+    //            httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+    //        }
+    //        catch (e) {
+    //            try {
+    //                httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+    //            }
+    //            catch (e) { }
+    //        }
+    //    }
+
+    //    if (!httpRequest) {
+    //        alert('Giving up :( Cannot create an XMLHTTP instance');
+    //        return false;
+    //    }
+    //    httpRequest.onreadystatechange = function () {
+    //        if (httpRequest.readyState === 4) {
+    //            if (httpRequest.status === 200) {
+    //                callback(httpRequest.responseText);
+    //            } else {
+    //                alert('There was a problem with the request.');
+    //            }
+    //        }
+    //    };
+    //    httpRequest.open('GET', url);
+
+    //    httpRequest.send();
+    //}
+
+
+    //文件目录严格按照namespace？
+    kmdjs.config = function (option) {
+        ProjName = option.name;
+        cBaseUrl = option.baseUrl;
+        var i;
+        if( option.deps){
+            for (i= 0; i < option.deps.length; i++) {
+                var item = option.deps[i];
+                classList.push(item.name);
+                var arr = item.name.split(".");
+                mapping[item.name]= cBaseUrl + "/" + ((item.url) ? (item.url + "/") : "") + item.name+ ".js";
+                nsmp[arr[arr.length - 1]] = item.name;
+                // alert(item.name)
+                //request(mapping[item.name],function(){
+
+                //    alert(3);
+                //})
+            }
+        }
+        for ( i = 0; i < option.classes.length; i++) {
             var item = option.classes[i];
             classList.push(item.name);
             var arr = item.name.split(".");
-            mapping[item.name] = cBaseUrl + "/" + (item.url ? item.url + "/" : "") + arr[arr.length - 1] + ".js", 
+            mapping[item.name] = cBaseUrl + "/" + ((item.url) ? (item.url + "/") : "") + arr[arr.length - 1] + ".js";
             nsmp[arr[arr.length - 1]] = item.name;
         }
-    }, global.__class = __class, define.modules = global.__modules = modules, global.define = define, 
+
+    }
+    kmdjs.exec=function(a){
+        each(a,function(item){
+
+            kmdmdinfo.push(item);
+        })
+        
+    }
+    global.__class = __class;
+    define.modules = global.__modules = modules;
+    global.define = define;
     global.kmdjs = kmdjs;
-}(this);
+})(this);
+
 })();

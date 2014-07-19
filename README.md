@@ -1,6 +1,3 @@
-kmdjs
-=====
-
 ##kmdjs是什么？
 kmdjs是js工程化终极解决方案
 

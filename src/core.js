@@ -28,22 +28,22 @@
         });
         ast.walk(walker);
         for (var i = result.length; --i >= 0; ) {
-            var replacement, node = result[i], start_pos = node.start.pos, end_pos = node.end.endpos;
-            replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({
+            var replacement, fns, node = result[i], start_pos = node.start.pos, end_pos = node.end.endpos;
+            node instanceof UglifyJS.AST_New ? (fns = chainNS(node.expression), replacement = new U2.AST_New({
                 expression: new U2.AST_SymbolRef({
-                    name: chainNS(node.expression)
+                    name: fns
                 }),
                 args: node.args
             }).print_to_string({
                 beautify: !0
-            }) : new U2.AST_Dot({
+            })) : (fns = chainNS(node), replacement = new U2.AST_Dot({
                 expression: new U2.AST_SymbolRef({
-                    name: chainNS(node)
+                    name: fns
                 }),
                 property: node.property
             }).print_to_string({
                 beautify: !0
-            }), code = splice_string(code, start_pos, end_pos, replacement);
+            })), isInArray(classList, fns.replace(/_/g, ".")) && (code = splice_string(code, start_pos, end_pos, replacement));
         }
         for (var i = 0; i < result2.length; i++) conflictMapping.hasOwnProperty(result2[i].property) ? conflictMapping[result2[i].property + Math.random()] = chainNS(result2[i]) : conflictMapping[result2[i].property] = chainNS(result2[i]);
         return code;
@@ -115,8 +115,8 @@
             return item.c == fullname ? (isPush = !0, !1) : undefined;
         });
         for (var ck in conflictMapping) {
-            var fname = conflictMapping[ck];
-            moduleNameArr.push(fname), newArr.push(fname.replace(/_/g, "."));
+            var fname = conflictMapping[ck], fnameReal = fname.replace(/_/g, ".");
+            isInArray(classList, fnameReal) && (moduleNameArr.push(fname), newArr.push(fnameReal));
         }
         if (isPush || kmdmdinfo.push({
             a: moduleNameArr,
@@ -475,5 +475,4 @@
     }, global.__class = __class, define.modules = global.__modules = modules, global.define = define, 
     global.kmdjs = kmdjs;
 }(this);
-
 })();

@@ -5,19 +5,33 @@
             var w = (this.win) ? (this.win.contentWindow) : this.win || window;
             this.win = w;
             this.doc = w.document;
+            this._getDoc = null;
+        },
+        setWin:function(iframeElement){
+            this.win = iframeElement;
+            this.init();
+        },
+        getWin : function(element) {
+            var doc = this.getDoc(element);
+            return (element.document) ? element : doc["defaultView"] ||
+                doc["parentWindow"] || this.win;
         },
         getDoc: function (element) {
           
-
             if (element) {
                 element = element || window.document;
-                return (element["nodeType"] === 9) ? element : element["ownerDocument"]
+                this._getDoc=(element["nodeType"] === 9) ? element : element["ownerDocument"]
                     || this.doc;
+                return this._getDoc;
             } else {
-                element = element || window.document;
-                return (element["nodeType"] === 9) ? element : element["ownerDocument"]
-                    || this.doc;
-
+                if (this._getDoc) {
+                    return this._getDoc;
+                } else {
+                    element = element || window.document;
+                    this._getDoc=(element["nodeType"] === 9) ? element : element["ownerDocument"]
+                        || this.doc;
+                    return this._getDoc;
+                }
             }
 
         },
@@ -194,7 +208,7 @@
                 return;
             }
 
-            var win = getWin(el);
+            var win = this.getWin(el);
             var name = Browser.getName();
             //J.out(name);
             if (styleName === "float" || styleName === "cssFloat") {

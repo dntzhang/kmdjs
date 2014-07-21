@@ -1,5 +1,38 @@
-﻿define("Ket.Base.Jquery",{
+﻿define("Ket.Base.Jquery",["Ket.Util"],{
     statics: {
+        init: function () {
+            (function () {
+                var lastTime = 0;
+                var vendors = ['ms', 'moz', 'webkit', 'o'];
+                for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+                    window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+                    window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame']
+                                               || window[vendors[x] + 'CancelRequestAnimationFrame'];
+                }
+
+                if (!window.requestAnimationFrame)
+                    window.requestAnimationFrame = function (callback, element) {
+                        var currTime = new Date().getTime();
+                        var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+                        var id = window.setTimeout(function () { callback(currTime + timeToCall); },
+                          timeToCall);
+                        lastTime = currTime + timeToCall;
+                        return id;
+                    };
+
+                if (!window.cancelAnimationFrame)
+                    window.cancelAnimationFrame = function (id) {
+                        clearTimeout(id);
+                    };
+            }());
+         
+
+            //this.anmMapping = {
+            //    linear: TWEEN.Easing.Linear.None,
+            //    quadratic: TWEEN.Easing[]
+
+            //}
+        },
         mock: function () {
             var self = this;
             var $= function (selector) {
@@ -58,8 +91,78 @@
 //        "left","px",0,200,1000
     //    );
     //写一个方法提取属性的单位
-    animate: function (params,speed,easing,fn) {
-        
+    tick: function () {
+        var self = this;
+        function animate(time) {
+            self.loop = requestAnimationFrame(animate); // js/RequestAnimationFrame.js needs to be included too.
+            TWEEN.update(time);
+        }
+        animate();
+    },
+    animate: function (params, speed, easing, fn) {
+ 
+        if (typeof easing != "string" && arguments.length == 3) {
+            var fn = easing;
+        } else {
+            if (easing) {
+                if(easing=="Linear"){easing=TWEEN.Easing.Linear.None;}
+                else{
+                    var eArr=easing.split("-")
+                    easing = TWEEN.Easing[eArr[0]][eArr[1]]
+                }
+            }
+        }
+        var datas = [];
+        this.tick()
+        var self = this;
+        this.each(function (index, element) {
+            var data = {};
+            data.element = element;
+            data.mapping = {};
+            data.begin = {};
+            data.end = {};
+            var animateData = [];
+            for (var prop in params) {
+                var value = Dom.getStyle(element, prop);
+                if (value == "auto") {
+                    data.begin[prop] = 0;
+                    //计算offset？？
+                    data.mapping[prop] = "px";
+
+                } else {
+                    data.begin[prop] = parseFloat(value);
+                    data.mapping[prop] = value.replace(/\d|\./g, "");
+
+                }
+
+                data.end[prop] = parseFloat(params[prop]);
+            }
+            datas.push(data);
+        });
+
+        var i, len = datas.length,count=0;
+        for ( i = 0; i < len; i++) {
+            var item = datas[i];
+            (function (item) {
+                new TWEEN.Tween(item.begin)
+              .to(item.end, speed)
+              .easing(easing)
+              .onUpdate(function () {
+                  var j;
+                  for (j in item.end) {
+                      Dom.setStyle(item.element, j, this[j] + item.mapping[j]);
+                  }
+              })
+              .onComplete(function () {
+                  count++
+                  cancelAnimationFrame(self.loop);
+                  if (fn && count==len) fn();
+              })
+              .start();
+            })(item)
+        }
+
+
     }
 
 

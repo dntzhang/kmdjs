@@ -246,7 +246,9 @@
                 });
             }), setTimeout(function () {
                 for (var mdArr = [], i = 0, len = currentPendingModuleFullName.length; len > i; i++) modules[currentPendingModuleFullName[i]] && mdArr.push(modules[currentPendingModuleFullName[i]]);
-                currentPendingModuleFullName.length = 0, define.pendingCallback && define.pendingCallback.apply(null, mdArr);
+                currentPendingModuleFullName.length = 0, define.pendingCallback.length > 0 && each(define.pendingCallback, function (item) {
+                    remove(define.pendingCallback, item), item.apply(null, mdArr);
+                });
             }, 0), isMDBuild && (each(buildArrs, function (item) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
                 titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = item.name + ".js  ";
@@ -297,7 +299,7 @@
             }
             });
             }), setTimeout(function () {
-                new modules[ProjName + ".Main"]();
+                isView || isBuild || new modules[ProjName + ".Main"]();
             }, 0), isBuild) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
                 titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = ProjName + ".js ";
@@ -437,7 +439,7 @@
         isBuild = !0, define.apply(null, arguments);
     }, define.view = function () {
         isView = !0, define.apply(null, arguments);
-    }, kmdjs.get = function (fullname, callback) {
+    }, define.pendingCallback = [], kmdjs.get = function (fullname, callback) {
         isString(fullname) && (fullname = [fullname]);
         for (var i = 0, len = fullname.length; len > i; i++) -1 == lastIndexOf(fullname[i], ".") && (fullname[i] = ProjName + "." + fullname[i]);
         currentPendingModuleFullName = fullname;
@@ -447,7 +449,7 @@
             allPending.push(ns), function (ns) {
                 if (!mapping[ns]) throw "no module named :" + ns;
                 request(mapping[ns], function () {
-                    callback && (define.pendingCallback = callback), remove(allPending, ns), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+                    callback && define.pendingCallback.push(callback), remove(allPending, ns), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
                 });
             }(ns);
         }
@@ -487,3 +489,5 @@
     }, global.__class = __class, define.modules = global.__modules = modules, global.define = define,
     global.kmdjs = kmdjs;
 }(this);
+
+})();

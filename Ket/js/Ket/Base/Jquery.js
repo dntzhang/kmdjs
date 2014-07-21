@@ -26,12 +26,6 @@
                     };
             }());
          
-
-            //this.anmMapping = {
-            //    linear: TWEEN.Easing.Linear.None,
-            //    quadratic: TWEEN.Easing[]
-
-            //}
         },
         mock: function () {
             var self = this;
@@ -73,24 +67,6 @@
 //easing:要使用的擦除效果的名称(需要插件支持).默认jQuery提供"linear" 和 "swing".
 
 //    fn:在动画完成时执行的函数，每个元素执行一次。
-
-//    function animate(elem,style,unit,from,to,time) {
-//    if( !elem) return;
-//var start = new Date().getTime(),
-//    timer = setInterval(function() {
-//        var step = Math.min(1,(new Date().getTime()-start)/time);
-//        elem.style[style] = (from+step*(to-from))+unit;
-//        if( step == 1) clearInterval(timer);
-//    },25);
-//elem.style[style] = from+unit;
-//}
-//To use:
-
-//    animate(
-//        document.getElementById('challengeOneImageJavascript'),
-//        "left","px",0,200,1000
-    //    );
-    //写一个方法提取属性的单位
     tick: function () {
         var self = this;
         function animate(time) {
@@ -100,14 +76,13 @@
         animate();
     },
     animate: function (params, speed, easing, fn) {
- 
-        if (typeof easing != "string" && arguments.length == 3) {
-            var fn = easing;
-        } else {
-            if (easing) {
-                if(easing=="Linear"){easing=TWEEN.Easing.Linear.None;}
-                else{
-                    var eArr=easing.split("-")
+        if (easing!==undefined) {
+            if (typeof easing != "string" && arguments.length == 3) {
+                var fn = easing;
+            } else {
+                if (easing == "Linear" || easing==""||easing==null) { easing = TWEEN.Easing.Linear.None; }
+                else {
+                    var eArr = easing.split("-")
                     easing = TWEEN.Easing[eArr[0]][eArr[1]]
                 }
             }
@@ -121,7 +96,6 @@
             data.mapping = {};
             data.begin = {};
             data.end = {};
-            var animateData = [];
             for (var prop in params) {
                 var value = Dom.getStyle(element, prop);
                 if (value == "auto") {

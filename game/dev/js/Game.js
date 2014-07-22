@@ -13,18 +13,21 @@
             this.timer = new Timer(this.ctx);
             this.gameOver = true;
             this.initEvent();
-            kmdjs.get("KmdGame.RAF", function () {
 
-                Game.loop = requestInterval(function () {
+            this.loop = RAF.requestInterval(function () {
 
-                    Game.tick();
-                }, 15);
+                Game.tick();
+            }, 15);
 
-                requestInterval(function () {
+            
+            this.tickZoom();
+        },
+        tickZoom:function(){
 
-                    Game.myBall.r+=5;
-                }, 5000);
-            })
+            this.zoomLoop = RAF.requestInterval(function () {
+
+                Game.myBall.r += 5;
+            }, 5000);
         },
         createBalls: function () {
             for (var i = 0; i < 10; i++) {
@@ -76,6 +79,8 @@
             this.smallBalls.length = 0;
             this.myBall.r = 5;
             this.timer.value = 0;
+            RAF.clearRequestInterval(this.zoomLoop);
+            this.tickZoom();
         }
 
 

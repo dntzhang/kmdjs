@@ -3,8 +3,7 @@
         this.ctx = ctx;
         this.value = 1;
         var self = this;
-        setInterval(function () {
-
+        RAF.requestInterval(function () {
             self.value++;
         }, 1000);
 

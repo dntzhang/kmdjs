@@ -51,6 +51,9 @@
                 window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) :
                 clearInterval(handle);
             };
+
+            this.requestInterval = requestInterval;
+            this.clearRequestInterval = clearRequestInterval;
         }
 
     }

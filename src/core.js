@@ -479,7 +479,7 @@
             var item = option.classes[i];
             classList.push(item.name);
             var arr = item.name.split(".");
-            mapping[item.name] = cBaseUrl + "/" + (item.url ? item.url + "/" : "") + arr[arr.length - 1] + ".js", 
+            mapping[item.name] = item.url ? -1 == lastIndexOf(item.url, "http:") ? cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js" : item.url : cBaseUrl + "/" + arr[arr.length - 1] + ".js", 
             nsmp[arr[arr.length - 1]] = item.name;
         }
     }, kmdjs.exec = function(a) {
@@ -489,4 +489,5 @@
     }, global.__class = __class, define.modules = global.__modules = modules, global.define = define, 
     global.kmdjs = kmdjs;
 }(this);
+
 })();

@@ -8733,7 +8733,7 @@ var JSLINT = (function () {
             }), setTimeout(function() {
                 for (var mdArr = [], i = 0, len = currentPendingModuleFullName.length; len > i; i++) modules[currentPendingModuleFullName[i]] && mdArr.push(modules[currentPendingModuleFullName[i]]);
                 currentPendingModuleFullName.length = 0, define.pendingCallback.length > 0 && each(define.pendingCallback, function(item) {
-                    remove(define.pendingCallback, item), item.apply(null, mdArr);
+                    remove(define.pendingCallback, item), item&&item.apply(null, mdArr);
                 });
             }, 0), isMDBuild && (each(buildArrs, function(item) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
@@ -8908,7 +8908,7 @@ var JSLINT = (function () {
     }
     var define, cBaseUrl, dataMain, ProjName, kmdjs = {}, isView = !1, isDebug = !1, isBuild = !1, modules = {}, classList = [], mapping = (getBaseUrl(), 
     {}), nsmp = {}, kmdmdinfo = (!("undefined" == typeof window || "undefined" == typeof navigator || !window.document), 
-    []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], conflictMapping = {};
+    []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], conflictMapping = {}, xmdModules = {};
     define = function(name, deps, foctory) {
         var argc = arguments.length;
         if (1 == argc) throw "the class must take a name";
@@ -8917,8 +8917,17 @@ var JSLINT = (function () {
         -1 == lastIndex && (fullname = ProjName + "." + fullname, lastIndex = lastIndexOf(fullname, ".")), 
         mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
         var baseClass = 1 == mda.length ? "__class" : ' __modules["' + mda[1] + '"]', className = fullname.substring(lastIndex + 1, fullname.length);
-        deps.unshift(fullname.substring(0, lastIndex)), isInArray(deps, ProjName) || deps.unshift(ProjName), 
-        refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname);
+        deps.unshift(fullname.substring(0, lastIndex));
+        for (var xmd = [], i = 0; i < deps.length; i++) xmdModules[deps[i]] && (isInArray(xmd, deps[i]) || xmd.push(deps[i]), 
+        deps.splice(i, 1), i--);
+        isInArray(deps, ProjName) || deps.unshift(ProjName);
+        var ldCount = 0, xmdLen = xmd.length;
+        if (xmdLen > 0) for (var j = 0; xmdLen > j; j++) !function(ns) {
+            allPending.push(ns), request(mapping[ns], function() {
+                remove(allPending, ns), ldCount++, ldCount == xmdLen && (refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname), 
+                currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt());
+            });
+        }(xmd[j]); else refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname);
     };
     var currentPendingModuleFullName = [];
     window.kmdmdinfo = kmdmdinfo, define.build = function() {
@@ -8965,7 +8974,8 @@ var JSLINT = (function () {
             var item = option.classes[i];
             classList.push(item.name);
             var arr = item.name.split(".");
-            mapping[item.name] = item.url ? -1 == lastIndexOf(item.url, "http:") ? cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js" : item.url : cBaseUrl + "/" + arr[arr.length - 1] + ".js", 
+            item.url ? mapping[item.name] = -1 == lastIndexOf(item.url, "http:") ? cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js" : item.url : 0 == item.kmd ? (mapping[item.name] = cBaseUrl + "/" + item.name + ".js", 
+            xmdModules[item.name] = !0) : mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js", 
             nsmp[arr[arr.length - 1]] = item.name;
         }
     }, kmdjs.exec = function(a) {

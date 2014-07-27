@@ -85,14 +85,14 @@
         conflictMapping = {};
         var body = foctory.replace(/"function[\s\S]*?\}"/g, function(str) {
             return str.substr(1, str.length - 2);
-        }).replace(/([\s]*?)\/\/([\s\S]*?)(?=(\\r)?\\n(\\t)?)/g, "").replace(/(\/\*[\s\S]*?\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, function(item, b, c) {
+        }).replace(/(\\r)?\\n(\\t)?([\s]*?)\/\/([\s\S]*?)(?=(\\r)?\\n(\\t)?)/g, "").replace(/(\/\*[\s\S]*?\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, function(item, b, c) {
             return "\\" == c.charAt(b - 1) ? item : "";
         }).replace(/\\t/g, function(item, b, c) {
             return "\\" == c.charAt(b - 1) ? item : "";
-        }).replace(/\\"/g, function(item, b, c) {
-            return "\\" == c.charAt(b - 1) ? item : '"';
-        }).replace(/\\'/g, function(item, b, c) {
-            return "\\" == c.charAt(b - 1) ? item : "'";
+        }).replace(/\\"/g, function() {
+            return '"';
+        }).replace(/\\'/g, function() {
+            return "'";
         }).replace(/\\\\/g, "\\");
         body = js_beautify(body);
         var fn = Function(body), ref = getRef(fn);
@@ -247,7 +247,7 @@
             }), setTimeout(function() {
                 for (var mdArr = [], i = 0, len = currentPendingModuleFullName.length; len > i; i++) modules[currentPendingModuleFullName[i]] && mdArr.push(modules[currentPendingModuleFullName[i]]);
                 currentPendingModuleFullName.length = 0, define.pendingCallback.length > 0 && each(define.pendingCallback, function(item) {
-                    remove(define.pendingCallback, item), item&&item.apply(null, mdArr);
+                    remove(define.pendingCallback, item), item && item.apply(null, mdArr);
                 });
             }, 0), isMDBuild && (each(buildArrs, function(item) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
@@ -499,5 +499,4 @@
     }, global.__class = __class, define.modules = global.__modules = modules, global.define = define, 
     global.kmdjs = kmdjs;
 }(this);
-
 })();

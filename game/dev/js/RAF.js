@@ -14,7 +14,7 @@
             window.requestInterval = function (fn, delay) {
                 if (!window.requestAnimationFrame &&
                     !window.webkitRequestAnimationFrame &&
-                    !(window.mozRequestAnimationFrame && window.mozCancelRequestAnimationFrame) && // Firefox 5 ships without cancel support
+                    !(window.mozRequestAnimationFrame && window.mozCancelRequestAnimationFrame) && 
                     !window.oRequestAnimationFrame &&
                     !window.msRequestAnimationFrame)
                     return window.setInterval(fn, delay);

@@ -484,14 +484,16 @@
             mapping[item.name] = cBaseUrl + "/" + (item.url ? item.url + "/" : "") + item.name + ".js", 
             nsmp[arr[arr.length - 1]] = item.name;
         }
-        for (i = 0; i < option.classes.length; i++) {
-            var item = option.classes[i];
-            classList.push(item.name);
-            var arr = item.name.split(".");
-            item.url ? mapping[item.name] = -1 == lastIndexOf(item.url, "http:") ? cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js" : item.url : 0 == item.kmd ? (mapping[item.name] = cBaseUrl + "/" + item.name + ".js", 
-            xmdModules[item.name] = !0) : mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js", 
-            nsmp[arr[arr.length - 1]] = item.name;
-        }
+		if(option.classes){
+			for (i = 0; i < option.classes.length; i++) {
+				var item = option.classes[i];
+				classList.push(item.name);
+				var arr = item.name.split(".");
+				item.url ? mapping[item.name] = -1 == lastIndexOf(item.url, "http:") ? cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js" : item.url : 0 == item.kmd ? (mapping[item.name] = cBaseUrl + "/" + item.name + ".js", 
+				xmdModules[item.name] = !0) : mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js", 
+				nsmp[arr[arr.length - 1]] = item.name;
+			}
+		}
     }, kmdjs.exec = function(a) {
         each(a, function(item) {
             kmdmdinfo.push(item);

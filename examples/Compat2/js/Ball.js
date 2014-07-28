@@ -1,6 +1,6 @@
 ﻿define("Ball", {
     init: function (x, y, r, vx, vy, text) {
-        var $ = JQ.$;
+        var $ = JQ1.$;
         this.x = x;
         this.y = y;
         this.r = r;

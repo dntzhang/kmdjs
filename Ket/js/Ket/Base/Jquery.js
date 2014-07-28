@@ -80,10 +80,11 @@
             if (typeof easing != "string" && arguments.length == 3) {
                 var fn = easing;
             } else {
-                if (easing == "Linear" || easing==""||easing==null) { easing = TWEEN.Easing.Linear.None; }
-                else {
+                if (easing && easing.split("-").length > 1) {
                     var eArr = easing.split("-")
                     easing = TWEEN.Easing[eArr[0]][eArr[1]]
+                } else {
+                    easing = TWEEN.Easing.Linear.None;
                 }
             }
         }

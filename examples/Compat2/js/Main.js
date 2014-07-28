@@ -4,7 +4,7 @@
     classes: [
         { name: "HelloKMD.Ball" },
         { name: "Util.Bom", url: "Util" },
-        { name: "HelloKMD.JQ" }
+        { name: "HelloKMD.JQ1" }
     ]
 
 });

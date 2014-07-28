@@ -8586,7 +8586,7 @@ var JSLINT = (function () {
         for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
         var entire = (getNSRef(fn), getRefWithNS(fn));
         if (body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}")), isDebug && (log(fullname + "  ref:" + ref), 
-        log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js")), (isBuild || isMDBuild) && !isDebug) {
+        log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js")), isBuild || isMDBuild) {
             var fx = Function(body), entire = compressor(fx);
             body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
         }
@@ -8970,7 +8970,7 @@ var JSLINT = (function () {
             mapping[item.name] = cBaseUrl + "/" + (item.url ? item.url + "/" : "") + item.name + ".js", 
             nsmp[arr[arr.length - 1]] = item.name;
         }
-        for (i = 0; i < option.classes.length; i++) {
+        if (option.classes) for (i = 0; i < option.classes.length; i++) {
             var item = option.classes[i];
             classList.push(item.name);
             var arr = item.name.split(".");
@@ -8985,4 +8985,5 @@ var JSLINT = (function () {
     }, global.__class = __class, define.modules = global.__modules = modules, global.define = define, 
     global.kmdjs = kmdjs;
 }(this);
+
 })();

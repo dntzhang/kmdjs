@@ -100,7 +100,7 @@
         for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
         var entire = (getNSRef(fn), getRefWithNS(fn));
         if (body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}")), isDebug && (log(fullname + "  ref:" + ref), 
-        log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js")), (isBuild || isMDBuild) && !isDebug) {
+        log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js")), isBuild || isMDBuild) {
             var fx = Function(body), entire = compressor(fx);
             body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
         }
@@ -484,16 +484,14 @@
             mapping[item.name] = cBaseUrl + "/" + (item.url ? item.url + "/" : "") + item.name + ".js", 
             nsmp[arr[arr.length - 1]] = item.name;
         }
-		if(option.classes){
-			for (i = 0; i < option.classes.length; i++) {
-				var item = option.classes[i];
-				classList.push(item.name);
-				var arr = item.name.split(".");
-				item.url ? mapping[item.name] = -1 == lastIndexOf(item.url, "http:") ? cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js" : item.url : 0 == item.kmd ? (mapping[item.name] = cBaseUrl + "/" + item.name + ".js", 
-				xmdModules[item.name] = !0) : mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js", 
-				nsmp[arr[arr.length - 1]] = item.name;
-			}
-		}
+        if (option.classes) for (i = 0; i < option.classes.length; i++) {
+            var item = option.classes[i];
+            classList.push(item.name);
+            var arr = item.name.split(".");
+            item.url ? mapping[item.name] = -1 == lastIndexOf(item.url, "http:") ? cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js" : item.url : 0 == item.kmd ? (mapping[item.name] = cBaseUrl + "/" + item.name + ".js", 
+            xmdModules[item.name] = !0) : mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js", 
+            nsmp[arr[arr.length - 1]] = item.name;
+        }
     }, kmdjs.exec = function(a) {
         each(a, function(item) {
             kmdmdinfo.push(item);
@@ -501,4 +499,5 @@
     }, global.__class = __class, define.modules = global.__modules = modules, global.define = define, 
     global.kmdjs = kmdjs;
 }(this);
+
 })();

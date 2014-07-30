@@ -10,7 +10,7 @@ kmdjs.config({
 
 });
 define("Main", {
-    init: function () {
+    ctor: function () {
         var anm = new Animal(10);
         test("Object Create", function () {
             equal(anm.age, 10);

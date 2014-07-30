@@ -43,8 +43,8 @@ __class.extend = function (prop) {
     // The dummy class constructor
     function __class() {
         // All construction is actually done in the init method
-        if (!initializing && this.init)
-            this.init.apply(this, arguments);
+        if (!initializing && this.ctor)
+            this.ctor.apply(this, arguments);
     }
 
     //继承父类的静态属性
@@ -70,7 +70,7 @@ __class.extend = function (prop) {
         for (var name in prop.statics) {
             if (prop.statics.hasOwnProperty(name)) {
                 __class[name] = prop.statics[name];
-                if (name == "init") {
+                if (name == "ctor") {
                     __class[name]();
                 }
             }
@@ -84,5 +84,11 @@ __class.extend = function (prop) {
     // And make this class extendable
     __class.extend = arguments.callee;
 
+    //add implementation method
+    __class.implement = function (prop) {
+        for (var name in prop) {
+            prototype[name] = prop[name];
+        }
+    };
     return __class;
 };

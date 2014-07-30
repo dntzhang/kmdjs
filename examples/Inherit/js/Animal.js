@@ -5,7 +5,7 @@
             return 2;
         }
     },
-    init: function (age) {
+    ctor: function (age) {
         this.age = age;
     },
     eat: function () {

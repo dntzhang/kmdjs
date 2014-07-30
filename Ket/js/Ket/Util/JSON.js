@@ -1,6 +1,6 @@
 ﻿define("Ket.Util.JSON", {
     statics: {
-        init: function () {
+        ctor: function () {
          
             var JSON = typeof JSON !== 'object' ? {} : JSON;
          

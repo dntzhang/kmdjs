@@ -10,7 +10,7 @@
 
 });
 define("Main", ["Util"], {
-    init: function () {
+    ctor: function () {
         var ball = new Ball(0, 0, 28, 1, -2, "KMD.js");
         var vp = Bom.getViewport();
         setInterval(function () {

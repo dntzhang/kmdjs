@@ -10,7 +10,7 @@
 
 });
 define("Main",["Util"], {
-    init: function () {
+    ctor: function () {
         var btn = document.getElementById("crtBtn");
         var balls = [];
         btn.onclick = function () {

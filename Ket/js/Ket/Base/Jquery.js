@@ -1,6 +1,6 @@
 ﻿define("Ket.Base.Jquery",["Ket.Util"],{
     statics: {
-        init: function () {
+        ctor: function () {
             (function () {
                 var lastTime = 0;
                 var vendors = ['ms', 'moz', 'webkit', 'o'];

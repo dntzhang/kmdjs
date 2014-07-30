@@ -1,5 +1,5 @@
 ﻿define("Pig:Animal", {
-    init: function (age,name) {
+    ctor: function (age, name) {
         this._super(age);
         this.name = name;
     },

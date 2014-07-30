@@ -11,7 +11,7 @@
 
 });
 define("Main",["Util"], {
-    init: function () {
+    ctor: function () {
         var btn = document.getElementById("crtBtn");
         var balls = [];
         var v = new MathHelper.Vector2(111, 110, 28, 1, -2, "KMD.js");

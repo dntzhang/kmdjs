@@ -1,5 +1,5 @@
 ﻿define("Timer", {
-    init: function (ctx) {
+    ctor: function (ctx) {
         this.ctx = ctx;
         this.value = 1;
         var self = this;

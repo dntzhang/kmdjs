@@ -1,5 +1,5 @@
 ﻿define("Ball", ["jquery-1.11.1.min"], {
-    init: function (x,y,r,vx,vy,text) {
+    ctor: function (x, y, r, vx, vy, text) {
         this.x = x;
         this.y = y;
         this.r = r;

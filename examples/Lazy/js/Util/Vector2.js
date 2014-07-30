@@ -1,5 +1,5 @@
 ﻿define("Util.Vector2", {
-    init: function (x, y) {
+    ctor: function (x, y) {
         this.x = x;
         this.y = y;
     },

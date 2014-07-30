@@ -1,6 +1,6 @@
 ﻿define("Ket.Base.Dom", ["Ket.Util"], {
     statics: {
-        init:function(){
+        ctor: function () {
 
             var w = (this.win) ? (this.win.contentWindow) : this.win || window;
             this.win = w;

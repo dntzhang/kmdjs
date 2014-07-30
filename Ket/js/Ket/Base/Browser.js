@@ -1,6 +1,6 @@
 ﻿define("Ket.Base.Browser", {
     statics: {
-        init:function(){
+        ctor: function () {
             var J = {};
             J.browserOptions = {
                 adjustBehaviors: true,

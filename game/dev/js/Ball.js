@@ -1,5 +1,5 @@
 ﻿define("Ball", {
-    init: function (x,y,r,ctx) {
+    ctor: function (x, y, r, ctx) {
         this.x = x;
         this.y = y;
         this.r = r;

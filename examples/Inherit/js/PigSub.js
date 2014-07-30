@@ -1,4 +1,4 @@
 ﻿define("PigSub:Pig", {
-    init: function (age, name) {
+    ctor: function (age, name) {
     }
 })

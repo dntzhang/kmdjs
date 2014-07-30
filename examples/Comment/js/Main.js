@@ -4,8 +4,9 @@ kmdjs.config({
     baseUrl: "js"
 
 });
+//使用kmdjs一定要注意：注释和代码不能在同一行
 define("Main",  {
-    init: function () {
+    ctor: function () {
         var a = "//"
         //aaa
         alert(1);

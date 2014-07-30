@@ -8,7 +8,7 @@
 
 });
 define("Main", ["Util"], {
-    init: function () {
+    ctor: function () {
         var $ = JQ2.$;
         $("#test").animate({ left: 100 }, 500, function () {
             $(this).css("backgroundColor", "red");

@@ -9,7 +9,7 @@
 
 });
 define("Main", {
-    init: function () {
+    ctor: function () {
         kmdjs.build("HelloKMD.Ball");
         //or
         // kmdjs.build("Util.Bom");

@@ -1,7 +1,7 @@
 ﻿//jquery-2.1.1
 define("JQ2", {
     statics: {
-        init: function () {
+        ctor: function () {
 
             // Can't do this because several apps including ASP.NET trace
             // the stack via arguments.caller.callee and Firefox dies if

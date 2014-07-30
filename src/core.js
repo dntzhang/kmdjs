@@ -95,7 +95,12 @@
             return "'";
         }).replace(/\\\\/g, "\\");
         body = js_beautify(body);
-        var fn = Function(body), ref = getRef(fn);
+        try {
+            var fn = Function(body);
+        } catch (ex) {
+            log(body);
+        }
+        var ref = getRef(fn);
         remove(ref, "__class");
         for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
         var entire = (getNSRef(fn), getRefWithNS(fn));
@@ -371,8 +376,12 @@
         return !1;
     }
     function isInScopeChainVariables(scope, name) {
-        var vars = scope.variables._values;
-        return Object.prototype.hasOwnProperty.call(vars, "$" + name) ? !0 : scope.parent_scope ? isInScopeChainVariables(scope.parent_scope, name) : !1;
+        if (scope) {
+            var vars = scope.variables._values;
+            if (Object.prototype.hasOwnProperty.call(vars, "$" + name)) return !0;
+            if (scope.parent_scope) return isInScopeChainVariables(scope.parent_scope, name);
+        }
+        return !1;
     }
     function getRef(fn) {
         var U2 = UglifyJS, ast = U2.parse("" + fn);
@@ -406,7 +415,7 @@
         for (var baseUrl, scripts = doc.getElementsByTagName("script"), i = 0, len = scripts.length; len > i; i++) {
             var scrp = scripts[i], srcL = scrp.getAttribute("src");
             if (srcL) {
-                var src = srcL.toUpperCase(), arr = src.match(/\bKMD\b/g);
+                var src = srcL.toUpperCase(), arr = src.match(/\bKMD.JS\b/g);
                 if (arr) {
                     var m2 = src.match(/DEBUG/g);
                     m2 && (isDebug = !0);
@@ -422,26 +431,30 @@
     }
     var define, cBaseUrl, dataMain, ProjName, kmdjs = {}, isView = !1, isDebug = !1, isBuild = !1, modules = {}, classList = [], mapping = (getBaseUrl(), 
     {}), nsmp = {}, kmdmdinfo = (!("undefined" == typeof window || "undefined" == typeof navigator || !window.document), 
-    []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], conflictMapping = {}, xmdModules = {};
+    []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], conflictMapping = {}, xmdModules = {}, defined = {};
     define = function(name, deps, foctory) {
         var argc = arguments.length;
         if (1 == argc) throw "the class must take a name";
         2 == argc ? (foctory = deps, deps = []) : isString(deps) && (deps = [ deps ]);
         var mda = name.split(":"), fullname = mda[0], lastIndex = lastIndexOf(fullname, ".");
-        -1 == lastIndex && (fullname = ProjName + "." + fullname, lastIndex = lastIndexOf(fullname, ".")), 
-        mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
-        var baseClass = 1 == mda.length ? "__class" : ' __modules["' + mda[1] + '"]', className = fullname.substring(lastIndex + 1, fullname.length);
-        deps.unshift(fullname.substring(0, lastIndex));
-        for (var xmd = [], i = 0; i < deps.length; i++) xmdModules[deps[i]] && (isInArray(xmd, deps[i]) || xmd.push(deps[i]), 
-        deps.splice(i, 1), i--);
-        isInArray(deps, ProjName) || deps.unshift(ProjName);
-        var ldCount = 0, xmdLen = xmd.length;
-        if (xmdLen > 0) for (var j = 0; xmdLen > j; j++) !function(ns) {
-            allPending.push(ns), request(mapping[ns], function() {
-                remove(allPending, ns), ldCount++, ldCount == xmdLen && (refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname), 
-                currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt());
-            });
-        }(xmd[j]); else refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname);
+        if (-1 == lastIndex && (fullname = ProjName + "." + fullname, lastIndex = lastIndexOf(fullname, ".")), 
+        !defined[fullname]) {
+            defined[fullname] = !0, mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
+            var baseClass = "__class";
+            1 != mda.length && (baseClass = mda[1].split(".")[0] in window && !isInArray(classList, mda[1]) ? mda[1] : ' __modules["' + mda[1] + '"]');
+            var className = fullname.substring(lastIndex + 1, fullname.length);
+            deps.unshift(fullname.substring(0, lastIndex));
+            for (var xmd = [], i = 0; i < deps.length; i++) xmdModules[deps[i]] && (isInArray(xmd, deps[i]) || xmd.push(deps[i]), 
+            deps.splice(i, 1), i--);
+            isInArray(deps, ProjName) || deps.unshift(ProjName);
+            var ldCount = 0, xmdLen = xmd.length;
+            if (xmdLen > 0) for (var j = 0; xmdLen > j; j++) !function(ns) {
+                allPending.push(ns), request(mapping[ns], function() {
+                    remove(allPending, ns), ldCount++, ldCount == xmdLen && (refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname), 
+                    currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt());
+                });
+            }(xmd[j]); else refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname);
+        }
     };
     var currentPendingModuleFullName = [];
     window.kmdmdinfo = kmdmdinfo, define.build = function() {

@@ -1,5 +1,5 @@
 ﻿define("Ball", ["Util"], {
-    init: function (x,y,r,vx,vy,text) {
+    ctor: function (x, y, r, vx, vy, text) {
         this.position = new Vector2(x, y);
         this.r = r;
         this.d = 2 * r;

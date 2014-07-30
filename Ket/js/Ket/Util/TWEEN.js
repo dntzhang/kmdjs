@@ -1,6 +1,6 @@
 ﻿define("Ket.Util.TWEEN", {
     statics: {
-        init: function () {
+        ctor: function () {
             if (Date.now === undefined) {
 
                 Date.now = function () {

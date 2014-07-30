@@ -1,6 +1,6 @@
 ﻿define("Game", {
     statics: {
-        initialize: function () {
+        init: function () {
             this.canvas = document.querySelector("canvas");
             this.width = this.canvas.width;
             this.height = this.canvas.height;

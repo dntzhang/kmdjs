@@ -1,5 +1,5 @@
 ﻿define("Test", {
-    init: function (x) {
+    ctor: function (x) {
         this.x = x;
     }
 })

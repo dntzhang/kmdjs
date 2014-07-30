@@ -14,7 +14,7 @@
 });
 
 define("Main", {
-    init: function () {
-        Game.initialize();
+    ctor: function () {
+        Game.init();
     }
 })

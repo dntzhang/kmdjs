@@ -15,7 +15,7 @@
 });
 
 define("Main", ["Ket.Base","Ket.Util"], {
-    init: function () {
+    ctor: function () {
 
         var btn = Dom.id('testAJAXBtn');
        

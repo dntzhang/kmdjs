@@ -3,7 +3,8 @@ kmdjs.config({
     baseUrl: "src",
     classes: [
         { name: "Moonwarriors.Resource" },
-        { name: "Moonwarriors.SysMenu" }
+        { name: "Moonwarriors.SysMenu" },
+    { name: "Moonwarriors.Util" }
     ]
 
 });

@@ -114,7 +114,7 @@ define("SysMenu:cc.Layer", {
     },
     update: function () {
         if (this._ship.y > 480) {
-            this._ship.x = Math.random() * this.winSize.width;
+            this._ship.x = Util.random(0, this.winSize.width);
             this._ship.y = 10;
             this._ship.runAction(cc.MoveBy.create(
                 parseInt(5 * Math.random(), 10),

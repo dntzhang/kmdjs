@@ -273,6 +273,13 @@
             dlLink.setAttribute("href", dnlnk), dlLink.setAttribute("download", fileName), dlLink.click();
         }
     }
+    function fixCycle(deps, nick, p) {
+        for (var i = 0; i < deps.length; i++) for (var j = 0; j < kmdmdinfo.length; j++) if (deps[i] == kmdmdinfo[j].c && (kmdmdinfo[j].c == nick || fixCycle(kmdmdinfo[j].d, nick, kmdmdinfo[j]))) {
+            remove(p.d, nick), isInArray(breakCycleModules, nick) || breakCycleModules.push(nick);
+            var className = nick.split(".")[nick.split(".").length - 1];
+            remove(p.a, className), p.b = p.b.replace(RegExp("\\b" + className + "\\b", "g"), "__modules['" + nick + "']");
+        }
+    }
     function checkMainCpt() {
         function catchAllDep(md) {
             pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
@@ -288,10 +295,18 @@
             kmdmaincpt = !0;
             var mainDep;
             each(kmdmdinfo, function(item) {
-                item.c == ProjName + ".Main" && (mainDep = item);
+                fixCycle(item.d, item.c, item), item.c == ProjName + ".Main" && (mainDep = item);
             });
             var arr = [], pendingCount = 0;
-            catchAllDep(mainDep, 0);
+            catchAllDep(mainDep);
+            var nextBuildArr = [];
+            each(breakCycleModules, function(item) {
+                each(kmdmdinfo, function(item2) {
+                    item == item2.c && nextBuildArr.push(item2);
+                });
+            }), each(nextBuildArr, function(item) {
+                catchAllDep(item);
+            });
             var buildArr = [];
             if (each(arr, function(item2) {
                 each(kmdmdinfo, function(item) {
@@ -476,7 +491,7 @@
             }(ns);
         }
     };
-    var kmdmaincpt = !1;
+    var kmdmaincpt = !1, breakCycleModules = [];
     kmdjs.build = function(fullname) {
         if (currentPendingModuleFullName = [ fullname ], isMDBuild = !0, allPending.push(fullname), 
         !mapping[fullname]) throw "no module named :" + ns;

@@ -111,7 +111,7 @@ define("SysMenu:cc.Layer", {
         var scene = cc.Scene.create();
         var al = AboutLayer.create();
         //解决循环引用..
-        al.comeFrom = SysMenu;
+        //al.comeFrom = SysMenu;
         scene.addChild(al);
         cc.director.runScene(cc.TransitionFade.create(1.2, scene));
     },

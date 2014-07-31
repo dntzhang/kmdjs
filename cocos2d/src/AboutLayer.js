@@ -46,7 +46,7 @@ define("AboutLayer:cc.Layer", {
     },
     onBackCallback: function (pSender) {
         var scene = cc.Scene.create();
-        scene.addChild(this.comeFrom.create());
+        scene.addChild(SysMenu.create());
         cc.director.runScene(cc.TransitionFade.create(1.2, scene));
     }
 

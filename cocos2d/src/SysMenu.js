@@ -59,15 +59,15 @@ define("SysMenu:cc.Layer", {
             var flare = cc.Sprite.create(res.flare_jpg);
             this.addChild(flare, 15, 10);
             flare.visible = false;
-            var newGame = cc.MenuItemSprite.create(newGameNormal, newGameSelected, newGameDisabled, function () {
-                this.onButtonEffect();
-                this.onNewGame();
-               // flareEffect(flare, this, this.onNewGame);
-            }.bind(this));
-            var gameSettings = cc.MenuItemSprite.create(gameSettingsNormal, gameSettingsSelected, gameSettingsDisabled, this.onSettings, this);
+            //var newGame = cc.MenuItemSprite.create(newGameNormal, newGameSelected, newGameDisabled, function () {
+            //    this.onButtonEffect();
+            //    this.onNewGame();
+            //   // flareEffect(flare, this, this.onNewGame);
+            //}.bind(this));
+            //var gameSettings = cc.MenuItemSprite.create(gameSettingsNormal, gameSettingsSelected, gameSettingsDisabled, this.onSettings, this);
             var about = cc.MenuItemSprite.create(aboutNormal, aboutSelected, aboutDisabled, this.onAbout, this);
 
-            var menu = cc.Menu.create( gameSettings, about);
+            var menu = cc.Menu.create( about);
             menu.alignItemsVerticallyWithPadding(10);
             this.addChild(menu, 1, 2);
             menu.x = winSize.width / 2;
@@ -109,7 +109,10 @@ define("SysMenu:cc.Layer", {
     onAbout: function (pSender) {
         this.onButtonEffect();
         var scene = cc.Scene.create();
-       // scene.addChild(AboutLayer.create());
+        var al = AboutLayer.create();
+        //解决循环引用..
+        al.comeFrom = SysMenu;
+        scene.addChild(al);
         cc.director.runScene(cc.TransitionFade.create(1.2, scene));
     },
     update: function () {

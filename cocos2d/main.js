@@ -4,7 +4,8 @@ kmdjs.config({
     classes: [
         { name: "Moonwarriors.Resource" },
         { name: "Moonwarriors.SysMenu" },
-    { name: "Moonwarriors.Util" }
+        { name: "Moonwarriors.Util" },
+        { name: "Moonwarriors.AboutLayer" }
     ]
 
 });

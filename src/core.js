@@ -98,7 +98,7 @@
         try {
             var fn = Function(body);
         } catch (ex) {
-            log(body);
+            throw log(body), ex.name + "__" + ex.message + "__" + ex.number + "__" + ex.description;
         }
         var ref = getRef(fn);
         remove(ref, "__class");

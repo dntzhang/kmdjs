@@ -1440,7 +1440,8 @@ var JSLINT = (function () {
             )] || syntax['(error)']);
             if (type === '(identifier)') {
                 the_token.identifier = true;
-                if (value === '__iterator__' || value === '__proto__') {
+              //  if (value === '__iterator__' || value === '__proto__') {
+                    if (value === '__iterator__' ) {
                     fail_at(bundle.reserved_a, line, from, value);
                 } else if (option.nomen &&
                         (value.charAt(0) === '_' ||
@@ -3622,15 +3623,15 @@ var JSLINT = (function () {
 
     suffix('--');
     prefix('--');
-    prefix('delete', function () {
-        one_space();
-        var p = expression(0);
-        if (!p || (p.id !== '.' && p.id !== '[')) {
-            warn(bundle.deleted);
-        }
-        this.first = p;
-        return this;
-    });
+    //prefix('delete', function () {
+    //    one_space();
+    //    var p = expression(0);
+    //    if (!p || (p.id !== '.' && p.id !== '[')) {
+    //        warn(bundle.deleted);
+    //    }
+    //    this.first = p;
+    //    return this;
+    //});
 
 
     prefix('~', function () {
@@ -4720,9 +4721,11 @@ var JSLINT = (function () {
                     }
                     if (o[nexttoken.value] === true) {
                         warn(bundle.duplicate_a);
-                    } else if (nexttoken.value === '__proto__') {
-                        warn(bundle.dangling_a);
-                    } else {
+                    }
+                    //else if (nexttoken.value === '__proto__') {
+                    //    warn(bundle.dangling_a);
+                    //}
+                    else {
                         o[nexttoken.value] = true;
                     }
                     advance();

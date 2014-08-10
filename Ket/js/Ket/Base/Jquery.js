@@ -36,7 +36,7 @@
             return $;
         }
     },
-    init: function (selector) {
+    ctor: function (selector) {
         this.elements = Dom.query(selector);
      
         this.length=  this.elements.length;

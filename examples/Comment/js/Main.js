@@ -4,12 +4,12 @@ kmdjs.config({
     baseUrl: "js"
 
 });
-//使用kmdjs一定要注意：两个斜杠如"//xxx"的单行注释和代码不能在同一行
+
 define("Main",  {
     ctor: function () {
         var a = "//"
         //aaa
-        alert(1);
+        alert(1);//aa
         var aa = 44 / 2;
         
         var reg = /\/\//g;

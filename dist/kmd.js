@@ -8931,8 +8931,7 @@ var JSLINT = (function () {
         !defined[fullname]) {
             defined[fullname] = !0, mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
             var parentClass, baseClass = "__class";
-            1 != mda.length && (baseClass = mda[1].split(".")[0] in window && !isInArray(classList, mda[1]) ? mda[1] : ' __modules["' + mda[1] + '"]', 
-            parentClass = mda[1]);
+            1 != mda.length && (baseClass = mda[1].split(".")[0] in window && !isInArray(classList, mda[1]) ? mda[1] :( ' __modules["' + mda[1] + '"]',parentClass = mda[1]));
             var className = fullname.substring(lastIndex + 1, fullname.length);
             deps.unshift(fullname.substring(0, lastIndex));
             for (var xmd = [], i = 0; i < deps.length; i++) xmdModules[deps[i]] && (isInArray(xmd, deps[i]) || xmd.push(deps[i]), 

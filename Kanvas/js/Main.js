@@ -31,6 +31,11 @@ define("Main", ["Kanvas"], {
         var text2 = new Txt("KMD:Kill AMD and CMD!", "bold 26px Arial", "red");
         text2.y = 400;
         stage.add(text2);
+
+        var text3 = new Txt("Click AnyWhere!", "bold 26px Arial", "blue");
+        text3.y = 250;
+        text3.x = 50;
+        stage.add(text3);
         setInterval(function () {
             text.rotation++;
             stage.update();

@@ -411,7 +411,7 @@
         }
         return baseUrl;
     }
-    var define, currentAST, cBaseUrl, dataMain, ProjName, kmdjs = {}, isView = !1, isDebug = !1, isBuild = !1, modules = {}, classList = [], mapping = (getBaseUrl(), 
+    var define, currentAST, cBaseUrl, dataMain, ProjName, kmdjs = {}, isDebug = !1,  modules = {}, classList = [], mapping = (getBaseUrl(), 
     {}), nsmp = {}, kmdmdinfo = (!("undefined" == typeof window || "undefined" == typeof navigator || !window.document), 
     []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], conflictMapping = {}, xmdModules = {}, beautifier_options_defaults = {
         indent_start: 0,

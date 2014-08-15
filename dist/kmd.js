@@ -743,7 +743,7 @@ if (typeof Object.create != 'function') {
         return builder.getBlob(type);
     };
 }(typeof self !== "undefined" && self || typeof window !== "undefined" && window || this.content || this));
-
+var isView = !1, isBuild  = !1;
 var initializing = false, fnTest = /xyz/.test(function () { xyz; }) ? /\b_super\b/ : /.*/;
 
 // The base Class implementation (does nothing)
@@ -816,7 +816,7 @@ __class.extend = function (prop) {
             if (prop.statics.hasOwnProperty(name)) {
                 __class[name] = prop.statics[name];
                 if (name == "ctor") {
-                    __class[name]();
+                    if ((!isView)&&(!isBuild)) __class[name]();
                 }
             }
 
@@ -8906,7 +8906,7 @@ var JSLINT = (function () {
         }
         return baseUrl;
     }
-    var define, currentAST, cBaseUrl, dataMain, ProjName, kmdjs = {}, isView = !1, isDebug = !1, isBuild = !1, modules = {}, classList = [], mapping = (getBaseUrl(), 
+    var define, currentAST, cBaseUrl, dataMain, ProjName, kmdjs = {}, isDebug = !1,  modules = {}, classList = [], mapping = (getBaseUrl(), 
     {}), nsmp = {}, kmdmdinfo = (!("undefined" == typeof window || "undefined" == typeof navigator || !window.document), 
     []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], conflictMapping = {}, xmdModules = {}, beautifier_options_defaults = {
         indent_start: 0,

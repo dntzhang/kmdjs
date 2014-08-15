@@ -3,6 +3,7 @@
         this.scaleX = this.scaleY = 1;
         this.x = this.y = this.rotation = this.regX = this.regY = this.skewX = this.skewY = 0;
         this._matrix = new Matrix2D();
+       
     },
     updateContext: function (ctx) {
         var mtx = this._matrix.identity().appendTransform(this.x, this.y, this.scaleX, this.scaleY, this.rotation, this.skewX, this.skewY, this.regX, this.regY);

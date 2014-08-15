@@ -1,4 +1,4 @@
-﻿
+﻿var isView = !1, isBuild  = !1;
 var initializing = false, fnTest = /xyz/.test(function () { xyz; }) ? /\b_super\b/ : /.*/;
 
 // The base Class implementation (does nothing)
@@ -71,7 +71,7 @@ __class.extend = function (prop) {
             if (prop.statics.hasOwnProperty(name)) {
                 __class[name] = prop.statics[name];
                 if (name == "ctor") {
-                    __class[name]();
+                    if ((!isView)&&(!isBuild)) __class[name]();
                 }
             }
 

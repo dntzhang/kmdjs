@@ -312,7 +312,8 @@
             }
             if (isView) {
                 var holder = document.createElement("div");
-                holder.setAttribute("id", "holder"), document.body.appendChild(holder);
+                document.body.style["textAlign"]="center";
+                holder.setAttribute("id", "holder"), holder.style.position="absolute", holder.style.left="0px",  holder.style.top="0px", holder.style["backgroundColor"]="#ccc",holder.style.display="inline-block", document.body.style.overflow="hidden",document.body.appendChild(holder);
                 for (var data = [], i = 0, len = buildArr.length; len > i; i++) {
                     var item = buildArr[i];
                     data.push({
@@ -322,8 +323,8 @@
                 }
                 new DepTree({
                     renderTo: "holder",
-                    width: "820",
-                    height: "580",
+                    width: window.innerWidth,
+                    height: window.innerHeight,
                     data: data
                 });
             }

@@ -30,6 +30,7 @@
             // TODO: can this be combined into a single append?
             skewX *= Matrix2D.DEG_TO_RAD;
             skewY *= Matrix2D.DEG_TO_RAD;
+            //skew'essence  is half part of rotate
             this.append(Math.cos(skewY), Math.sin(skewY), -Math.sin(skewX), Math.cos(skewX), x, y);
             this.append(cos*scaleX, sin*scaleX, -sin*scaleY, cos*scaleY, 0, 0);
         } else {

@@ -21,11 +21,19 @@ define("Main", ["Kanvas"], {
         text.regX = 100;
         text.regY = 20;
         text.skewX = 30;
-        text.skewY = -10;
+        text.skewY = -30;
         text.rotation = 20;
-        text.scaleX = 1.5;
-        text.scaleY = 2;
+        //text.scaleX = 1.5;
+        //text.scaleY = 2;
         stage.add(text);
         stage.update();
+
+        var text2 = new Txt("KMD:Kill AMD and CMD!", "bold 26px Arial", "red");
+        text2.y = 400;
+        stage.add(text2);
+        setInterval(function () {
+            text.rotation++;
+            stage.update();
+        }, 15)
     }
 })

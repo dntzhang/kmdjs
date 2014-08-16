@@ -5,14 +5,14 @@
           { name: "Kanvas.DisplayObject" },
           { name: "Kanvas.Bitmap" },
           { name: "Kanvas.Txt" },
-          { name: "Kanvas.Shape" },
           { name: "Kanvas.Stage" },
           { name: "Kanvas.Container" },
-          { name: "Kanvas.Matrix2D" }
+          { name: "Kanvas.Matrix2D" },
+          { name: "Kanvas.Shape.Circle" }
     ]
 });
 
-define("Main", ["Kanvas"], {
+define("Main", ["Kanvas","Kanvas.Shape"], {
     ctor: function () {     
         var stage = new Stage("#ourCanvas");
         var text = new Txt("Hello Kanvas!", "bold 36px Arial", "green");
@@ -69,6 +69,25 @@ define("Main", ["Kanvas"], {
             text.rotation++;
             if (pgBmp) pgBmp.rotation--;
             stage.update();
-        }, 15)
+        }, 15);
+
+        var circle = new Circle(55, "red");
+        circle.x = 30;
+        circle.y = 30;
+        circle.on("click", function () {
+            alert("i'm a red ball!")
+        })
+
+        var circle2 = new Circle(35, "green");
+        circle2.x = 30;
+        circle2.y = 30;
+        circle2.on("click", function () {
+            alert("i'm a green ball!")
+        })
+
+        var circle3 = new Circle(18, "yellow");
+        circle3.x = 30;
+        circle3.y = 30;
+        stage.add(circle,circle2,circle3);
     }
 })

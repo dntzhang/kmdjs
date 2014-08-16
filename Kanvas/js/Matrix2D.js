@@ -31,6 +31,9 @@
             skewX *= Matrix2D.DEG_TO_RAD;
             skewY *= Matrix2D.DEG_TO_RAD;
             //skew'essence  is half part of rotate
+            //这里不使用tan是因为tan会产生比较大的数,skew变形太厉害...
+            // this.append(1, Math.tan(skewY), Math.tan(skewX),1, x, y);
+            //先平移--〉扭曲(顺序不能反，不然平移的比例会受扭曲的影响) ->旋转 -〉缩放
             this.append(Math.cos(skewY), Math.sin(skewY), -Math.sin(skewX), Math.cos(skewX), x, y);
             this.append(cos*scaleX, sin*scaleX, -sin*scaleY, cos*scaleY, 0, 0);
         } else {

@@ -7,7 +7,9 @@
         this.height = this.canvas.height;
 
 
-        this.hitCanvas = document.querySelector("#testHit");
+        this.hitCanvas = document.createElement("canvas");
+        this.hitCanvas.width = this.width;
+        this.hitCanvas.height = this.height;
         this.hitCtx = this.hitCanvas.getContext("2d");
         Function.prototype.bind = function () {
             var __method = this;
@@ -24,7 +26,11 @@
         this.offset = this._getXY(this.canvas);
     },
     add: function (obj) {
-        this.children.push(obj);
+        if (arguments.length > 1) {
+            this.children.push.apply(this.children, Array.prototype.slice.call(arguments));
+        } else {
+            this.children.push(obj);
+        }
     },
     update: function () {
         this.ctx.clearRect(0, 0, this.width, this.height);
@@ -32,12 +38,7 @@
     },
     _handleClick: function (evt) {
         var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
-
-        if (child) {
-            alert("你点中了文字！！！！！！！！！！");
-        } else {
-            alert("你没点中文字");
-        }
+        if (child) child.execEvent(evt);
     },
     _getClientXY : function (el) {
         var _t = 0,

@@ -7,7 +7,7 @@ define("Kanvas.Txt:Kanvas.DisplayObject", {
         this.font = font;
         this.color = color;
         this.textAlign = "left";    
-       this.textBaseline = "top";
+        this.textBaseline = "top";
     },
     draw: function (ctx) {
         ctx.fillStyle = this.color;
@@ -16,4 +16,5 @@ define("Kanvas.Txt:Kanvas.DisplayObject", {
         ctx.textBaseline = this.textBaseline || "top";
         ctx.fillText(this.text, 0,0);
     }
+  
 })

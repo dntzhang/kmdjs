@@ -30,14 +30,44 @@ define("Main", ["Kanvas"], {
 
         var text2 = new Txt("KMD:Kill AMD and CMD!", "bold 26px Arial", "red");
         text2.y = 400;
-        stage.add(text2);
+        text2.on("click", function () {
+            alert(this.text);
+        });
 
-        var text3 = new Txt("Click AnyWhere!", "bold 26px Arial", "blue");
-        text3.y = 250;
+        var text3 = new Txt("Click Me!", "bold 46px Arial", "blue");
+        text3.y = 230;
         text3.x = 50;
-        stage.add(text3);
+        text3.on("click", function () {
+            alert(this.text);
+        });
+       
+        var kmdImg = new Image();
+        kmdImg.onload = function () {
+            var bmp = new Bitmap(kmdImg);
+            bmp.x = 100;
+            bmp.y = 100;
+            stage.add(bmp);
+        }
+        kmdImg.src = "img/kmd.png";
+
+        var pigImg = new Image(),pgBmp;
+        pigImg.onload = function () {
+            pgBmp = new Bitmap(pigImg);
+            pgBmp.x = 164;
+            pgBmp.y = 334;
+            pgBmp.regX = 64;
+            pgBmp.regY = 64;
+            stage.add(pgBmp);
+            pgBmp.on("click", function () {
+                alert("i am a pig");
+            })
+        }
+        pigImg.src = "img/pig.png";
+
+        stage.add(text2,text3);
         setInterval(function () {
             text.rotation++;
+            if (pgBmp) pgBmp.rotation--;
             stage.update();
         }, 15)
     }

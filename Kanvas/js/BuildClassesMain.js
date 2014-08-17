@@ -13,7 +13,7 @@
     build: ["Kanvas.DisplayObject", "Kanvas.Bitmap", "Kanvas.Txt", "Kanvas.Stage", "Kanvas.Container", "Kanvas.Matrix2D","Kanvas.Shape.Circle"]
 });
 
-define("Main", ["Kanvas", "Kanvas.Shape"], {
+define("Main", {
     ctor: function () {
     }
 })

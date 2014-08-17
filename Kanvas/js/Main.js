@@ -65,11 +65,7 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
         pigImg.src = "img/pig.png";
 
         stage.add(text2,text3);
-        setInterval(function () {
-            text.rotation++;
-            if (pgBmp) pgBmp.rotation--;
-            stage.update();
-        }, 15);
+      
 
         var circle = new Circle(55, "red");
         circle.x = 30;
@@ -88,6 +84,26 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
         var circle3 = new Circle(18, "yellow");
         circle3.x = 30;
         circle3.y = 30;
-        stage.add(circle,circle2,circle3);
+        stage.add(circle, circle2, circle3);
+
+        var ctt = new Container();
+        ctt.x = 268;
+        ctt.y = 58;
+        var circle4 = new Circle(48, "#777777");
+        var test4 = new Txt("Container!", "bold 16px Arial", "white");
+        test4.regX = 40;
+        test4.regY = 8;
+        ctt.add(circle4, test4);
+        stage.add(ctt);
+        ctt.on("click", function () {
+            alert("i am a Container!");
+        })
+
+        setInterval(function () {
+            text.rotation++;
+            if (pgBmp) pgBmp.rotation--;
+         
+            stage.update();
+        }, 15);
     }
 })

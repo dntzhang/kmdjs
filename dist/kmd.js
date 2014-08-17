@@ -8602,7 +8602,9 @@ var JSLINT = (function () {
         var ref = getRef(fn);
         remove(ref, "__class");
         for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
-        parentClass && !isInArray(newArr, parentClass) && newArr.push(parentClass);
+        parentClass && !isInArray(newArr, parentClass) && newArr.push(parentClass), isMtClassesBuild && "MAIN" == className.toUpperCase() && each(readyBuildClasses, function(item) {
+            newArr.push(item);
+        });
         var entire = getRefWithNS(fn);
         if (body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}")), isDebug && (log(fullname + "  ref:" + ref), 
         log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js")), isBuild || isMDBuild) {
@@ -8721,7 +8723,7 @@ var JSLINT = (function () {
                 var codePanel = doc.createElement("textarea");
                 ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
                 doc.body.appendChild(ctt), codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45");
-                var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ")";
+                var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr) + ")";
                 codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, item.name + ".js");
             }), isMDBuild = !1);
         }
@@ -8779,15 +8781,18 @@ var JSLINT = (function () {
                         modules[item.c] = obj;
             }
             });
+            }), isMtClassesBuild && each(buildArr, function(item) {
+                return item.c == ProjName + ".Main" ? (remove(buildArr, item), !1) : undefined;
             }), setTimeout(function() {
-                isView || isBuild || new modules[ProjName + ".Main"]();
+                (isMtClassesBuild || !isView && !isBuild) && new modules[ProjName + ".Main"]();
             }, 0), isBuild) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
-                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = ProjName + ".js ";
+                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = isMtClassesBuild ? "" + readyBuildClasses : ProjName + ".js ";
                 var codePanel = doc.createElement("textarea");
                 ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
                 doc.body.appendChild(ctt), codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
-                var cpCode = '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.ctor&&this.ctor.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="ctor"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules,t.all=' + JSON.stringify(buildArr) + ',u.exec(t.all),new t.modules["' + ProjName + '.Main"]})(this)';
+                var cpCode = "";
+                cpCode = isMtClassesBuild ? "kmdjs.exec(" + JSON.stringify(buildArr) + ")" : '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.ctor&&this.ctor.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="ctor"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules,t.all=' + JSON.stringify(buildArr) + ',u.exec(t.all),new t.modules["' + ProjName + '.Main"]})(this)', 
                 codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, ProjName + ".Main.js");
                 var lmclone = [];
                 each(lazyMdArr, function(item) {
@@ -8807,8 +8812,10 @@ var JSLINT = (function () {
             }
             if (isView) {
                 var holder = document.createElement("div");
-                document.body.style["textAlign"]="center";
-                holder.setAttribute("id", "holder"), holder.style.position="absolute", holder.style.left="0px",  holder.style.top="0px", holder.style["backgroundColor"]="#ccc",holder.style.display="inline-block", document.body.style.overflow="hidden",document.body.appendChild(holder);
+                document.body.style.textAlign = "center", holder.setAttribute("id", "holder"), holder.style.position = "absolute", 
+                holder.style.left = "0px", holder.style.top = "0px", holder.style.backgroundColor = "#ccc", 
+                holder.style.display = "inline-block", document.body.style.overflow = "hidden", 
+                document.body.appendChild(holder);
                 for (var data = [], i = 0, len = buildArr.length; len > i; i++) {
                     var item = buildArr[i];
                     data.push({
@@ -8906,9 +8913,9 @@ var JSLINT = (function () {
         }
         return baseUrl;
     }
-    var define, currentAST, cBaseUrl, dataMain, ProjName, kmdjs = {}, isDebug = !1,  modules = {}, classList = [], mapping = (getBaseUrl(), 
+    var define, currentAST, cBaseUrl, dataMain, ProjName, kmdjs = {}, isDebug = !1, modules = {}, classList = [], mapping = (getBaseUrl(), 
     {}), nsmp = {}, kmdmdinfo = (!("undefined" == typeof window || "undefined" == typeof navigator || !window.document), 
-    []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], conflictMapping = {}, xmdModules = {}, beautifier_options_defaults = {
+    []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], isMtClassesBuild = !1, readyBuildClasses = [], conflictMapping = {}, xmdModules = {}, beautifier_options_defaults = {
         indent_start: 0,
         indent_level: 4,
         quote_keys: !1,
@@ -8982,7 +8989,8 @@ var JSLINT = (function () {
     }), kmdjs.config = function(option) {
         ProjName = option.name, cBaseUrl = option.baseUrl;
         var i;
-        if (option.deps) for (i = 0; i < option.deps.length; i++) {
+        if (option.build && (isMtClassesBuild = !0, isBuild = !0, readyBuildClasses = option.build), 
+        option.deps) for (i = 0; i < option.deps.length; i++) {
             var item = option.deps[i];
             classList.push(item.name);
             var arr = item.name.split(".");

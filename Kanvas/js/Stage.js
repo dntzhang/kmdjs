@@ -25,13 +25,6 @@
      
         this.offset = this._getXY(this.canvas);
     },
-    add: function (obj) {
-        if (arguments.length > 1) {
-            this.children.push.apply(this.children, Array.prototype.slice.call(arguments));
-        } else {
-            this.children.push(obj);
-        }
-    },
     update: function () {
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.draw(this.ctx);

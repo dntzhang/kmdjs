@@ -1,5 +1,6 @@
 define("Kanvas.Container:Kanvas.DisplayObject", {
     ctor: function () {
+        this._super();
         this.children = [];
     },
     draw: function (ctx) {
@@ -9,6 +10,13 @@ define("Kanvas.Container:Kanvas.DisplayObject", {
             child.updateContext(ctx);
             child.draw(ctx);
             ctx.restore();          
+        }
+    },
+    add: function (obj) {
+        if (arguments.length > 1) {
+            this.children.push.apply(this.children, Array.prototype.slice.call(arguments));
+        } else {
+            this.children.push(obj);
         }
     },
     _getHitChild: function (ctx,x,y) {

@@ -8,12 +8,68 @@
           { name: "Kanvas.Stage" },
           { name: "Kanvas.Container" },
           { name: "Kanvas.Matrix2D" },
-          { name: "Kanvas.Shape.Circle" }
+          { name: "Kanvas.Shape.Circle" },
+          { name: "Kanvas.Sprite" },
+          { name: "Kanvas.Loader" },
+          { name: "Kanvas.RAF" }
     ]
 });
 
 define("Main", ["Kanvas","Kanvas.Shape"], {
-    ctor: function () {     
+    ctor: function () {
+        var ld = new Loader(), pgBmp ;
+        ld.loadRes([
+            { id: "kmd", src: "img/kmd.png" },
+            { id: "pig", src: "img/pig.png" },
+            { id: "hero", src: "img/hero-m.png" }]
+            );
+        ld.complete(function () {
+
+            var bmp = new Bitmap(ld.get("kmd"));
+            bmp.x = 100;
+            bmp.y = 100;
+            stage.add(bmp);
+
+
+            pgBmp = new Bitmap(ld.get("pig"));
+            pgBmp.x = 164;
+            pgBmp.y = 334;
+            pgBmp.regX = 64;
+            pgBmp.regY = 64;
+            stage.add(pgBmp);
+            pgBmp.on("click", function () {
+                alert("i am a pig");
+            })
+
+            var ss = {
+                framerate: 10,
+                imgs: [ld.get("hero"), ld.get("pig")],
+                frames: [
+                        // x, y, width, height, imageIndex, regX, regY               
+                        [64, 64, 64, 64],
+                        [128, 64, 64, 64],
+                        [192, 64, 64, 64],
+                        [256, 64, 64, 64],
+                        [320, 64, 64, 64],
+                        [384, 64, 64, 64],
+                        [448, 64, 64, 64]
+                ],
+                animations: {
+                    walk: {
+                        frames: [0, 1, 2, 3,4,5,6],
+                        next: "run",
+                        speed: 2,
+                        loop: false
+                    },
+                    jump: {
+                    }
+                }
+            }
+
+            var sp = new Sprite(ss);
+            sp.y = 200;
+            stage.add(sp);
+        });
         var stage = new Stage("#ourCanvas");
         var text = new Txt("Hello Kanvas!", "bold 36px Arial", "green");
         text.x = 140;
@@ -40,32 +96,12 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
         text3.on("click", function () {
             alert(this.text);
         });
-       
-        var kmdImg = new Image();
-        kmdImg.onload = function () {
-            var bmp = new Bitmap(kmdImg);
-            bmp.x = 100;
-            bmp.y = 100;
-            stage.add(bmp);
-        }
-        kmdImg.src = "img/kmd.png";
 
-        var pigImg = new Image(),pgBmp;
-        pigImg.onload = function () {
-            pgBmp = new Bitmap(pigImg);
-            pgBmp.x = 164;
-            pgBmp.y = 334;
-            pgBmp.regX = 64;
-            pgBmp.regY = 64;
-            stage.add(pgBmp);
-            pgBmp.on("click", function () {
-                alert("i am a pig");
-            })
-        }
-        pigImg.src = "img/pig.png";
+     
+          
 
-        stage.add(text2,text3);
-      
+        stage.add(text2, text3);
+
 
         var circle = new Circle(55, "red");
         circle.x = 30;
@@ -99,11 +135,13 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
             alert("i am a Container!");
         })
 
-        setInterval(function () {
+        RAF.requestInterval(function () {
             text.rotation++;
             if (pgBmp) pgBmp.rotation--;
-         
+
             stage.update();
         }, 15);
+
+       
     }
 })

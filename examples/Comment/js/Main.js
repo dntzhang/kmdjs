@@ -9,7 +9,7 @@ define("Main",  {
     ctor: function () {
         var a = "//"
         //aaa
-        alert(1);//aa
+        alert(2);//aa
         var aa = 44 / 2;
         
         var reg = /\/\//g;

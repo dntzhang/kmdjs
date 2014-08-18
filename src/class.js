@@ -1,4 +1,4 @@
-﻿var isView = !1, isBuild  = !1;
+﻿var isView = !1, isBuild = !1, isCombine = !1;
 var initializing = false, fnTest = /xyz/.test(function () { xyz; }) ? /\b_super\b/ : /.*/;
 
 // The base Class implementation (does nothing)

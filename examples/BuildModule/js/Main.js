@@ -5,17 +5,13 @@
         { name: "HelloKMD.Ball"  },
         { name: "Util.Bom", url: "Util" },
         { name: "Util.Vector2", url: "Util" }
-    ]
+    ],
+    //input any module that you want to build
+    build: ["HelloKMD.Ball"]
 
 });
 define("Main", {
     ctor: function () {
-        kmdjs.build("HelloKMD.Ball");
-        //or
-        // kmdjs.build("Util.Bom");
-        //or
-        // kmdjs.build("Util.Vector2");
-        //or
-        //any module that you want to build
+
     }
 })

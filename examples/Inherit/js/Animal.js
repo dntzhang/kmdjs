@@ -9,7 +9,6 @@
         this.age = age;
     },
     eat: function () {
-        console.log(Animal);
         alert(Animal.TestStaticsProperty);
         alert(Animal.TestStaticsMethod());
         return "nice";

@@ -1,5 +1,6 @@
 ﻿/* KMD.js Kill AMD and CMD
  * By 当耐特 http://weibo.com/iamleizhang
+ * Github: https://github.com/kmdjs/kmdjs
  * blog: http://www.cnblogs.com/iamzhanglei/
  * My website:http://htmlcssjs.duapp.com/
  * Many thanks to https://github.com/mishoo/UglifyJS2 

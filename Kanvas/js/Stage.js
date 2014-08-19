@@ -8,8 +8,8 @@
 
 
         this.hitCanvas = document.createElement("canvas");
-        this.hitCanvas.width = this.width;
-        this.hitCanvas.height = this.height;
+        this.hitCanvas.width =1;
+        this.hitCanvas.height = 1;
         this.hitCtx = this.hitCanvas.getContext("2d");
         Function.prototype.bind = function () {
             var __method = this;

@@ -8,7 +8,7 @@
     },
     draw: function (ctx) {
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.arc(0, 0, this.r, 0, Math.PI * 2);
         this.isHollow ? (ctx.strokeStyle = this.color, ctx.stroke()) : (ctx.fillStyle = this.color, ctx.fill());
 
 

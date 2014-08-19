@@ -104,22 +104,22 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
 
 
         var circle = new Circle(55, "red");
-        circle.x = 30;
-        circle.y = 30;
+        circle.x = 60;
+        circle.y = 60;
         circle.on("click", function () {
             alert("i'm a red ball!")
         })
 
         var circle2 = new Circle(35, "green");
-        circle2.x = 30;
-        circle2.y = 30;
+        circle2.x = 60;
+        circle2.y = 60;
         circle2.on("click", function () {
             alert("i'm a green ball!")
         })
 
         var circle3 = new Circle(18, "yellow");
-        circle3.x = 30;
-        circle3.y = 30;
+        circle3.x = 60;
+        circle3.y = 60;
         stage.add(circle, circle2, circle3);
 
         var ctt = new Container();

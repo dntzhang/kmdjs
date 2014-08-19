@@ -14,7 +14,7 @@ define("Kanvas.Loader", {
         this.ns = 3; //The number of sounds to preload. This depends on how often the sounds need to be played, but if too big it will probably cause lond loading times.
         this.sounds = []; //This will be a matrix of all the sounds
 
-        for (i = 0; i < this.ns; i++) //We need to have ns different copies of each sound, hence:
+        for (var i = 0; i < this.ns; i++) //We need to have ns different copies of each sound, hence:
             this.sounds.push([]);
 
         //for (i = 0; i < soundSources.length; i++)

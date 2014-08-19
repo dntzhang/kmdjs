@@ -8600,15 +8600,21 @@ var JSLINT = (function () {
         } catch (ex) {
             throw log(body), ex.name + "__" + ex.message + "__" + ex.number + "__" + ex.description;
         }
-        var ref = getRef(fn);
+        var refArr = getRef(fn, deps), ref = refArr[0];
         remove(ref, "__class");
         for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
-        parentClass && !isInArray(newArr, parentClass) && newArr.push(parentClass), isMtClassesBuild && "MAIN" == className.toUpperCase() && each(readyBuildClasses, function(item) {
+        if (parentClass && !isInArray(newArr, parentClass) && newArr.push(parentClass), 
+        isMtClassesBuild && "MAIN" == className.toUpperCase() && each(readyBuildClasses, function(item) {
             newArr.push(item);
-        });
-        var entire = getRefWithNS(fn);
-        if (body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}")), isDebug && (log(fullname + "  ref:" + ref), 
-        log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js")), isBuild || isMDBuild) {
+        }), isCombine) {
+            var entire = refArr[1];
+            body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
+        } else {
+            var entire = getRefWithNS(fn);
+            body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
+        }
+        if (isDebug && (log(fullname + "  ref:" + ref), log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js")), 
+        isBuild || isMDBuild) {
             var fx = Function(body), entire = compressor(fx);
             body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
         }
@@ -8741,7 +8747,7 @@ var JSLINT = (function () {
         for (var i = 0; i < deps.length; i++) for (var j = 0; j < kmdmdinfo.length; j++) if (deps[i] == kmdmdinfo[j].c && (kmdmdinfo[j].c == nick || fixCycle(kmdmdinfo[j].d, nick, kmdmdinfo[j]))) {
             remove(p.d, nick), isInArray(breakCycleModules, nick) || breakCycleModules.push(nick);
             var className = nick.split(".")[nick.split(".").length - 1];
-            remove(p.a, className), p.b = p.b.replace(RegExp("\\b" + className + "\\b", "g"), "__modules['" + nick + "']");
+            remove(p.a, className), isCombine || (p.b = p.b.replace(RegExp("\\b" + className + "\\b", "g"), "__modules['" + nick + "']"));
         }
     }
     function checkMainCpt() {
@@ -8774,8 +8780,7 @@ var JSLINT = (function () {
             var buildArr = [];
             if (each(arr, function(item2) {
                 each(kmdmdinfo, function(item) {
-                    if (item.c == item2) {
-                        buildArr.push(item);
+                    if (item.c == item2 && (buildArr.push(item), !isCombine)) {
                         var moduleArr = [], fnResult = Function(item.a, item.b);
                         for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
                         var obj = fnResult.apply(null, moduleArr);
@@ -8794,11 +8799,20 @@ var JSLINT = (function () {
                 doc.body.appendChild(ctt), codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
                 var cpCode = "//create by kmdjs   https://github.com/kmdjs/kmdjs \n";
                 if (isMtClassesBuild) isCombine || (cpCode += "kmdjs.exec(" + JSON.stringify(buildArr) + ")"); else if (isCombine) {
-                    for (var combineCode = ";(function(){\n", i = 0; i < buildArr.length; i++) {
+                    var topNsStr = "";
+                    each(buildArr, function(item) {
+                        var nsSplitArr = item.c.split("."), dfNS = "var " + nsSplitArr[0] + "={};\n";
+                        if (-1 == lastIndexOf(topNsStr, dfNS) && (topNsStr += dfNS), nsSplitArr.length > 2) {
+                            var subDfNS = item.c.substring(0, lastIndexOf(item.c, ".")) + "={};\n";
+                            -1 == lastIndexOf(topNsStr, subDfNS) && (topNsStr += subDfNS);
+                        }
+                    });
+                    for (var combineCode = ";(function(){\n" + topNsStr, i = 0; i < buildArr.length; i++) {
                         var item = buildArr[i];
-                        combineCode += item.b.substr(0, lastIndexOf(item.b, "return"));
+                        combineCode += "\n//begin-------------------" + item.c + "---------------------begin\n", 
+                        combineCode += item.b.substr(0, lastIndexOf(item.b, "return")), combineCode += "\n//end-------------------" + item.c + "---------------------end\n";
                     }
-                    combineCode += "\nnew Main();\n})();", cpCode += '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.ctor&&this.ctor.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="ctor"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules;\n\n' + combineCode + "})(this)";
+                    combineCode += "\nnew " + ProjName + ".Main();\n})();", cpCode += '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.ctor&&this.ctor.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="ctor"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules;\n\n' + combineCode + "})(this)";
                 } else cpCode += '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.ctor&&this.ctor.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="ctor"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules,t.all=' + JSON.stringify(buildArr) + ',u.exec(t.all),new t.modules["' + ProjName + '.Main"]})(this)';
                 codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, ProjName + ".Main.js");
                 var lmclone = [];
@@ -8874,28 +8888,65 @@ var JSLINT = (function () {
         }
         return !1;
     }
-    function getRef(fn) {
+    function isResultNodeInArray(arr, item) {
+        for (var i = 0; i < arr.length; i++) if (arr[i].start.pos == item.start.pos) return !0;
+        return !1;
+    }
+    function getRef(fn, deps) {
         var U2 = UglifyJS;
         currentAST = U2.parse("" + fn), currentAST.figure_out_scope();
-        var result = [];
-        return currentAST.walk(new U2.TreeWalker(function(node) {
+        var result = [], resultNode = [];
+        currentAST.walk(new U2.TreeWalker(function(node) {
             if (node instanceof U2.AST_New) {
                 var ex = node.expression, name = ex.name, scope = ex.scope;
-                !name || "this" == name || name in window || isInScopeChainVariables(scope, name) || isInArray(result, name) || result.push(name);
+                !name || "this" == name || "arguments" == name || name in window || isInScopeChainVariables(scope, name) || isResultNodeInArray(resultNode, node) || (result.push(name), 
+                resultNode.push(node));
             }
             if (node instanceof U2.AST_Dot) {
                 var ex = node.expression, name = ex.name, scope = ex.scope;
-                !name || "this" == name || name in window || isInScopeChainVariables(scope, name) || isInArray(result, name) || result.push(name);
-            }
-            if (node instanceof U2.AST_SymbolRef) {
-                var name = node.name;
-                !name || "this" == name || name in window || isInScopeChainVariables(node.scope, name) || isInArray(result, name) || result.push(name);
+                !name || "this" == name || "arguments" == name || name in window || isInScopeChainVariables(scope, name) || isResultNodeInArray(resultNode, node) || (result.push(name), 
+                resultNode.push(node));
             }
             if (node instanceof U2.AST_Call && "get" == node.expression.property && "kmdjs" == node.expression.expression.name) if (node.args[0].value) lazyMdArr.push(node.args[0].value); else for (var i = 0, len = node.args[0].elements.length; len > i; i++) {
                 var item = node.args[0].elements[i];
                 lazyMdArr.push(item.value);
             }
-        })), result;
+        }));
+        for (var code = "" + fn, refs = [], refNodes = [], checkNames = [], checkClassNames = [], secNames = [], j = 0; j < classList.length; j++) {
+            var arr = classList[j].split(".");
+            checkNames.push(arr[0]), secNames.push(arr[1]), checkClassNames.push(arr[arr.length - 1]);
+        }
+        for (var k = 0; k < result.length; k++) if (isInArray(checkNames, result[k])) {
+            if (isInArray(checkClassNames, result[k])) for (var i = 0; i < classList.length; i++) if (result[k] == classList[i].split(".")[0] && resultNode[k].property != classList[i].split(".")[1]) {
+                isInArray(refNodes, resultNode[k]) || (refs.push(result[k]), refNodes.push(resultNode[k]));
+                break;
+            }
+        } else isInArray(refNodes, resultNode[k]) || (refs.push(result[k]), refNodes.push(resultNode[k]));
+        remove(refs, "arguments");
+        for (var m = 0; m < refs.length; m++) for (var n = 0; n < deps.length; n++) isInArray(classList, deps[n] + "." + refs[m]) && refNodes[m] && (refNodes[m].fullName = deps[n] + "." + refs[m]);
+        for (var i = refNodes.length; --i >= 0; ) {
+            var replacement, node = refNodes[i], start_pos = node.start.pos, end_pos = node.end.endpos, fna = node.fullName || "_________KMDNULL______________";
+            node.fullName && (replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({
+                expression: new U2.AST_SymbolRef({
+                    name: fna
+                }),
+                args: node.args
+            }).print_to_string({
+                beautify: !0
+            }) : node instanceof UglifyJS.AST_SymbolRef ? new U2.AST_SymbolRef({
+                name: fna
+            }).print_to_string({
+                beautify: !0
+            }) : new U2.AST_Dot({
+                expression: new U2.AST_SymbolRef({
+                    name: fna
+                }),
+                property: node.property
+            }).print_to_string({
+                beautify: !0
+            }), code = splice_string(code, start_pos, end_pos, replacement));
+        }
+        return [ refs, code ];
     }
     function log(msg) {
         try {
@@ -8946,10 +8997,8 @@ var JSLINT = (function () {
         !defined[fullname]) {
             defined[fullname] = !0, mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
             var parentClass, baseClass = "__class";
-            if (1 != mda.length) if (mda[1].split(".")[0] in window && !isInArray(classList, mda[1])) baseClass = mda[1]; else {
-                var arr = mda[1].split(".");
-                baseClass = isCombine ? arr[arr.length - 1] : ' __modules["' + mda[1] + '"]', parentClass = mda[1];
-            }
+            1 != mda.length && (mda[1].split(".")[0] in window && !isInArray(classList, mda[1]) ? baseClass = mda[1] : (baseClass = isCombine ? mda[1] : ' __modules["' + mda[1] + '"]', 
+            parentClass = mda[1]));
             var className = fullname.substring(lastIndex + 1, fullname.length);
             deps.unshift(fullname.substring(0, lastIndex));
             for (var xmd = [], i = 0; i < deps.length; i++) xmdModules[deps[i]] && (isInArray(xmd, deps[i]) || xmd.push(deps[i]), 
@@ -8958,10 +9007,10 @@ var JSLINT = (function () {
             var ldCount = 0, xmdLen = xmd.length;
             if (xmdLen > 0) for (var j = 0; xmdLen > j; j++) !function(ns) {
                 allPending.push(ns), request(mapping[ns], function() {
-                    remove(allPending, ns), ldCount++, ldCount == xmdLen && (refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname), 
+                    remove(allPending, ns), ldCount++, ldCount == xmdLen && (refrence(className, deps, (isCombine ? fullname : "var " + className) + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname), 
                     currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt());
                 });
-            }(xmd[j]); else refrence(className, deps, "var " + className + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname, parentClass);
+            }(xmd[j]); else refrence(className, deps, (isCombine ? fullname : "var " + className) + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname, parentClass);
         }
     };
     var currentPendingModuleFullName = [];

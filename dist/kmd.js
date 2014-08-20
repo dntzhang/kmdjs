@@ -8801,10 +8801,9 @@ var JSLINT = (function () {
                 if (isMtClassesBuild) isCombine || (cpCode += "kmdjs.exec(" + JSON.stringify(buildArr) + ")"); else if (isCombine) {
                     var topNsStr = "";
                     each(buildArr, function(item) {
-                        var nsSplitArr = item.c.split("."), dfNS = "var " + nsSplitArr[0] + "={};\n";
-                        if (-1 == lastIndexOf(topNsStr, dfNS) && (topNsStr += dfNS), nsSplitArr.length > 2) {
-                            var subDfNS = item.c.substring(0, lastIndexOf(item.c, ".")) + "={};\n";
-                            -1 == lastIndexOf(topNsStr, subDfNS) && (topNsStr += subDfNS);
+                        for (var arr = nsToCode(item.c), i = 0; i < arr.length; i++) {
+                            var item2 = arr[i];
+                            -1 == lastIndexOf(topNsStr, item2) && (topNsStr += item2 + "\n");
                         }
                     });
                     for (var combineCode = ";(function(){\n" + topNsStr, i = 0; i < buildArr.length; i++) {
@@ -8852,6 +8851,15 @@ var JSLINT = (function () {
                 });
             }
         }
+    }
+    function nsToCode(ns) {
+        var result = [], nsSplitArr = ns.split(".");
+        result.push("var " + nsSplitArr[0] + "={};");
+        for (var i = 1; i < nsSplitArr.length - 1; i++) {
+            for (var str = nsSplitArr[0], j = 1; i + 1 > j; j++) str += "." + nsSplitArr[j];
+            result.push(str + "={}");
+        }
+        return result;
     }
     function remove(arr, item) {
         for (var i = arr.length - 1; i > -1; i--) arr[i] == item && arr.splice(i, 1);

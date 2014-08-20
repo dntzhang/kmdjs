@@ -9048,12 +9048,12 @@ var JSLINT = (function () {
         ProjName = option.name, cBaseUrl = option.baseUrl;
         var i;
         if (option.build && (isMtClassesBuild = !0, isBuild = !0, readyBuildClasses = option.build), 
-        option.deps) for (i = 0; i < option.deps.length; i++) {
-            var item = option.deps[i];
-            classList.push(item.name);
-            var arr = item.name.split(".");
-            mapping[item.name] = cBaseUrl + "/" + (item.url ? item.url + "/" : "") + item.name + ".js", 
-            nsmp[arr[arr.length - 1]] = item.name;
+        option.deps) for (i = 0; i < option.deps.length; i++) for (var item = option.deps[i], currentUrl = item.url, j = 0; j < item.classes.length; j++) {
+            var cls = item.classes[j];
+            classList.push(cls.name);
+            var arr = cls.name.split(".");
+            mapping[cls.name] = -1 == lastIndexOf(item.url, "http:") ? (cBaseUrl ? cBaseUrl + "/" : "") + (-1 == lastIndexOf(currentUrl, ".js") ? currentUrl + ".js" : currentUrl) : currentUrl, 
+            nsmp[arr[arr.length - 1]] = cls.name;
         }
         if (option.classes) for (i = 0; i < option.classes.length; i++) {
             var item = option.classes[i];

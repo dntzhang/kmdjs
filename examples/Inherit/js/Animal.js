@@ -9,8 +9,14 @@
         this.age = age;
     },
     eat: function () {
-        alert(Animal.TestStaticsProperty);
-        alert(Animal.TestStaticsMethod());
+        //test("Test Class Static  Property Access", function () {
+
+        //    equal(Animal.TestStaticsProperty, 1);
+        //})
+        //test("Test Class Static  Method Access", function () {
+
+        //    equal(Animal.TestStaticsMethod(), 2);
+        //})
         return "nice";
     }
 })

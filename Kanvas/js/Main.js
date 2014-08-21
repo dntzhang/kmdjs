@@ -11,7 +11,8 @@
           { name: "Kanvas.Shape.Circle" },
           { name: "Kanvas.Sprite" },
           { name: "Kanvas.Loader" },
-          { name: "Kanvas.RAF" }
+          { name: "Kanvas.RAF" },
+          {name:"Kanvas.UID"}
     ]
 });
 
@@ -29,7 +30,7 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
             bmp.x = 100;
             bmp.y = 100;
             stage.add(bmp);
-
+      
 
             pgBmp = new Bitmap(ld.get("pig"));
             pgBmp.x = 164;
@@ -40,7 +41,11 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
             pgBmp.on("click", function () {
                 alert("i am a pig");
             })
-
+            pgBmp.hover(function () {
+                this.scaleX = this.scaleY = 1.1;
+            }, function () {
+                this.scaleX = this.scaleY = 1;
+            })
             var ss = {
                 framerate: 10,
                 imgs: [ld.get("hero"), ld.get("pig")],
@@ -68,6 +73,11 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
 
             var sp = new Sprite(ss);
             sp.y = 200;
+            sp.hover(function () {
+                this.scaleX = this.scaleY = 1.1;
+            }, function () {
+                this.scaleX = this.scaleY = 1;
+            })
             stage.add(sp);
         });
         var stage = new Stage("#ourCanvas");
@@ -83,20 +93,17 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
         //text.scaleY = 2;
         stage.add(text);
         stage.update();
-
         var text2 = new Txt("KMD:Kill AMD and CMD!", "bold 26px Arial", "red");
         text2.y = 400;
         text2.on("click", function () {
             alert(this.text);
         });
-
         var text3 = new Txt("Click Me!", "bold 46px Arial", "blue");
         text3.y = 230;
         text3.x = 50;
         text3.on("click", function () {
             alert(this.text);
         });
-
      
           
 
@@ -109,19 +116,38 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
         circle.on("click", function () {
             alert("i'm a red ball!")
         })
+        circle.on("mouseover", function () {
+            circle.scaleX = circle.scaleY = 1.1;
+        })
 
+        //circle.on("mousemove", function () {
+        //    console.log(this.id)
+        //})
+
+
+        circle.on("mouseout", function () {
+            circle.scaleX = circle.scaleY = 1;
+        })
         var circle2 = new Circle(35, "green");
         circle2.x = 60;
         circle2.y = 60;
         circle2.on("click", function () {
             alert("i'm a green ball!")
         })
-
+        circle2.hover(function () {
+            this.scaleX = this.scaleY = 1.1;
+        }, function () {
+            this.scaleX = this.scaleY = 1;
+        })
         var circle3 = new Circle(18, "yellow");
         circle3.x = 60;
         circle3.y = 60;
         stage.add(circle, circle2, circle3);
-
+        circle3.hover(function () {
+            this.scaleX = this.scaleY = 1.1;
+        }, function () {
+            this.scaleX = this.scaleY = 1;
+        })
         var ctt = new Container();
         ctt.x = 268;
         ctt.y = 58;
@@ -135,8 +161,13 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
             alert("i am a Container!");
         })
 
+        var step = 0.05;
         RAF.requestInterval(function () {
             text.rotation++;
+            ctt.scaleX += step;
+            ctt.scaleY += step;
+            ctt.scaleY > 2 && (step *= -1);
+            ctt.scaleY < 0.5 && (step *= -1);
             if (pgBmp) pgBmp.rotation--;
 
             stage.update();

@@ -251,7 +251,9 @@
         for (var i = 0; i < deps.length; i++) for (var j = 0; j < kmdmdinfo.length; j++) if (deps[i] == kmdmdinfo[j].c && (kmdmdinfo[j].c == nick || fixCycle(kmdmdinfo[j].d, nick, kmdmdinfo[j]))) {
             remove(p.d, nick), isInArray(breakCycleModules, nick) || breakCycleModules.push(nick);
             var className = nick.split(".")[nick.split(".").length - 1];
-            remove(p.a, className), isCombine || (p.b = p.b.replace(RegExp("\\b" + className + "\\b", "g"), "__modules['" + nick + "']"));
+            remove(p.a, className), isCombine || (p.b = p.b.replace(RegExp("\\b" + className + "\\b", "g"), function(item, b, c) {
+                return "." == c.charAt(b - 1) ? item : "__modules['" + nick + "']";
+            }));
         }
     }
     function checkMainCpt() {

@@ -1,3 +1,5 @@
+##kmdjs2.0.0  coming soon.....
+
 ##kmdjs是什么？
 kmdjs是js工程化终极解决方案
 
@@ -35,12 +37,6 @@ kmdjs以Kill AMD and CMD为目标
 
 支持一键下载
 
-##Ket是什么？
-
-Ket - Kmdjs Extension Tools
-
-  * Util - :代表公共库，类似Enterprise  Library之类的公共基础库，都是纯粹的Class Library，没有UI元素
-  * Base - :组织通用的框架，基于Util之上，面向某个开发领域补充的Class Library和控件
 
 ##有问题反馈
 在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流

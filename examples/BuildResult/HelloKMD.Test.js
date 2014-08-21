@@ -1,1 +1,0 @@
-kmdjs.exec([{"a":[],"b":"var t=__class.extend({init:function(t){this.x=t}});return t","c":"HelloKMD.Test","d":[]}])

@@ -20,6 +20,44 @@ var isString = isType('String')
 var isArray = Array.isArray || isType('Array')
 var isFunction = isType('Function')
 var isBoolean = isType('Boolean')
+
+function remove(arr, item) {
+    for (var i = arr.length - 1; i > -1; i--) {
+        if (arr[i] == item) {
+            arr.splice(i, 1);
+            //   break;
+        }
+    }
+}
+function each(arry, action) {
+    for (var i = arry.length - 1; i > -1; i--) {
+        var result = action(arry[i],i);
+        if (isBoolean(result) && !result) break;
+    }
+}
+
+function lastIndexOf(str, word) {
+    if (str.lastIndexOf) return str.lastIndexOf(word);
+    var len = word.length;
+    for (var i = str.length - 1 - len; i > -1; i--) {
+        if (word === str.substr(i, len)) {
+            return i;
+        }
+    }
+    return -1;
+}
+function isInArray(arr, item) {
+    for (var i = 0, j = arr.length; i < j; i++) {
+        if (arr[i] == item) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function log(msg) {
+    try { console.log(msg); } catch (ex) { }
+}
 if ('function' !== typeof Array.prototype.reduce) {
     Array.prototype.reduce = function (callback, opt_initialValue) {
         'use strict';
@@ -581,6 +619,15 @@ if (typeof Object.create != 'function') {
         };
     })();
 };
+
+
+if (!String.prototype.trim) {
+    String.prototype.trim = function () {
+        return this.replace(/^\s+|\s+$/g, '');
+    };
+}
+
+
 (function (view) {
     "use strict";
 
@@ -8603,21 +8650,12 @@ var JSLINT = (function () {
         var refArr = getRef(fn, deps), ref = refArr[0];
         remove(ref, "__class");
         for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
-        if (parentClass && !isInArray(newArr, parentClass) && newArr.push(parentClass), 
-        isMtClassesBuild && "MAIN" == className.toUpperCase() && each(readyBuildClasses, function(item) {
+        parentClass && !isInArray(newArr, parentClass) && newArr.push(parentClass), isMtClassesBuild && "MAIN" == className.toUpperCase() && each(readyBuildClasses, function(item) {
             newArr.push(item);
-        }), isCombine) {
-            var entire = refArr[1];
-            body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
-        } else {
-            var entire = getRefWithNS(fn);
-            body = entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
-        }
-        if (isDebug && (log(fullname + "  ref:" + ref), log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js")), 
-        isBuild || isMDBuild) {
-            var fx = Function(body), entire = compressor(fx);
-            body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
-        }
+        });
+        var entire = refArr[1];
+        body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}")), isDebug && (log(fullname + "  ref:" + ref), 
+        log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js"));
         var moduleNameArr = [];
         for (i = 0; i < newArr.length; i++) {
             var xx = newArr[i].split(".");
@@ -8641,100 +8679,49 @@ var JSLINT = (function () {
             if (!define.modules[ns]) {
                 if (allPending.push(ns), !mapping[ns]) throw "no module named :" + ns;
                 request(mapping[ns], function() {
-                    remove(allPending, ns), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+                    remove(allPending, ns), checkMainCpt();
                 });
             }
-        }(newArr[k]); else currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+        }(newArr[k]); else checkMainCpt();
         window.allPending = allPending;
     }
-    function getBuildArr(fns) {
-        var buildArrs = [];
-        return each(fns, function(currentFullname) {
-            function catchAllDep(md) {
-                pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
-                md && md.d.length > 0 ? (each(md.d, function(item) {
-                    isInArray(arr, item) && remove(arr, item), arr.push(item);
-                    var next;
-                    each(kmdmdinfo, function(item2) {
-                        return item2.c == item ? (next = item2, !1) : undefined;
-                    }), next && catchAllDep(next);
-                }), pendingCount--) : pendingCount--;
-            }
-            -1 == lastIndexOf(currentFullname, ".") && (currentFullname = ProjName + "." + currentFullname);
-            var mainDep;
-            each(kmdmdinfo, function(item) {
-                item.c == currentFullname && (mainDep = item);
-            });
-            var arr = [], pendingCount = 0;
-            catchAllDep(mainDep);
-            var buildArr = [];
-            each(arr, function(item2) {
-                each(kmdmdinfo, function(item) {
-                    if (item.c == item2) {
-                        buildArr.push(item);
-                        var moduleArr = [], fnResult = Function(item.a, item.b);
-                        for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
-                        var obj = fnResult.apply(null, moduleArr);
-                        modules[item.c] = obj;
-                    }
-                });
-            }), buildArrs.push({
-                name: currentFullname,
-                buildArr: buildArr
-            });
-        }), buildArrs;
-    }
-    function checkModuleCpt() {
-        if (!(allPending.length > 0) && 0 != currentPendingModuleFullName.length) {
-            checkModules = {};
-            var buildArrs = [];
-            each(currentPendingModuleFullName, function(currentFullname) {
-                function catchAllDep(md) {
-                    pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
-                    md && md.d.length > 0 ? (each(md.d, function(item) {
-                        isInArray(arr, item) && remove(arr, item), arr.push(item);
-                        var next;
-                        each(kmdmdinfo, function(item2) {
-                            return item2.c == item ? (next = item2, !1) : undefined;
-                        }), next && catchAllDep(next);
-                    }), pendingCount--) : pendingCount--;
-                }
-                var mainDep;
-                each(kmdmdinfo, function(item) {
-                    item.c == currentFullname && (mainDep = item);
-                });
-                var arr = [], pendingCount = 0;
-                catchAllDep(mainDep);
-                var buildArr = [];
-                each(arr, function(item2) {
-                    each(kmdmdinfo, function(item) {
-                        if (item.c == item2) {
-                            buildArr.push(item);
-                            var moduleArr = [], fnResult = Function(item.a, item.b);
-                            for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
-                            var obj = fnResult.apply(null, moduleArr);
-                            modules[item.c] = obj;
-                        }
-                    });
-                }), buildArrs.push({
-                    name: currentFullname,
-                    buildArr: buildArr
-                });
-            }), setTimeout(function() {
-                for (var mdArr = [], i = 0, len = currentPendingModuleFullName.length; len > i; i++) modules[currentPendingModuleFullName[i]] && mdArr.push(modules[currentPendingModuleFullName[i]]);
-                currentPendingModuleFullName.length = 0, define.pendingCallback.length > 0 && each(define.pendingCallback, function(item) {
-                    remove(define.pendingCallback, item), item && item.apply(null, mdArr);
-                });
-            }, 0), isMDBuild && (each(buildArrs, function(item) {
-                var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
-                titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = item.name + ".js  ";
-                var codePanel = doc.createElement("textarea");
-                ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
-                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "25"), codePanel.setAttribute("cols", "45");
-                var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr) + ")";
-                codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, item.name + ".js");
-            }), isMDBuild = !1);
+    function dotChain(node) {
+        function chain(node) {
+            node.property ? (result.unshift(node.property), chain(node.expression)) : (bp = node.end.pos, 
+            result.unshift(node.name));
         }
+        var bp, result = [], ep = node.end.endpos;
+        return chain(node), {
+            ns: result.join("."),
+            bp: bp,
+            ep: ep
+        };
+    }
+    function getTopName(node) {
+        function chain(node) {
+            node.property ? chain(node.expression) : cNode = node;
+        }
+        var cNode;
+        return chain(node), {
+            name: cNode.name,
+            scope: cNode.scope
+        };
+    }
+    function getNSRef(fn) {
+        var U2 = UglifyJS, ast = U2.parse("" + fn);
+        ast.figure_out_scope();
+        var allNS = [];
+        ast.walk(new U2.TreeWalker(function(node) {
+            if (node instanceof U2.AST_Dot) {
+                var cc = getTopName(node), name = (node.expression, cc.name), scope = cc.scope;
+                !name || "this" == name || name in window || isInScopeChainVariables(scope, name) || allNS.push(dotChain(node));
+            }
+        }));
+        for (var len = allNS.length, result = {}, i = 0; len > i; i++) {
+            var item = allNS[i];
+            result[item.bp] ? result[item.bp] == item.bp && item.ep > result[item.bp].ep && (result[item.bp] = item) : result[item.bp] = item;
+        }
+        return result;
     }
     function downloadFile(code, fileName) {
         if (window.URL.createObjectURL) {
@@ -8744,106 +8731,61 @@ var JSLINT = (function () {
             dlLink.setAttribute("href", dnlnk), dlLink.setAttribute("download", fileName), dlLink.click();
         }
     }
-    function fixCycle(deps, nick, p) {
-        for (var i = 0; i < deps.length; i++) for (var j = 0; j < kmdmdinfo.length; j++) if (deps[i] == kmdmdinfo[j].c && (kmdmdinfo[j].c == nick || fixCycle(kmdmdinfo[j].d, nick, kmdmdinfo[j]))) {
-            remove(p.d, nick), isInArray(breakCycleModules, nick) || breakCycleModules.push(nick);
-            var className = nick.split(".")[nick.split(".").length - 1];
-            remove(p.a, className), p.b = p.b.replace(RegExp("\\b" + className + "\\b", "g"), function(item, b, c) {
-                return "." == c.charAt(b - 1) ? item : "__modules['" + nick + "']";
-            });
-        }
-    }
     function checkMainCpt() {
-        function catchAllDep(md) {
-            isCombine && each(clonekmd, function(item, index) {
-                return item.c == md.c ? (clonekmd.splice(0, index), !1) : undefined;
-            }), md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), isCombine && 1 == clonekmd.length || (md && md.d.length > 0 ? (each(md.d, function(item) {
-                isInArray(arr, item) && remove(arr, item), arr.push(item);
-                var next;
-                each(kmdmdinfo, function(item2) {
-                    return item2.c == item ? (next = item2, !1) : undefined;
-                }), next && catchAllDep(next);
-            }), pendingCount--) : pendingCount--);
-        }
         if (!(allPending.length > 0 || kmdmaincpt)) {
-            kmdmaincpt = !0;
-            var mainDep, clonekmd = [];
-            each(kmdmdinfo, function(item) {
-                isCombine || fixCycle(item.d, item.c, item), item.c == ProjName + ".Main" && (mainDep = item);
-            }), clonekmd = kmdmdinfo.slice();
-            var arr = [], pendingCount = 0;
-            isCombine || catchAllDep(mainDep);
-            var nextBuildArr = [];
-            each(breakCycleModules, function(item) {
-                each(kmdmdinfo, function(item2) {
-                    item == item2.c && nextBuildArr.push(item2);
-                });
-            }), each(nextBuildArr, function(item) {
-                catchAllDep(item);
-            });
-            var buildArr = [];
-            if (each(arr, function(item2) {
-                each(kmdmdinfo, function(item) {
-                    if (item.c == item2 && (buildArr.push(item), !isCombine)) {
-                        var moduleArr = [], fnResult = Function(item.a, item.b);
-                        for (item.e && each(kmdmdinfo, function(item3) {
-                            if (item.e == item3.c) {
-                                for (var moduleArr2 = [], fnResult2 = Function(item3.a, item3.b), k = 0; k < item3.d.length; k++) moduleArr2.push(modules[item3.d[k]]);
-                                var pObj = fnResult2.apply(null, moduleArr2);
-                                modules[item.e] = pObj;
-            }
-            }), i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
-                        var obj = fnResult.apply(null, moduleArr);
-                        modules[item.c] = obj;
-            }
-            });
-            }), isCombine && (buildArr = kmdmdinfo), isMtClassesBuild && each(buildArr, function(item) {
+            kmdmaincpt = !0, isMtClassesBuild && each(buildArr, function(item) {
                 return item.c == ProjName + ".Main" ? (remove(buildArr, item), !1) : undefined;
-            }), setTimeout(function() {
-                (isMtClassesBuild || !isView && !isBuild && !isCombine) && new modules[ProjName + ".Main"]();
-            }, 0), isBuild || isCombine) {
+            }), setTimeout(function() {}, 0);
+            var topNsStr = "";
+            each(kmdmdinfo, function(item) {
+                for (var arr = nsToCode(item.c), i = 0; i < arr.length; i++) {
+                    var item2 = arr[i];
+                    -1 == lastIndexOf(topNsStr, item2) && (topNsStr += item2 + "\n");
+                }
+            });
+            for (var cpCode = "//create by kmdjs   https://github.com/kmdjs/kmdjs \n", combineCode = ";(function(){\n" + topNsStr, evalOrder = [], outPutMd = [], i = 0; i < kmdmdinfo.length; i++) {
+                var item = kmdmdinfo[i];
+                if (!isInArray(outPutMd, item.c)) if (!item.e || isInArray(outPutMd, item.e)) {
+                    outPutMd.push(item.c);
+                    var temp = "";
+                    temp += "\n//begin-------------------" + item.c + "---------------------begin\n", 
+                    temp += item.b.substr(0, lastIndexOf(item.b, "return")), temp += "\n//end-------------------" + item.c + "---------------------end\n", 
+                    combineCode += temp, evalOrder.push(temp);
+                } else {
+                    each(kmdmdinfo, function(currentItem) {
+                        if (currentItem.c == item.e) {
+                            outPutMd.push(item.e);
+                            var temp = "";
+                            temp += "\n//begin-------------------" + currentItem.c + "---------------------begin\n", 
+                            temp += currentItem.b.substr(0, lastIndexOf(currentItem.b, "return")), temp += "\n//end-------------------" + currentItem.c + "---------------------end\n", 
+                            combineCode += temp, evalOrder.push(temp);
+                        }
+                    }), outPutMd.push(item.c);
+                    var temp = "";
+                    temp += "\n//begin-------------------" + item.c + "---------------------begin\n", 
+                    temp += item.b.substr(0, lastIndexOf(item.b, "return")), temp += "\n//end-------------------" + item.c + "---------------------end\n", 
+                    combineCode += temp, evalOrder.push(temp);
+                }
+            }
+            if (combineCode += "\nnew " + ProjName + ".Main();\n})();", cpCode += '(function(n){var initializing=!1,fnTest=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,__class=function(){};__class.extend=function(n){function i(){!initializing&&this.ctor&&this.ctor.apply(this,arguments)}var f=this.prototype,u,r,t;initializing=!0,u=new this,initializing=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof f[t]=="function"&&fnTest.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=f[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(i.prototype=u,n.statics)for(t in n.statics)n.statics.hasOwnProperty(t)&&(i[t]=n.statics[t],t=="ctor"&&i[t]());return i.prototype.constructor=i,i.extend=arguments.callee,i.implement=function(n){for(var t in n)u[t]=n[t]},i};\n\n' + combineCode + "})(this)", 
+            isBuild || isCombine) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
                 titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = isMtClassesBuild ? "" + readyBuildClasses : ProjName + ".js ";
                 var codePanel = doc.createElement("textarea");
                 ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
-                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
-                var cpCode = "//create by kmdjs   https://github.com/kmdjs/kmdjs \n";
-                if (isMtClassesBuild) isCombine || (cpCode += "kmdjs.exec(" + JSON.stringify(buildArr) + ")"); else if (isCombine) {
-                    var topNsStr = "";
-                    each(buildArr, function(item) {
-                        for (var arr = nsToCode(item.c), i = 0; i < arr.length; i++) {
-                            var item2 = arr[i];
-                            -1 == lastIndexOf(topNsStr, item2) && (topNsStr += item2 + "\n");
-                        }
-                    });
-                    for (var combineCode = ";(function(){\n" + topNsStr, outPutMd = [], i = 0; i < buildArr.length; i++) {
-                        var item = buildArr[i];
-                        isInArray(outPutMd, item.c) || (!item.e || isInArray(outPutMd, item.e) ? (outPutMd.push(item.c), 
-                        combineCode += "\n//begin-------------------" + item.c + "---------------------begin\n", 
-                        combineCode += item.b.substr(0, lastIndexOf(item.b, "return")), combineCode += "\n//end-------------------" + item.c + "---------------------end\n") : (each(buildArr, function(currentItem) {
-                            currentItem.c == item.e && (outPutMd.push(item.e), combineCode += "\n//begin-------------------" + currentItem.c + "---------------------begin\n", 
-                            combineCode += currentItem.b.substr(0, lastIndexOf(currentItem.b, "return")), combineCode += "\n//end-------------------" + currentItem.c + "---------------------end\n");
-                        }), outPutMd.push(item.c), combineCode += "\n//begin-------------------" + item.c + "---------------------begin\n", 
-                        combineCode += item.b.substr(0, lastIndexOf(item.b, "return")), combineCode += "\n//end-------------------" + item.c + "---------------------end\n"));
-                    }
-                    combineCode += "\nnew " + ProjName + ".Main();\n})();", cpCode += '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.ctor&&this.ctor.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="ctor"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules;\n\n' + combineCode + "})(this)";
-                } else cpCode += '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.ctor&&this.ctor.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="ctor"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules,t.all=' + JSON.stringify(buildArr) + ',u.exec(t.all),new t.modules["' + ProjName + '.Main"]})(this)';
+                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55"), 
+                isMtClassesBuild ? (cpCode = "", cpCode += "kmdjs.exec(" + JSON.stringify(kmdmdinfo) + ")") : cpCode = isCombine ? cpCode : compressor(cpCode), 
                 codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, ProjName + ".Main.js");
                 var lmclone = [];
                 each(lazyMdArr, function(item) {
                     lmclone.push(item);
-                }), kmdjs.get(lazyMdArr, function() {
-                    var lzBuildArrs = getBuildArr(lmclone);
-                    each(lzBuildArrs, function(item) {
-                        var ctt = doc.createElement("div"), msgDiv = doc.createElement("div");
-                        msgDiv.innerHTML = item.name + ".js ";
-                        var codePanel = doc.createElement("textarea");
-                        ctt.appendChild(codePanel), ctt.appendChild(msgDiv), doc.body.appendChild(ctt), 
-                        codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55");
-                        var cpCode = "kmdjs.exec(" + JSON.stringify(item.buildArr).replace(/\s+/g, " ") + ")";
-                        codePanel.value = cpCode, downloadFile(cpCode, item.name + ".js");
-                    });
                 });
+            }
+            if (!isBuild && !isCombine) {
+                eval('(function(n){var t=!1,r=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,i=function(){};i.extend=function(n){function u(){!t&&this.ctor&&this.ctor.apply(this,arguments)}var o=this.prototype,e,f,i;t=!0,e=new this,t=!1;for(i in n)i!="statics"&&(e[i]=typeof n[i]=="function"&&typeof o[i]=="function"&&r.test(n[i])?function(n,t){return function(){var r=this._super,i;return this._super=o[n],i=t.apply(this,arguments),this._super=r,i}}(i,n[i]):n[i]);for(f in this)this.hasOwnProperty(f)&&f!="extend"&&(u[f]=this[f]);if(u.prototype=e,n.statics)for(i in n.statics)n.statics.hasOwnProperty(i)&&(u[i]=n.statics[i],i=="ctor"&&u[i]());return u.prototype.constructor=u,u.extend=arguments.callee,u.implement=function(n){for(var t in n)e[t]=n[t]},u},n.__class=i})(this)'), 
+                eval(topNsStr);
+                for (var i = 0; i < evalOrder.length; i++) eval(evalOrder[i]);
+                eval("new " + ProjName + ".Main();");
             }
             if (isView) {
                 var holder = document.createElement("div");
@@ -8876,15 +8818,6 @@ var JSLINT = (function () {
         }
         return result;
     }
-    function remove(arr, item) {
-        for (var i = arr.length - 1; i > -1; i--) arr[i] == item && arr.splice(i, 1);
-    }
-    function each(arry, action) {
-        for (var i = arry.length - 1; i > -1; i--) {
-            var result = action(arry[i], i);
-            if (isBoolean(result) && !result) break;
-        }
-    }
     function stringifyWithFuncs(obj) {
         Object.prototype.toJSON = function() {
             var i, sobj = {};
@@ -8893,15 +8826,6 @@ var JSLINT = (function () {
         };
         var str = JSON.stringify(obj);
         return delete Object.prototype.toJSON, str;
-    }
-    function lastIndexOf(str, word) {
-        if (str.lastIndexOf) return str.lastIndexOf(word);
-        for (var len = word.length, i = str.length - 1 - len; i > -1; i--) if (word === str.substr(i, len)) return i;
-        return -1;
-    }
-    function isInArray(arr, item) {
-        for (var i = 0, j = arr.length; j > i; i++) if (arr[i] == item) return !0;
-        return !1;
     }
     function isInScopeChainVariables(scope, name) {
         if (scope) {
@@ -8946,10 +8870,11 @@ var JSLINT = (function () {
             }
         } else isInArray(refNodes, resultNode[k]) || (refs.push(result[k]), refNodes.push(resultNode[k]));
         remove(refs, "arguments");
-        for (var m = 0; m < refs.length; m++) for (var n = 0; n < deps.length; n++) isInArray(classList, deps[n] + "." + refs[m]) && refNodes[m] && (refNodes[m].fullName = deps[n] + "." + refs[m]);
+        for (var m = 0; m < refs.length; m++) for (var n = 0; n < deps.length; n++) isInArray(classList, deps[n] + "." + refs[m]) && refNodes[m] && (refNodes[m].replaceArea = [], 
+        refNodes[m].fullName = deps[n] + "." + refs[m]);
         for (var i = refNodes.length; --i >= 0; ) {
-            var replacement, node = refNodes[i], start_pos = node.start.pos, end_pos = node.end.endpos, fna = node.fullName || "_________KMDNULL______________";
-            node.fullName && (replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({
+            var replacement, node = refNodes[i], start_pos = node.start.pos, end_pos = node.end.endpos, fna = node.fullName || "KMDNull";
+            replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({
                 expression: new U2.AST_SymbolRef({
                     name: fna
                 }),
@@ -8967,14 +8892,47 @@ var JSLINT = (function () {
                 property: node.property
             }).print_to_string({
                 beautify: !0
-            }), code = splice_string(code, start_pos, end_pos, replacement));
+            });
+            for (var k = 0; k < refNodes.length; k++) {
+                var otherNode = refNodes[k];
+                if (otherNode.start.pos < start_pos && otherNode.end.endpos > end_pos) {
+                    otherNode.end.endpos += fna.length - fna.split(".")[fna.split(".").length - 1].length;
+                    var fna2 = otherNode.fullName, step = fna2.length - fna2.split(".")[fna2.split(".").length - 1].length;
+                    otherNode.replaceArea.push({
+                        step: step,
+                        begin: start_pos + step,
+                        end: end_pos + step,
+                        replaceM: replacement
+                    });
+                }
+            }
+        }
+        for (var i = refNodes.length; --i >= 0; ) {
+            var replacement, node = refNodes[i], start_pos = node.start.pos, end_pos = node.end.endpos, fna = node.fullName || "_________KMDNULL______________";
+            if (node.fullName && (replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({
+                expression: new U2.AST_SymbolRef({
+                name: fna
+            }),
+                args: node.args
+            }).print_to_string({
+                beautify: !0
+            }) : node instanceof UglifyJS.AST_SymbolRef ? new U2.AST_SymbolRef({
+                name: fna
+            }).print_to_string({
+                beautify: !0
+            }) : new U2.AST_Dot({
+                expression: new U2.AST_SymbolRef({
+                name: fna
+            }),
+                property: node.property
+            }).print_to_string({
+                beautify: !0
+            }), code = splice_string(code, start_pos, end_pos, replacement), node.replaceArea)) for (var m = 0; m < node.replaceArea.length; m++) {
+                var item = node.replaceArea[m];
+                code = splice_string(code, item.begin, item.end, item.replaceM);
+            }
         }
         return [ refs, code ];
-    }
-    function log(msg) {
-        try {
-            console.log(msg);
-        } catch (ex) {}
     }
     function getBaseUrl() {
         for (var baseUrl, scripts = doc.getElementsByTagName("script"), i = 0, len = scripts.length; len > i; i++) {
@@ -8994,9 +8952,7 @@ var JSLINT = (function () {
         }
         return baseUrl;
     }
-    var define, currentAST, cBaseUrl, dataMain, ProjName, kmdjs = {}, isDebug = !1, modules = {}, classList = [], mapping = (getBaseUrl(), 
-    {}), nsmp = {}, kmdmdinfo = (!("undefined" == typeof window || "undefined" == typeof navigator || !window.document), 
-    []), lazyMdArr = [], isMDBuild = !1, checkModules = {}, allPending = [], isMtClassesBuild = !1, readyBuildClasses = [], conflictMapping = {}, xmdModules = {}, beautifier_options_defaults = {
+    var define, kmdjs = {}, currentAST, isDebug = !1, modules = {}, classList = [], baseUrl = getBaseUrl(), mapping = {}, cBaseUrl, nsmp = {}, dataMain, isBrowser = !("undefined" == typeof window || "undefined" == typeof navigator || !window.document), ProjName, kmdmdinfo = [], lazyMdArr = [], isMDBuild = !1, allPending = [], isMtClassesBuild = !1, readyBuildClasses = [], conflictMapping = {}, xmdModules = {}, beautifier_options_defaults = {
         indent_start: 0,
         indent_level: 4,
         quote_keys: !1,
@@ -9020,7 +8976,7 @@ var JSLINT = (function () {
         !defined[fullname]) {
             defined[fullname] = !0, mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
             var parentClass, baseClass = "__class";
-            1 != mda.length && (mda[1].split(".")[0] in window && !isInArray(classList, mda[1]) ? baseClass = mda[1] : (baseClass = isCombine ? mda[1] : ' __modules["' + mda[1] + '"]', 
+            1 != mda.length && (mda[1].split(".")[0] in window && !isInArray(classList, mda[1]) ? baseClass = mda[1] : (baseClass = mda[1], 
             parentClass = mda[1]));
             var className = fullname.substring(lastIndex + 1, fullname.length);
             deps.unshift(fullname.substring(0, lastIndex));
@@ -9030,18 +8986,14 @@ var JSLINT = (function () {
             var ldCount = 0, xmdLen = xmd.length;
             if (xmdLen > 0) for (var j = 0; xmdLen > j; j++) !function(ns) {
                 allPending.push(ns), request(mapping[ns], function() {
-                    remove(allPending, ns), ldCount++, ldCount == xmdLen && (refrence(className, deps, (isCombine ? fullname : "var " + className) + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname), 
-                    currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt());
+                    remove(allPending, ns), ldCount++, ldCount == xmdLen && (refrence(className, deps, fullname + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname), 
+                    checkMainCpt());
                 });
-            }(xmd[j]); else refrence(className, deps, (isCombine ? fullname : "var " + className) + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname, parentClass);
+            }(xmd[j]); else refrence(className, deps, fullname + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname, parentClass);
         }
     };
     var currentPendingModuleFullName = [];
-    window.kmdmdinfo = kmdmdinfo, define.build = function() {
-        isBuild = !0, define.apply(null, arguments);
-    }, define.view = function() {
-        isView = !0, define.apply(null, arguments);
-    }, define.pendingCallback = [], kmdjs.get = function(fullname, callback) {
+    window.kmdmdinfo = kmdmdinfo, define.pendingCallback = [], kmdjs.get = function(fullname, callback) {
         isString(fullname) && (fullname = [ fullname ]);
         for (var i = 0, len = fullname.length; len > i; i++) -1 == lastIndexOf(fullname[i], ".") && (fullname[i] = ProjName + "." + fullname[i], 
         currentPendingModuleFullName.push(fullname[i]));
@@ -9051,22 +9003,14 @@ var JSLINT = (function () {
             allPending.push(ns), function(ns) {
                 if (!mapping[ns]) throw "no module named :" + ns;
                 request(mapping[ns], function() {
-                    callback && define.pendingCallback.push(callback), remove(allPending, ns), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+                    callback && define.pendingCallback.push(callback), remove(allPending, ns), checkMainCpt();
                 });
             }(ns);
         }
     };
-    var kmdmaincpt = !1, breakCycleModules = [];
-    kmdjs.build = function(fullname) {
-        if (currentPendingModuleFullName = [ fullname ], isMDBuild = !0, allPending.push(fullname), 
-        !mapping[fullname]) throw "no module named :" + ns;
-        request(mapping[fullname], function() {
-            remove(allPending, fullname), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
-        });
-    }, String.prototype.trim || (String.prototype.trim = function() {
-        return this.replace(/^\s+|\s+$/g, "");
-    }), allPending.push("Main"), request(dataMain + ".js", function() {
-        remove(allPending, "Main"), currentPendingModuleFullName.length > 0 ? checkModuleCpt() : checkMainCpt();
+    var kmdmaincpt = !1;
+    allPending.push("Main"), request(dataMain + ".js", function() {
+        remove(allPending, "Main"), checkMainCpt();
     }), kmdjs.config = function(option) {
         ProjName = option.name, cBaseUrl = option.baseUrl;
         var i;

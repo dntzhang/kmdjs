@@ -1,6 +1,6 @@
 ﻿//create by kmdjs   https://github.com/kmdjs/kmdjs 
 (function (n) {
-    function l(n, t, u) { var f = i.createElement("script"), s; u && (s = isFunction(u) ? u(n) : u, s && (f.charset = s)), a(f, t, n), f.async = !0, f.src = n, o = f, e ? r.insertBefore(f, e) : r.appendChild(f), o = null } function a(n, t, i) { function u(i) { n.onload = n.onerror = n.onreadystatechange = null, c.debug || r.removeChild(n), n = null, t(i) } var f = "onload" in n; f ? (n.onload = u, n.onerror = function () { throw "bad request!__" + i + "  404 (Not Found) "; }) : n.onreadystatechange = function () { /loaded|complete/.test(n.readyState) && u() } } function v(n, t) { var r, i; if (n.lastIndexOf) return n.lastIndexOf(t); for (r = t.length, i = n.length - 1 - r; i > -1; i--) if (t === n.substr(i, r)) return i; return -1 } var h = "HelloKanvas", i = document, c = {}, r = i.head || i.getElementsByTagName("head")[0] || i.documentElement, e = r.getElementsByTagName("base")[0], o, u = {}, t; u.get = function (n, i) { var f, e, o, u, r, s; for (typeof n == "string" && (n = [n]), r = 0, u = n.length; r < u; r++) v(n[r], ".") == -1 && (n[r] = h + "." + n[r]); for (f = !0, e = [], r = 0, u = n.length; r < u; r++) t.modules[n[r]] ? e.push(t.modules[n[r]]) : f = !1; if (f) i.apply(null, e); else for (o = 0, u = n.length, r = 0; r < u; r++) s = [], l(n[r] + ".js", function () { if (o++, o == u) { for (var r = 0; r < u; r++) t.modules[n[r]] && s.push(t.modules[n[r]]); i.apply(null, s) } }) }, u.exec = function (n) { for (var u, o, s, r = 0, f = n.length; r < f; r++) { var i = n[r], e = [], h = new Function(i.a, i.b); for (u = 0, o = i.d.length; u < o; u++) e.push(t.modules[i.d[u]]); s = h.apply(null, e), t.modules[i.c] = s } }, n.kmdjs = u; var f = !1, y = /xyz/.test(function () { xyz }) ? /\b_super\b/ : /.*/, s = function () { }; s.extend = function (n) { function i() { !f && this.ctor && this.ctor.apply(this, arguments) } var e = this.prototype, u, r, t; f = !0, u = new this, f = !1; for (t in n) t != "statics" && (u[t] = typeof n[t] == "function" && typeof e[t] == "function" && y.test(n[t]) ? function (n, t) { return function () { var r = this._super, i; return this._super = e[n], i = t.apply(this, arguments), this._super = r, i } }(t, n[t]) : n[t]); for (r in this) this.hasOwnProperty(r) && r != "extend" && (i[r] = this[r]); if (n.statics) for (t in n.statics) t == "ctor" ? n.statics[t].call(i) : i[t] = n.statics[t]; return i.prototype = u, i.prototype.constructor = i, i.extend = arguments.callee, i }, n.__class = s, t = {}, t.modules = {}, n.__modules = t.modules;
+    var initializing = !1, fnTest = /xyz/.test(function () { xyz }) ? /\b_super\b/ : /.*/, __class = function () { }; __class.extend = function (n) { function i() { !initializing && this.ctor && this.ctor.apply(this, arguments) } var f = this.prototype, u, r, t; initializing = !0, u = new this, initializing = !1; for (t in n) t != "statics" && (u[t] = typeof n[t] == "function" && typeof f[t] == "function" && fnTest.test(n[t]) ? function (n, t) { return function () { var r = this._super, i; return this._super = f[n], i = t.apply(this, arguments), this._super = r, i } }(t, n[t]) : n[t]); for (r in this) this.hasOwnProperty(r) && r != "extend" && (i[r] = this[r]); if (i.prototype = u, n.statics) for (t in n.statics) n.statics.hasOwnProperty(t) && (i[t] = n.statics[t], t == "ctor" && i[t]()); return i.prototype.constructor = i, i.extend = arguments.callee, i.implement = function (n) { for (var t in n) u[t] = n[t] }, i };
 
     ; (function () {
         var Kanvas = {};
@@ -162,7 +162,7 @@
                 ctx.transform(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
             },
             "on": function (type, fn) {
-                if (type == "mouseover") {
+                if (type == "mouseover" || type == "mousemove" || type == "mouseout") {
                     Kanvas.Stage.checkMove = true;
                 }
                 this.events[type] || (this.events[type] = []);
@@ -348,28 +348,6 @@
 
         //end-------------------Kanvas.Sprite---------------------end
 
-        //begin-------------------Kanvas.Txt---------------------begin
-
-        Kanvas.Txt = Kanvas.DisplayObject.extend({
-            "ctor": function (text, font, color) {
-                this._super();
-                this.text = text;
-                this.font = font;
-                this.color = color;
-                this.textAlign = "left";
-                this.textBaseline = "top";
-            },
-            "draw": function (ctx) {
-                ctx.fillStyle = this.color;
-                ctx.font = this.font;
-                ctx.textAlign = this.textAlign || "left";
-                ctx.textBaseline = this.textBaseline || "top";
-                ctx.fillText(this.text, 0, 0);
-            }
-        });
-
-        //end-------------------Kanvas.Txt---------------------end
-
         //begin-------------------Kanvas.Container---------------------begin
 
         Kanvas.Container = Kanvas.DisplayObject.extend({
@@ -415,6 +393,28 @@
 
         //end-------------------Kanvas.Container---------------------end
 
+        //begin-------------------Kanvas.Txt---------------------begin
+
+        Kanvas.Txt = Kanvas.DisplayObject.extend({
+            "ctor": function (text, font, color) {
+                this._super();
+                this.text = text;
+                this.font = font;
+                this.color = color;
+                this.textAlign = "left";
+                this.textBaseline = "top";
+            },
+            "draw": function (ctx) {
+                ctx.fillStyle = this.color;
+                ctx.font = this.font;
+                ctx.textAlign = this.textAlign || "left";
+                ctx.textBaseline = this.textBaseline || "top";
+                ctx.fillText(this.text, 0, 0);
+            }
+        });
+
+        //end-------------------Kanvas.Txt---------------------end
+
         //begin-------------------Kanvas.Stage---------------------begin
 
         Kanvas.Stage = Kanvas.Container.extend({
@@ -453,6 +453,7 @@
                 if (child) child.execEvent("click");
             },
             "_handleMousemove": function (evt) {
+                if (!Kanvas.Stage.checkMove) return;
                 var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
                 if (child) {
                     if (this.overObj) {
@@ -531,6 +532,24 @@
 
         //end-------------------Kanvas.Stage---------------------end
 
+        //begin-------------------Kanvas.Shape.Circle---------------------begin
+
+        Kanvas.Shape.Circle = Kanvas.DisplayObject.extend({
+            "ctor": function (r, color, isHollow) {
+                this._super();
+                this.r = r || 1;
+                this.color = color || "black";
+                this.isHollow = isHollow;
+            },
+            "draw": function (ctx) {
+                ctx.beginPath();
+                ctx.arc(0, 0, this.r, 0, Math.PI * 2);
+                this.isHollow ? (ctx.strokeStyle = this.color, ctx.stroke()) : (ctx.fillStyle = this.color, ctx.fill());
+            }
+        });
+
+        //end-------------------Kanvas.Shape.Circle---------------------end
+
         //begin-------------------Kanvas.RAF---------------------begin
 
         Kanvas.RAF = __class.extend({
@@ -569,24 +588,6 @@
         });
 
         //end-------------------Kanvas.RAF---------------------end
-
-        //begin-------------------Kanvas.Shape.Circle---------------------begin
-
-        Kanvas.Shape.Circle = Kanvas.DisplayObject.extend({
-            "ctor": function (r, color, isHollow) {
-                this._super();
-                this.r = r || 1;
-                this.color = color || "black";
-                this.isHollow = isHollow;
-            },
-            "draw": function (ctx) {
-                ctx.beginPath();
-                ctx.arc(0, 0, this.r, 0, Math.PI * 2);
-                this.isHollow ? (ctx.strokeStyle = this.color, ctx.stroke()) : (ctx.fillStyle = this.color, ctx.fill());
-            }
-        });
-
-        //end-------------------Kanvas.Shape.Circle---------------------end
 
         //begin-------------------Kanvas.UID---------------------begin
 

@@ -1,4 +1,7 @@
 ﻿define("Kanvas.Stage:Kanvas.Container", {
+    statics: {
+        checkMove:false
+    },
     ctor: function (canvas) {
         this._super();
         this.canvas = typeof canvas == "string" ? document.querySelector(canvas) : canvas;
@@ -36,6 +39,7 @@
         if (child) child.execEvent("click");
     },
     _handleMousemove: function (evt) {
+        if (!Stage.checkMove) return;
         var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
         if (child) {
             if (this.overObj) {

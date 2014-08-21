@@ -139,7 +139,8 @@
             a: moduleNameArr,
             b: body,
             c: fullname,
-            d: newArr
+            d: newArr,
+            e: parentClass
         }), 0 != newArr.length || isBuild) for (var k = 0; k < newArr.length; k++) !function(ns) {
             if (!define.modules[ns]) {
                 if (allPending.push(ns), !mapping[ns]) throw "no module named :" + ns;
@@ -251,30 +252,31 @@
         for (var i = 0; i < deps.length; i++) for (var j = 0; j < kmdmdinfo.length; j++) if (deps[i] == kmdmdinfo[j].c && (kmdmdinfo[j].c == nick || fixCycle(kmdmdinfo[j].d, nick, kmdmdinfo[j]))) {
             remove(p.d, nick), isInArray(breakCycleModules, nick) || breakCycleModules.push(nick);
             var className = nick.split(".")[nick.split(".").length - 1];
-            remove(p.a, className), isCombine || (p.b = p.b.replace(RegExp("\\b" + className + "\\b", "g"), function(item, b, c) {
+            remove(p.a, className), p.b = p.b.replace(RegExp("\\b" + className + "\\b", "g"), function(item, b, c) {
                 return "." == c.charAt(b - 1) ? item : "__modules['" + nick + "']";
-            }));
+            });
         }
     }
     function checkMainCpt() {
         function catchAllDep(md) {
-            pendingCount++, md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), 
-            md && md.d.length > 0 ? (each(md.d, function(item) {
+            isCombine && each(clonekmd, function(item, index) {
+                return item.c == md.c ? (clonekmd.splice(0, index), !1) : undefined;
+            }), md && isInArray(arr, md.c) && remove(arr, md.c), md && arr.push(md.c), isCombine && 1 == clonekmd.length || (md && md.d.length > 0 ? (each(md.d, function(item) {
                 isInArray(arr, item) && remove(arr, item), arr.push(item);
                 var next;
                 each(kmdmdinfo, function(item2) {
                     return item2.c == item ? (next = item2, !1) : undefined;
                 }), next && catchAllDep(next);
-            }), pendingCount--) : pendingCount--;
+            }), pendingCount--) : pendingCount--);
         }
         if (!(allPending.length > 0 || kmdmaincpt)) {
             kmdmaincpt = !0;
-            var mainDep;
+            var mainDep, clonekmd = [];
             each(kmdmdinfo, function(item) {
-                fixCycle(item.d, item.c, item), item.c == ProjName + ".Main" && (mainDep = item);
-            });
+                isCombine || fixCycle(item.d, item.c, item), item.c == ProjName + ".Main" && (mainDep = item);
+            }), clonekmd = kmdmdinfo.slice();
             var arr = [], pendingCount = 0;
-            catchAllDep(mainDep);
+            isCombine || catchAllDep(mainDep);
             var nextBuildArr = [];
             each(breakCycleModules, function(item) {
                 each(kmdmdinfo, function(item2) {
@@ -288,12 +290,18 @@
                 each(kmdmdinfo, function(item) {
                     if (item.c == item2 && (buildArr.push(item), !isCombine)) {
                         var moduleArr = [], fnResult = Function(item.a, item.b);
-                        for (i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
+                        for (item.e && each(kmdmdinfo, function(item3) {
+                            if (item.e == item3.c) {
+                                for (var moduleArr2 = [], fnResult2 = Function(item3.a, item3.b), k = 0; k < item3.d.length; k++) moduleArr2.push(modules[item3.d[k]]);
+                                var pObj = fnResult2.apply(null, moduleArr2);
+                                modules[item.e] = pObj;
+            }
+            }), i = 0; i < item.d.length; i++) moduleArr.push(modules[item.d[i]]);
                         var obj = fnResult.apply(null, moduleArr);
                         modules[item.c] = obj;
             }
             });
-            }), isMtClassesBuild && each(buildArr, function(item) {
+            }), isCombine && (buildArr = kmdmdinfo), isMtClassesBuild && each(buildArr, function(item) {
                 return item.c == ProjName + ".Main" ? (remove(buildArr, item), !1) : undefined;
             }), setTimeout(function() {
                 (isMtClassesBuild || !isView && !isBuild && !isCombine) && new modules[ProjName + ".Main"]();
@@ -312,10 +320,15 @@
                             -1 == lastIndexOf(topNsStr, item2) && (topNsStr += item2 + "\n");
                         }
                     });
-                    for (var combineCode = ";(function(){\n" + topNsStr, i = 0; i < buildArr.length; i++) {
+                    for (var combineCode = ";(function(){\n" + topNsStr, outPutMd = [], i = 0; i < buildArr.length; i++) {
                         var item = buildArr[i];
+                        isInArray(outPutMd, item.c) || (!item.e || isInArray(outPutMd, item.e) ? (outPutMd.push(item.c), 
                         combineCode += "\n//begin-------------------" + item.c + "---------------------begin\n", 
-                        combineCode += item.b.substr(0, lastIndexOf(item.b, "return")), combineCode += "\n//end-------------------" + item.c + "---------------------end\n";
+                        combineCode += item.b.substr(0, lastIndexOf(item.b, "return")), combineCode += "\n//end-------------------" + item.c + "---------------------end\n") : (each(buildArr, function(currentItem) {
+                            currentItem.c == item.e && (outPutMd.push(item.e), combineCode += "\n//begin-------------------" + currentItem.c + "---------------------begin\n", 
+                            combineCode += currentItem.b.substr(0, lastIndexOf(currentItem.b, "return")), combineCode += "\n//end-------------------" + currentItem.c + "---------------------end\n");
+                        }), outPutMd.push(item.c), combineCode += "\n//begin-------------------" + item.c + "---------------------begin\n", 
+                        combineCode += item.b.substr(0, lastIndexOf(item.b, "return")), combineCode += "\n//end-------------------" + item.c + "---------------------end\n"));
                     }
                     combineCode += "\nnew " + ProjName + ".Main();\n})();", cpCode += '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.ctor&&this.ctor.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="ctor"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules;\n\n' + combineCode + "})(this)";
                 } else cpCode += '(function(n){function l(n,t,u){var f=i.createElement("script"),s;u&&(s=isFunction(u)?u(n):u,s&&(f.charset=s)),a(f,t,n),f.async=!0,f.src=n,o=f,e?r.insertBefore(f,e):r.appendChild(f),o=null}function a(n,t,i){function u(i){n.onload=n.onerror=n.onreadystatechange=null,c.debug||r.removeChild(n),n=null,t(i)}var f="onload"in n;f?(n.onload=u,n.onerror=function(){throw"bad request!__"+i+"  404 (Not Found) ";}):n.onreadystatechange=function(){/loaded|complete/.test(n.readyState)&&u()}}function v(n,t){var r,i;if(n.lastIndexOf)return n.lastIndexOf(t);for(r=t.length,i=n.length-1-r;i>-1;i--)if(t===n.substr(i,r))return i;return-1}var h="' + ProjName + '",i=document,c={},r=i.head||i.getElementsByTagName("head")[0]||i.documentElement,e=r.getElementsByTagName("base")[0],o,u={},t;u.get=function(n,i){var f,e,o,u,r,s;for(typeof n=="string"&&(n=[n]),r=0,u=n.length;r<u;r++)v(n[r],".")==-1&&(n[r]=h+"."+n[r]);for(f=!0,e=[],r=0,u=n.length;r<u;r++)t.modules[n[r]]?e.push(t.modules[n[r]]):f=!1;if(f)i.apply(null,e);else for(o=0,u=n.length,r=0;r<u;r++)s=[],l(n[r]+".js",function(){if(o++,o==u){for(var r=0;r<u;r++)t.modules[n[r]]&&s.push(t.modules[n[r]]);i.apply(null,s)}})},u.exec=function(n){for(var u,o,s,r=0,f=n.length;r<f;r++){var i=n[r],e=[],h=new Function(i.a,i.b);for(u=0,o=i.d.length;u<o;u++)e.push(t.modules[i.d[u]]);s=h.apply(null,e),t.modules[i.c]=s}},n.kmdjs=u;var f=!1,y=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,s=function(){};s.extend=function(n){function i(){!f&&this.ctor&&this.ctor.apply(this,arguments)}var e=this.prototype,u,r,t;f=!0,u=new this,f=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof e[t]=="function"&&y.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=e[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(n.statics)for(t in n.statics)t=="ctor"?n.statics[t].call(i):i[t]=n.statics[t];return i.prototype=u,i.prototype.constructor=i,i.extend=arguments.callee,i},n.__class=s,t={},t.modules={},n.__modules=t.modules,t.all=' + JSON.stringify(buildArr) + ',u.exec(t.all),new t.modules["' + ProjName + '.Main"]})(this)';
@@ -372,7 +385,7 @@
     }
     function each(arry, action) {
         for (var i = arry.length - 1; i > -1; i--) {
-            var result = action(arry[i]);
+            var result = action(arry[i], i);
             if (isBoolean(result) && !result) break;
         }
     }

@@ -16,6 +16,9 @@
         ctx.transform(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
     },
     on: function (type, fn) {
+        if (type == "mouseover"||type=="mousemove"||type=="mouseout") {
+            Stage.checkMove = true;
+        }
         this.events[type] || (this.events[type] = []);
         this.events[type].push(fn)
     },

@@ -1,4 +1,4 @@
-﻿!function (global, undefined) {
+﻿!function(global, undefined) {
     function findScope(node) {
         function chain(node) {
             node.property ? chain(node.expression) : (sp = node.scope, name = node.name);
@@ -10,22 +10,22 @@
         };
     }
     function getRefWithNS(fn) {
-        var U2 = UglifyJS, code = "" + fn, result = [], result2 = [], walker = new U2.TreeWalker(function (node) {
+        var U2 = UglifyJS, code = "" + fn, result = [], result2 = [], walker = new U2.TreeWalker(function(node) {
             if (node instanceof UglifyJS.AST_Dot) {
                 var ob = findScope(node), name = (node.expression, ob.name), scope = ob.sp;
                 if (name && "this" != name && !(name in window) && !isInScopeChainVariables(scope, name)) {
                     var p = walker.parent();
-                    if (p instanceof UglifyJS.AST_New) result.push(p), result2.push(node); else if (!(p instanceof UglifyJS.AST_Dot)) if (p instanceof UglifyJS.AST_VarDef) p.value.expression instanceof UglifyJS.AST_Dot && (result2.push(node),
+                    if (p instanceof UglifyJS.AST_New) result.push(p), result2.push(node); else if (!(p instanceof UglifyJS.AST_Dot)) if (p instanceof UglifyJS.AST_VarDef) p.value.expression instanceof UglifyJS.AST_Dot && (result2.push(node), 
                     result.push(node)); else if (p instanceof UglifyJS.AST_Call) {
-                        if (p.expression.expression instanceof UglifyJS.AST_Dot) result2.push(node), result.push(node); else if (p.args.length > 0) for (var i = 0, len = p.args.length; len > i; i++) p.args[i].expression instanceof UglifyJS.AST_Dot && (result2.push(node),
+                        if (p.expression.expression instanceof UglifyJS.AST_Dot) result2.push(node), result.push(node); else if (p.args.length > 0) for (var i = 0, len = p.args.length; len > i; i++) p.args[i].expression instanceof UglifyJS.AST_Dot && (result2.push(node), 
                         result.push(node));
-                    } else p instanceof UglifyJS.AST_SimpleStatement && p.body.expression instanceof UglifyJS.AST_Dot && (result2.push(node),
+                    } else p instanceof UglifyJS.AST_SimpleStatement && p.body.expression instanceof UglifyJS.AST_Dot && (result2.push(node), 
                     result.push(node));
                 }
             }
         });
         currentAST.walk(walker);
-        for (var i = result.length; --i >= 0;) {
+        for (var i = result.length; --i >= 0; ) {
             var replacement, fns, node = result[i], start_pos = node.start.pos, end_pos = node.end.endpos;
             node instanceof UglifyJS.AST_New ? (fns = chainNS(node.expression), replacement = new U2.AST_New({
                 expression: new U2.AST_SymbolRef({
@@ -86,17 +86,17 @@
     function refrence(className, deps, foctory, fullname, parentClass) {
         conflictMapping = {};
         var body;
-        body = isIE6 ? foctory.replace(/"function[\s\S]*?\}"/g, function (str) {
+        body = isIE6 ? foctory.replace(/"function[\s\S]*?\}"/g, function(str) {
             return str.substr(1, str.length - 2);
-        }) : foctory.replace(/"function[\s\S]*?\};"/g, function (str) {
+        }) : foctory.replace(/"function[\s\S]*?\};"/g, function(str) {
             return str.substr(1, str.length - 4) + "}";
-        }), body = body.replace(/(\\r)?\\n(\\t)?([\s]*?)\/\/([\s\S]*?)(?=(\\r)?\\n(\\t)?)/g, "").replace(/(\/\*[\s\S]*?\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, function (item, b, c) {
+        }), body = body.replace(/(\\r)?\\n(\\t)?([\s]*?)\/\/([\s\S]*?)(?=(\\r)?\\n(\\t)?)/g, "").replace(/(\/\*[\s\S]*?\*\/)/g, "").replace(/\\r\\n/g, "").replace(/\\n/g, function(item, b, c) {
             return "\\" == c.charAt(b - 1) ? item : "";
-        }).replace(/\\t/g, function (item, b, c) {
+        }).replace(/\\t/g, function(item, b, c) {
             return "\\" == c.charAt(b - 1) ? item : "";
-        }).replace(/\\"/g, function () {
+        }).replace(/\\"/g, function() {
             return '"';
-        }).replace(/\\'/g, function () {
+        }).replace(/\\'/g, function() {
             return "'";
         }).replace(/\\\\/g, "\\"), body = js_beautify(body);
         try {
@@ -107,11 +107,11 @@
         var refArr = getRef(fn, deps), ref = refArr[0];
         remove(ref, "__class");
         for (var newArr = [], i = 0, len = deps.length; len > i; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
-        parentClass && !isInArray(newArr, parentClass) && newArr.push(parentClass), isMtClassesBuild && "MAIN" == className.toUpperCase() && each(readyBuildClasses, function (item) {
+        parentClass && !isInArray(newArr, parentClass) && newArr.push(parentClass), isMtClassesBuild && "MAIN" == className.toUpperCase() && each(readyBuildClasses, function(item) {
             newArr.push(item);
         });
         var entire = refArr[1];
-        body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}")), isDebug && (log(fullname + "  ref:" + ref),
+        body = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}")), isDebug && (log(fullname + "  ref:" + ref), 
         log(body + "\n//@ sourceURL=" + (className || "anonymous") + ".js"));
         var moduleNameArr = [];
         for (i = 0; i < newArr.length; i++) {
@@ -119,7 +119,7 @@
             moduleNameArr.push(xx[xx.length - 1]);
         }
         var isPush = !1;
-        each(kmdmdinfo, function (item) {
+        each(kmdmdinfo, function(item) {
             return item.c == fullname ? (isPush = !0, !1) : undefined;
         });
         for (var ck in conflictMapping) {
@@ -132,10 +132,10 @@
             c: fullname,
             d: newArr,
             e: parentClass
-        }), 0 != newArr.length || isBuild) for (var k = 0; k < newArr.length; k++) !function (ns) {
+        }), 0 != newArr.length || isBuild) for (var k = 0; k < newArr.length; k++) !function(ns) {
             if (!define.modules[ns]) {
                 if (allPending.push(ns), !mapping[ns]) throw "no module named :" + ns;
-                request(mapping[ns], function () {
+                request(mapping[ns], function() {
                     remove(allPending, ns), checkMainCpt();
                 });
             }
@@ -144,7 +144,7 @@
     }
     function dotChain(node) {
         function chain(node) {
-            node.property ? (result.unshift(node.property), chain(node.expression)) : (bp = node.end.pos,
+            node.property ? (result.unshift(node.property), chain(node.expression)) : (bp = node.end.pos, 
             result.unshift(node.name));
         }
         var bp, result = [], ep = node.end.endpos;
@@ -168,7 +168,7 @@
         var U2 = UglifyJS, ast = U2.parse("" + fn);
         ast.figure_out_scope();
         var allNS = [];
-        ast.walk(new U2.TreeWalker(function (node) {
+        ast.walk(new U2.TreeWalker(function(node) {
             if (node instanceof U2.AST_Dot) {
                 var cc = getTopName(node), name = (node.expression, cc.name), scope = cc.scope;
                 !name || "this" == name || name in window || isInScopeChainVariables(scope, name) || allNS.push(dotChain(node));
@@ -182,7 +182,7 @@
     }
     function downloadFile(code, fileName) {
         if (window.URL.createObjectURL) {
-            var fileParts = [code], bb = new Blob(fileParts, {
+            var fileParts = [ code ], bb = new Blob(fileParts, {
                 type: "text/plain"
             }), dnlnk = window.URL.createObjectURL(bb), dlLink = document.createElement("a");
             dlLink.setAttribute("href", dnlnk), dlLink.setAttribute("download", fileName), dlLink.click();
@@ -191,21 +191,25 @@
     function checkMainCpt() {
         function createParentCode(item) {
             if (!isInArray(outPutMd, item.c)) {
-                each(kmdmdinfo, function (currentItem) {
+                each(kmdmdinfo, function(currentItem) {
                     currentItem.c == item.e && createParentCode(currentItem);
                 }), outPutMd.push(item.c);
                 var temp = "";
-                temp += "\n//begin-------------------" + item.c + "---------------------begin\n",
-                temp += item.b.substr(0, lastIndexOf(item.b, "return")), temp += "\n//end-------------------" + item.c + "---------------------end\n",
+                temp += "\n//begin-------------------" + item.c + "---------------------begin\n", 
+                temp += item.b.substr(0, lastIndexOf(item.b, "return")), temp += "\n//end-------------------" + item.c + "---------------------end\n", 
                 combineCode += temp, evalOrder.push(temp);
             }
         }
         if (!(allPending.length > 0 || kmdmaincpt)) {
-            kmdmaincpt = !0, isMtClassesBuild && each(buildArr, function (item) {
-                return item.c == ProjName + ".Main" ? (remove(buildArr, item), !1) : undefined;
-            }), setTimeout(function () { }, 0);
+            kmdmaincpt = !0;
+            var buildArr = [];
+            isMtClassesBuild && each(readyBuildClasses, function(ns) {
+                each(kmdmdinfo, function(item) {
+                    item.c == ns && buildArr.push(item);
+                });
+            }), setTimeout(function() {}, 0);
             var topNsStr = "";
-            each(kmdmdinfo, function (item) {
+            each(kmdmdinfo, function(item) {
                 for (var arr = nsToCode(item.c), i = 0; i < arr.length; i++) {
                     var item2 = arr[i];
                     -1 == lastIndexOf(topNsStr, item2) && (topNsStr += item2 + "\n");
@@ -216,36 +220,36 @@
                 if (!isInArray(outPutMd, item.c)) if (item.e) createParentCode(item); else {
                     outPutMd.push(item.c);
                     var temp = "";
-                    temp += "\n//begin-------------------" + item.c + "---------------------begin\n",
-                    temp += item.b.substr(0, lastIndexOf(item.b, "return")), temp += "\n//end-------------------" + item.c + "---------------------end\n",
+                    temp += "\n//begin-------------------" + item.c + "---------------------begin\n", 
+                    temp += item.b.substr(0, lastIndexOf(item.b, "return")), temp += "\n//end-------------------" + item.c + "---------------------end\n", 
                     combineCode += temp, evalOrder.push(temp);
                 }
             }
-            if (combineCode += "\nnew " + ProjName + ".Main();\n})();", cpCode += '(function(n){var initializing=!1,fnTest=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,__class=function(){};__class.extend=function(n){function i(){!initializing&&this.ctor&&this.ctor.apply(this,arguments)}var f=this.prototype,u,r,t;initializing=!0,u=new this,initializing=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof f[t]=="function"&&fnTest.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=f[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(i.prototype=u,n.statics)for(t in n.statics)n.statics.hasOwnProperty(t)&&(i[t]=n.statics[t],t=="ctor"&&i[t]());return i.prototype.constructor=i,i.extend=arguments.callee,i.implement=function(n){for(var t in n)u[t]=n[t]},i};\n\n' + combineCode + "})(this)",
+            if (combineCode += "\nnew " + ProjName + ".Main();\n})();", cpCode += '(function(n){var initializing=!1,fnTest=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,__class=function(){};__class.extend=function(n){function i(){!initializing&&this.ctor&&this.ctor.apply(this,arguments)}var f=this.prototype,u,r,t;initializing=!0,u=new this,initializing=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof f[t]=="function"&&fnTest.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=f[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(i.prototype=u,n.statics)for(t in n.statics)n.statics.hasOwnProperty(t)&&(i[t]=n.statics[t],t=="ctor"&&i[t]());return i.prototype.constructor=i,i.extend=arguments.callee,i.implement=function(n){for(var t in n)u[t]=n[t]},i};\n\n' + combineCode + "})(this)", 
             isBuild || isCombine) {
                 var ctt = doc.createElement("div"), msgDiv = doc.createElement("div"), titleDiv = doc.createElement("div");
                 titleDiv.innerHTML = "Build Complete!", msgDiv.innerHTML = isMtClassesBuild ? "" + readyBuildClasses : ProjName + ".js ";
                 var codePanel = doc.createElement("textarea");
-                ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv),
-                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55"),
-                isMtClassesBuild ? (cpCode = "", cpCode += "kmdjs.exec(" + JSON.stringify(kmdmdinfo) + ")") : cpCode = isCombine ? cpCode : compressor(cpCode),
+                ctt.appendChild(titleDiv), ctt.appendChild(codePanel), ctt.appendChild(msgDiv), 
+                doc.body.appendChild(ctt), codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55"), 
+                isMtClassesBuild ? (cpCode = "", cpCode += "kmdjs.exec(" + JSON.stringify(buildArr) + ")") : cpCode = isCombine ? cpCode : compressor(cpCode), 
                 codePanel.value = cpCode, codePanel.focus(), codePanel.select(), downloadFile(cpCode, ProjName + ".Main.js");
                 var lmclone = [];
-                each(lazyMdArr, function (item) {
+                each(lazyMdArr, function(item) {
                     lmclone.push(item);
                 });
             }
             if (!isBuild && !isCombine) {
-                eval('(function(n){var t=!1,r=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,i=function(){};i.extend=function(n){function u(){!t&&this.ctor&&this.ctor.apply(this,arguments)}var o=this.prototype,e,f,i;t=!0,e=new this,t=!1;for(i in n)i!="statics"&&(e[i]=typeof n[i]=="function"&&typeof o[i]=="function"&&r.test(n[i])?function(n,t){return function(){var r=this._super,i;return this._super=o[n],i=t.apply(this,arguments),this._super=r,i}}(i,n[i]):n[i]);for(f in this)this.hasOwnProperty(f)&&f!="extend"&&(u[f]=this[f]);if(u.prototype=e,n.statics)for(i in n.statics)n.statics.hasOwnProperty(i)&&(u[i]=n.statics[i],i=="ctor"&&u[i]());return u.prototype.constructor=u,u.extend=arguments.callee,u.implement=function(n){for(var t in n)e[t]=n[t]},u},n.__class=i})(this)'),
+                eval('(function(n){var t=!1,r=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,i=function(){};i.extend=function(n){function u(){!t&&this.ctor&&this.ctor.apply(this,arguments)}var o=this.prototype,e,f,i;t=!0,e=new this,t=!1;for(i in n)i!="statics"&&(e[i]=typeof n[i]=="function"&&typeof o[i]=="function"&&r.test(n[i])?function(n,t){return function(){var r=this._super,i;return this._super=o[n],i=t.apply(this,arguments),this._super=r,i}}(i,n[i]):n[i]);for(f in this)this.hasOwnProperty(f)&&f!="extend"&&(u[f]=this[f]);if(u.prototype=e,n.statics)for(i in n.statics)n.statics.hasOwnProperty(i)&&(u[i]=n.statics[i],i=="ctor"&&u[i]());return u.prototype.constructor=u,u.extend=arguments.callee,u.implement=function(n){for(var t in n)e[t]=n[t]},u},n.__class=i})(this)'), 
                 eval(topNsStr);
                 for (var i = 0; i < evalOrder.length; i++) eval(evalOrder[i]);
                 eval("new " + ProjName + ".Main();");
             }
             if (isView) {
                 var holder = document.createElement("div");
-                document.body.style.textAlign = "center", holder.setAttribute("id", "holder"), holder.style.position = "absolute",
-                holder.style.left = "0px", holder.style.top = "0px", holder.style.backgroundColor = "#ccc",
-                holder.style.display = "inline-block", document.body.style.overflow = "hidden",
+                document.body.style.textAlign = "center", holder.setAttribute("id", "holder"), holder.style.position = "absolute", 
+                holder.style.left = "0px", holder.style.top = "0px", holder.style.backgroundColor = "#ccc", 
+                holder.style.display = "inline-block", document.body.style.overflow = "hidden", 
                 document.body.appendChild(holder);
                 for (var data = [], i = 0, len = buildArr.length; len > i; i++) {
                     var item = buildArr[i];
@@ -273,7 +277,7 @@
         return result;
     }
     function stringifyWithFuncs(obj) {
-        Object.prototype.toJSON = function () {
+        Object.prototype.toJSON = function() {
             var i, sobj = {};
             for (i in this) this.hasOwnProperty(i) && (sobj[i] = "function" == typeof this[i] ? addSi(this[i]) : this[i]);
             return sobj;
@@ -297,15 +301,15 @@
         var U2 = UglifyJS;
         currentAST = U2.parse("" + fn), currentAST.figure_out_scope();
         var result = [], resultNode = [];
-        currentAST.walk(new U2.TreeWalker(function (node) {
+        currentAST.walk(new U2.TreeWalker(function(node) {
             if (node instanceof U2.AST_New) {
                 var ex = node.expression, name = ex.name, scope = ex.scope;
-                !name || "this" == name || "arguments" == name || name in window || isInScopeChainVariables(scope, name) || isResultNodeInArray(resultNode, node) || (result.push(name),
+                !name || "this" == name || "arguments" == name || name in window || isInScopeChainVariables(scope, name) || isResultNodeInArray(resultNode, node) || (result.push(name), 
                 resultNode.push(node));
             }
             if (node instanceof U2.AST_Dot) {
                 var ex = node.expression, name = ex.name, scope = ex.scope;
-                !name || "this" == name || "arguments" == name || name in window || isInScopeChainVariables(scope, name) || isResultNodeInArray(resultNode, node) || (result.push(name),
+                !name || "this" == name || "arguments" == name || name in window || isInScopeChainVariables(scope, name) || isResultNodeInArray(resultNode, node) || (result.push(name), 
                 resultNode.push(node));
             }
             if (node instanceof U2.AST_Call && "get" == node.expression.property && "kmdjs" == node.expression.expression.name) if (node.args[0].value) lazyMdArr.push(node.args[0].value); else for (var i = 0, len = node.args[0].elements.length; len > i; i++) {
@@ -324,9 +328,9 @@
             }
         } else isInArray(refNodes, resultNode[k]) || (refs.push(result[k]), refNodes.push(resultNode[k]));
         remove(refs, "arguments");
-        for (var m = 0; m < refs.length; m++) for (var n = 0; n < deps.length; n++) isInArray(classList, deps[n] + "." + refs[m]) && refNodes[m] && (refNodes[m].replaceArea = [],
+        for (var m = 0; m < refs.length; m++) for (var n = 0; n < deps.length; n++) isInArray(classList, deps[n] + "." + refs[m]) && refNodes[m] && (refNodes[m].replaceArea = [], 
         refNodes[m].fullName = deps[n] + "." + refs[m]);
-        for (var i = refNodes.length; --i >= 0;) {
+        for (var i = refNodes.length; --i >= 0; ) {
             var replacement, node = refNodes[i], start_pos = node.start.pos, end_pos = node.end.endpos, fna = node.fullName || "KMDNull";
             replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({
                 expression: new U2.AST_SymbolRef({
@@ -361,7 +365,7 @@
                 }
             }
         }
-        for (var i = refNodes.length; --i >= 0;) {
+        for (var i = refNodes.length; --i >= 0; ) {
             var replacement, node = refNodes[i], start_pos = node.start.pos, end_pos = node.end.endpos, fna = node.fullName || "_________KMDNULL______________";
             if (node.fullName && (replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({
                 expression: new U2.AST_SymbolRef({
@@ -386,7 +390,7 @@
                 code = splice_string(code, item.begin, item.end, item.replaceM);
             }
         }
-        return [refs, code];
+        return [ refs, code ];
     }
     function getBaseUrl() {
         for (var baseUrl, scripts = doc.getElementsByTagName("script"), i = 0, len = scripts.length; len > i; i++) {
@@ -421,74 +425,74 @@
         comments: !1,
         semicolons: !1
     }, isIE = !!window.ActiveXObject, isIE6 = isIE && !window.XMLHttpRequest, defined = {};
-    define = function (name, deps, foctory) {
+    define = function(name, deps, foctory) {
         var argc = arguments.length;
         if (1 == argc) throw "the class must take a name";
-        2 == argc ? (foctory = deps, deps = []) : isString(deps) && (deps = [deps]);
+        2 == argc ? (foctory = deps, deps = []) : isString(deps) && (deps = [ deps ]);
         var mda = name.split(":"), fullname = mda[0], lastIndex = lastIndexOf(fullname, ".");
-        if (-1 == lastIndex && (fullname = ProjName + "." + fullname, lastIndex = lastIndexOf(fullname, ".")),
+        if (-1 == lastIndex && (fullname = ProjName + "." + fullname, lastIndex = lastIndexOf(fullname, ".")), 
         !defined[fullname]) {
             defined[fullname] = !0, mda.length > 1 && -1 == lastIndexOf(mda[1], ".") && (mda[1] = ProjName + "." + mda[1]);
             var parentClass, baseClass = "__class";
-            1 != mda.length && (mda[1].split(".")[0] in window && !isInArray(classList, mda[1]) ? baseClass = mda[1] : (baseClass = mda[1],
+            1 != mda.length && (mda[1].split(".")[0] in window && !isInArray(classList, mda[1]) ? baseClass = mda[1] : (baseClass = mda[1], 
             parentClass = mda[1]));
             var className = fullname.substring(lastIndex + 1, fullname.length);
             deps.unshift(fullname.substring(0, lastIndex));
-            for (var xmd = [], i = 0; i < deps.length; i++) xmdModules[deps[i]] && (isInArray(xmd, deps[i]) || xmd.push(deps[i]),
+            for (var xmd = [], i = 0; i < deps.length; i++) xmdModules[deps[i]] && (isInArray(xmd, deps[i]) || xmd.push(deps[i]), 
             deps.splice(i, 1), i--);
             isInArray(deps, ProjName) || deps.unshift(ProjName);
             var ldCount = 0, xmdLen = xmd.length;
-            if (xmdLen > 0) for (var j = 0; xmdLen > j; j++) !function (ns) {
-                allPending.push(ns), request(mapping[ns], function () {
-                    remove(allPending, ns), ldCount++, ldCount == xmdLen && (refrence(className, deps, fullname + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname),
+            if (xmdLen > 0) for (var j = 0; xmdLen > j; j++) !function(ns) {
+                allPending.push(ns), request(mapping[ns], function() {
+                    remove(allPending, ns), ldCount++, ldCount == xmdLen && (refrence(className, deps, fullname + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname), 
                     checkMainCpt());
                 });
             }(xmd[j]); else refrence(className, deps, fullname + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname, parentClass);
         }
     };
     var currentPendingModuleFullName = [];
-    window.kmdmdinfo = kmdmdinfo, define.pendingCallback = [], kmdjs.get = function (fullname, callback) {
-        isString(fullname) && (fullname = [fullname]);
-        for (var i = 0, len = fullname.length; len > i; i++) -1 == lastIndexOf(fullname[i], ".") && (fullname[i] = ProjName + "." + fullname[i],
+    window.kmdmdinfo = kmdmdinfo, define.pendingCallback = [], kmdjs.get = function(fullname, callback) {
+        isString(fullname) && (fullname = [ fullname ]);
+        for (var i = 0, len = fullname.length; len > i; i++) -1 == lastIndexOf(fullname[i], ".") && (fullname[i] = ProjName + "." + fullname[i], 
         currentPendingModuleFullName.push(fullname[i]));
         for (var loaded = !0, mdArr = [], i = 0, len = fullname.length; len > i; i++) modules[fullname[i]] ? mdArr.push(modules[fullname[i]]) : loaded = !1;
         if (loaded) callback && callback.apply(null, mdArr); else for (var i = 0, len = fullname.length; len > i; i++) if (!modules[fullname[i]]) {
             var ns = fullname[i];
-            allPending.push(ns), function (ns) {
+            allPending.push(ns), function(ns) {
                 if (!mapping[ns]) throw "no module named :" + ns;
-                request(mapping[ns], function () {
+                request(mapping[ns], function() {
                     callback && define.pendingCallback.push(callback), remove(allPending, ns), checkMainCpt();
                 });
             }(ns);
         }
     };
     var kmdmaincpt = !1;
-    allPending.push("Main"), request(dataMain + ".js", function () {
+    allPending.push("Main"), request(dataMain + ".js", function() {
         remove(allPending, "Main"), checkMainCpt();
-    }), kmdjs.config = function (option) {
+    }), kmdjs.config = function(option) {
         ProjName = option.name, cBaseUrl = option.baseUrl;
         var i;
-        if (option.build && (isMtClassesBuild = !0, isBuild = !0, readyBuildClasses = option.build),
+        if (isBuild || option.build && (isMtClassesBuild = !0, isBuild = !0, readyBuildClasses = option.build), 
         option.deps) for (i = 0; i < option.deps.length; i++) for (var item = option.deps[i], currentUrl = item.url, j = 0; j < item.classes.length; j++) {
             var cls = item.classes[j];
             classList.push(cls.name);
             var arr = cls.name.split(".");
-            mapping[cls.name] = -1 == lastIndexOf(item.url, "http:") ? (cBaseUrl ? cBaseUrl + "/" : "") + (-1 == lastIndexOf(currentUrl, ".js") ? currentUrl + ".js" : currentUrl) : currentUrl,
+            mapping[cls.name] = -1 == lastIndexOf(item.url, "http:") ? (cBaseUrl ? cBaseUrl + "/" : "") + (-1 == lastIndexOf(currentUrl, ".js") ? currentUrl + ".js" : currentUrl) : currentUrl, 
             nsmp[arr[arr.length - 1]] = cls.name;
         }
         if (option.classes) for (i = 0; i < option.classes.length; i++) {
             var item = option.classes[i];
             classList.push(item.name);
             var arr = item.name.split(".");
-            item.url ? mapping[item.name] = -1 == lastIndexOf(item.url, "http:") ? cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js" : item.url : 0 == item.kmd ? (mapping[item.name] = cBaseUrl + "/" + item.name + ".js",
-            xmdModules[item.name] = !0) : mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js",
+            item.url ? mapping[item.name] = -1 == lastIndexOf(item.url, "http:") ? cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js" : item.url : 0 == item.kmd ? (mapping[item.name] = cBaseUrl + "/" + item.name + ".js", 
+            xmdModules[item.name] = !0) : mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js", 
             nsmp[arr[arr.length - 1]] = item.name;
         }
-    }, kmdjs.exec = function (a) {
-        each(a, function (item) {
+    }, kmdjs.exec = function(a) {
+        each(a, function(item) {
             kmdmdinfo.push(item);
         });
-    }, global.__class = __class, define.modules = global.__modules = modules, global.define = define,
+    }, global.__class = __class, define.modules = global.__modules = modules, global.define = define, 
     global.kmdjs = kmdjs;
 }(this);
 })();

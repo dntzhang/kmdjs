@@ -25,7 +25,9 @@
         }
      
         this.canvas.addEventListener("click", this._handleClick.bind(this), false);
-        this.canvas.addEventListener("mousemove", this._handleMousemove.bind(this), false);
+        this.canvas.addEventListener("mousemove", this._handleMouseMove.bind(this), false);
+        this.canvas.addEventListener("mousedown", this._handleMouseDown.bind(this), false);
+        this.canvas.addEventListener("mouseup", this._handleMouseUp.bind(this), false);
         this.offset = this._getXY(this.canvas);
 
         this.overObj = null;
@@ -38,7 +40,7 @@
         var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
         if (child) child.execEvent("click");
     },
-    _handleMousemove: function (evt) {
+    _handleMouseMove: function (evt) {
         if (!Stage.checkMove) return;
         var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
         if (child) {
@@ -62,7 +64,16 @@
         }
        
     },
-    _getClientXY : function (el) {
+    _handleMouseDown: function (evt) {
+        var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
+        if (child) child.execEvent("mousedown");
+    },
+
+    _handleMouseUp: function (evt) {
+        var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
+        if (child) child.execEvent("mouseup");
+    },
+    _getXY: function (el) {
         var _t = 0,
             _l = 0;
 
@@ -85,37 +96,8 @@
                 }
             }
         }
-        return [_l, _t];
-    },
-
-    _getXY : function (el) {
-        var xy = this._getClientXY(el);
-
-        xy[0] = xy[0] + this._getScrollLeft();
-        xy[1] = xy[1] + this._getScrollTop();
-        return xy;
-    },
-
-    _getScrollLeft : function (el) {
-        var scrollLeft;
-        if (el) {
-            scrollLeft = el.scrollLeft;
-        } else {
-            scrollLeft = Math.max(document.documentElement.scrollLeft, document.body.scrollLeft);
-        }
-        return scrollLeft || 0;
-    },
-
-    _getScrollTop : function (el) {
-        var scrollTop;
-        if (el) {
-            scrollTop = el.scrollTop;
-        } else {
-            scrollTop = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
-        }
-        return scrollTop || 0;
-    }
-
+        return [_l + Math.max(document.documentElement.scrollLeft, document.body.scrollLeft), _t + Math.max(document.documentElement.scrollTop, document.body.scrollTop)];
+    }  
 })
 
 

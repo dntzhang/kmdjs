@@ -12,6 +12,11 @@
         this.isHollow ? (ctx.strokeStyle = this.color, ctx.stroke()) : (ctx.fillStyle = this.color, ctx.fill());
 
 
+    },
+    clone: function () {
+        var c = new Circle(this.r, this.color, this.isHollow);
+        this.cloneProps(c);
+        return c;
     }
 
 

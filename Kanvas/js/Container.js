@@ -5,18 +5,24 @@ define("Kanvas.Container:Kanvas.DisplayObject", {
     },
     draw: function (ctx) {
         for (var i = 0, len = this.children.length; i < len; i++) {
-            var child=this.children[i];
+            var child = this.children[i];
+            if (!child.isVisible()) continue;
             ctx.save();
             child.updateContext(ctx);
             child.draw(ctx);
-            ctx.restore();          
+            ctx.restore();
         }
     },
     add: function (obj) {
-        if (arguments.length > 1) {
-            this.children.push.apply(this.children, Array.prototype.slice.call(arguments));
+        var len=arguments.length;
+        if (len > 1) {
+            for(var i=0;i<len;i++){
+                var item = arguments[i];
+                item && this.children.push(item);
+            }
+            //this.children.push.apply(this.children, Array.prototype.slice.call(arguments));
         } else {
-            this.children.push(obj);
+            obj&&this.children.push(obj);
         }
     },
     _getHitChild: function (ctx,x,y) {
@@ -37,5 +43,16 @@ define("Kanvas.Container:Kanvas.DisplayObject", {
             }
         }
        
+    },
+    clone: function () {
+        var o = new Container();
+        this.cloneProps(o);
+        var arr = o.children = [];
+        for (var i = this.children.length-1; i >-1; i--) {
+            var clone = this.children[i].clone();
+            arr.unshift(clone);
+        }
+        return o;
+
     }
 })

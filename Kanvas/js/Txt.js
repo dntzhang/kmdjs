@@ -15,6 +15,12 @@ define("Kanvas.Txt:Kanvas.DisplayObject", {
         ctx.textAlign = this.textAlign || "left";
         ctx.textBaseline = this.textBaseline || "top";
         ctx.fillText(this.text, 0,0);
+    },
+    clone: function () {
+        var t = new Txt(this.text, this.font, this.color);
+        this.cloneProps(t);
+        return t;
+
     }
   
 })

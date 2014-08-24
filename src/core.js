@@ -9,43 +9,6 @@
             name: name
         };
     }
-    function getRefWithNS(fn) {
-        var U2 = UglifyJS, code = "" + fn, result = [], result2 = [], walker = new U2.TreeWalker(function (node) {
-            if (node instanceof UglifyJS.AST_Dot) {
-                var ob = findScope(node), name = (node.expression, ob.name), scope = ob.sp;
-                if (name && "this" != name && !(name in window) && !isInScopeChainVariables(scope, name)) {
-                    var p = walker.parent();
-                    if (p instanceof UglifyJS.AST_New) result.push(p), result2.push(node); else if (!(p instanceof UglifyJS.AST_Dot)) if (p instanceof UglifyJS.AST_VarDef) p.value.expression instanceof UglifyJS.AST_Dot && (result2.push(node),
-                    result.push(node)); else if (p instanceof UglifyJS.AST_Call) {
-                        if (p.expression.expression instanceof UglifyJS.AST_Dot) result2.push(node), result.push(node); else if (p.args.length > 0) for (var i = 0, len = p.args.length; len > i; i++) p.args[i].expression instanceof UglifyJS.AST_Dot && (result2.push(node),
-                        result.push(node));
-                    } else p instanceof UglifyJS.AST_SimpleStatement && p.body.expression instanceof UglifyJS.AST_Dot && (result2.push(node),
-                    result.push(node));
-                }
-            }
-        });
-        currentAST.walk(walker);
-        for (var i = result.length; --i >= 0;) {
-            var replacement, fns, node = result[i], start_pos = node.start.pos, end_pos = node.end.endpos;
-            node instanceof UglifyJS.AST_New ? (fns = chainNS(node.expression), replacement = new U2.AST_New({
-                expression: new U2.AST_SymbolRef({
-                    name: fns
-                }),
-                args: node.args
-            }).print_to_string({
-                beautify: !0
-            })) : (fns = chainNS(node), replacement = new U2.AST_Dot({
-                expression: new U2.AST_SymbolRef({
-                    name: fns
-                }),
-                property: node.property
-            }).print_to_string({
-                beautify: !0
-            })), isInArray(classList, fns.replace(/_/g, ".")) && (code = splice_string(code, start_pos, end_pos, replacement));
-        }
-        for (var i = 0; i < result2.length; i++) conflictMapping.hasOwnProperty(result2[i].property) ? conflictMapping[result2[i].property + Math.random()] = chainNS(result2[i]) : conflictMapping[result2[i].property] = chainNS(result2[i]);
-        return code;
-    }
     function chainNS(node) {
         function chain(node) {
             node.property ? (result.unshift(node.property), chain(node.expression)) : result.unshift(node.name);
@@ -103,6 +66,10 @@
             var fn = Function(body);
         } catch (ex) {
             throw log(body), ex.name + "__" + ex.message + "__" + ex.number + "__" + ex.description;
+        }
+        if (parentClass) {
+            var parentNs = parentClass.substr(0, lastIndexOf(parentClass, "."));
+            !isInArray(deps, parentNs) && deps.push(parentNs);
         }
         var refArr = getRef(fn, deps), ref = refArr[0];
         remove(ref, "__class");
@@ -347,8 +314,10 @@
             }
         } else isInArray(refNodes, resultNode[k]) || (refs.push(result[k]), refNodes.push(resultNode[k]));
         remove(refs, "arguments");
-        for (var m = 0; m < refs.length; m++) for (var n = 0; n < deps.length; n++) isInArray(classList, deps[n] + "." + refs[m]) && refNodes[m] && (refNodes[m].replaceArea = [],
-        refNodes[m].fullName = deps[n] + "." + refs[m]);
+        for (var m = 0; m < refs.length; m++) for (var n = 0; n < deps.length; n++) isInArray(classList, deps[n] + "." + refs[m]) && refNodes[m] && (refNodes[m].fullName = deps[n] + "." + refs[m]);
+        each(refNodes, function (item) {
+            item.replaceArea = [];
+        });
         for (var i = refNodes.length; --i >= 0;) {
             var replacement, node = refNodes[i], start_pos = node.start.pos, end_pos = node.end.endpos, fna = node.fullName || "KMDNull";
             replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({

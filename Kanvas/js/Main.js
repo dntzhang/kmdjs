@@ -12,11 +12,14 @@
           { name: "Kanvas.Sprite" },
           { name: "Kanvas.Loader" },
           { name: "Kanvas.RAF" },
-          {name:"Kanvas.UID"}
+          { name: "Kanvas.UID" },
+          { name: "Kanvas.UI.Button" },
+          { name: "Kanvas.UI.ShapeButton" },
+          { name: "Kanvas.TWEEN" }
     ]
 });
 
-define("Main", ["Kanvas","Kanvas.Shape"], {
+define("Main", ["Kanvas", "Kanvas.Shape", "Kanvas.UI"], {
     ctor: function () {
         var ld = new Loader(), pgBmp ;
         ld.loadRes([
@@ -81,7 +84,7 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
             stage.add(sp);
         });
         var stage = new Stage("#ourCanvas");
-        var text = new Txt("Hello Kanvas!", "bold 36px Arial", "green");
+        var text = new Txt("Hello Kanvas!", "bold 36px Arial", "#1FC5AE");
         text.x = 140;
         text.y = 100;
         text.regX = 100;
@@ -93,24 +96,19 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
         //text.scaleY = 2;
         stage.add(text);
         stage.update();
-        var text2 = new Txt("KMD:Kill AMD and CMD!", "bold 26px Arial", "red");
+        var text2 = new Txt("KMD:Kill AMD and CMD!", "bold 26px Arial", "#F6626E");
         text2.y = 400;
         text2.on("click", function () {
             alert(this.text);
         });
-        var text3 = new Txt("Click Me!", "bold 46px Arial", "blue");
-        text3.y = 230;
-        text3.x = 50;
-        text3.on("click", function () {
-            alert(this.text);
-        });
+       
      
           
 
-        stage.add(text2, text3);
+        stage.add(text2);
 
 
-        var circle = new Circle(55, "red");
+        var circle = new Circle(55, "#EDB2A2");
         circle.x = 60;
         circle.y = 60;
         circle.on("click", function () {
@@ -128,7 +126,7 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
         circle.on("mouseout", function () {
             circle.scaleX = circle.scaleY = 1;
         })
-        var circle2 = new Circle(35, "green");
+        var circle2 = new Circle(35, "#89C4B6");
         circle2.x = 60;
         circle2.y = 60;
         circle2.on("click", function () {
@@ -139,7 +137,7 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
         }, function () {
             this.scaleX = this.scaleY = 1;
         })
-        var circle3 = new Circle(18, "yellow");
+        var circle3 = new Circle(18, "#CFB876");
         circle3.x = 60;
         circle3.y = 60;
         stage.add(circle, circle2, circle3);
@@ -151,8 +149,8 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
         var ctt = new Container();
         ctt.x = 268;
         ctt.y = 58;
-        var circle4 = new Circle(48, "#777777");
-        var test4 = new Txt("Container!", "bold 16px Arial", "white");
+        var circle4 = new Circle(48, "#A0EFE3");
+        var test4 = new Txt("Container!", "bold 16px Arial", "#d55555");
         test4.regX = 40;
         test4.regY = 8;
         ctt.add(circle4, test4);
@@ -161,18 +159,50 @@ define("Main", ["Kanvas","Kanvas.Shape"], {
             alert("i am a Container!");
         })
 
-        var step = 0.05;
+ 
+
+        var btnTxt=new Txt("Click Me!", "bold 16px Arial", "#f22222");
+        btnTxt.regX = 30;
+        btnTxt.regY = 8;
+        var sb = new ShapeButton(new Circle(48, "#AcE5C2"), btnTxt);
+        sb.x =270;
+        sb.y = 320;
+        stage.add(sb);
+
+
+        var tweenCtt = new Container();
+        var bbC = new Circle(38, "#ADE8C2");
+        var tweenTxt = new Txt("Over me!", "bold 16px Arial", "#f22222");
+        tweenCtt.x = 170;
+        tweenCtt.y = 220;
+        tweenTxt.regX = 34;
+        tweenTxt.regY = 8;
+        tweenCtt.add(bbC, tweenTxt);
+        stage.add(tweenCtt)
+      
+        tweenCtt.hover(function () {
+            new TWEEN.Tween(tweenCtt)
+            .to({ scaleX: 4, scaleY: 4 }, 700)
+            .easing(TWEEN.Easing.Bounce.Out)
+            .start();
+
+        }, function () {
+            new TWEEN.Tween(tweenCtt)
+            .to({ scaleX: 1, scaleY: 1 }, 700)
+            .easing(TWEEN.Easing.Bounce.Out)
+            .start();
+        })
+
+        var step = 0.02;
         RAF.requestInterval(function () {
             text.rotation++;
             ctt.scaleX += step;
             ctt.scaleY += step;
-            ctt.scaleY > 2 && (step *= -1);
+            ctt.scaleY > 1.1 && (step *= -1);
             ctt.scaleY < 0.5 && (step *= -1);
             if (pgBmp) pgBmp.rotation--;
-
+            TWEEN.update();
             stage.update();
         }, 15);
-
-       
     }
 })

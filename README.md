@@ -1,5 +1,3 @@
-##kmdjs2.0.0  coming soon.....
-
 ##kmdjs是什么？
 kmdjs是js工程化终极解决方案
 

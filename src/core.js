@@ -342,43 +342,55 @@
             for (var k = 0; k < refNodes.length; k++) {
                 var otherNode = refNodes[k];
                 if (otherNode.start.pos < start_pos && otherNode.end.endpos > end_pos) {
-                    otherNode.end.endpos += fna.length - fna.split(".")[fna.split(".").length - 1].length;
                     var fna2 = otherNode.fullName, step = fna2.length - fna2.split(".")[fna2.split(".").length - 1].length;
                     otherNode.replaceArea.push({
                         step: step,
-                        begin: start_pos + step,
-                        end: end_pos + step,
-                        replaceM: replacement
-                    });
+                        begin: start_pos,
+                        end: end_pos,
+                        replaceM: replacement,
+                        children: node,
+                        self: otherNode
+                    }), node.parent = otherNode;
                 }
             }
         }
         for (var i = refNodes.length; --i >= 0;) {
-            var replacement, node = refNodes[i], start_pos = node.start.pos, end_pos = node.end.endpos, fna = node.fullName || "_________KMDNULL______________";
-            if (node.fullName && (replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({
-                expression: new U2.AST_SymbolRef({
-                name: fna
-            }),
-                args: node.args
-            }).print_to_string({
-                beautify: !0
-            }) : node instanceof UglifyJS.AST_SymbolRef ? new U2.AST_SymbolRef({
-                name: fna
-            }).print_to_string({
-                beautify: !0
-            }) : new U2.AST_Dot({
-                expression: new U2.AST_SymbolRef({
-                name: fna
-            }),
-                property: node.property
-            }).print_to_string({
-                beautify: !0
-            }), code = splice_string(code, start_pos, end_pos, replacement), node.replaceArea)) for (var m = 0; m < node.replaceArea.length; m++) {
-                var item = node.replaceArea[m];
-                code = splice_string(code, item.begin, item.end, item.replaceM);
+            var node = refNodes[i];
+            if (!node.parent) {
+                var replacement, start_pos = node.start.pos, end_pos = node.end.endpos, fna = node.fullName || "_________KMDNULL______________";
+                node.fullName && (replacement = node instanceof UglifyJS.AST_New ? new U2.AST_New({
+                    expression: new U2.AST_SymbolRef({
+                        name: fna
+                    }),
+                    args: node.args
+                }).print_to_string({
+                    beautify: !0
+                }) : node instanceof UglifyJS.AST_SymbolRef ? new U2.AST_SymbolRef({
+                    name: fna
+                }).print_to_string({
+                    beautify: !0
+                }) : new U2.AST_Dot({
+                    expression: new U2.AST_SymbolRef({
+                        name: fna
+                    }),
+                    property: node.property
+                }).print_to_string({
+                    beautify: !0
+                }), code = splice_string(code, start_pos, end_pos, replacement), node.replaceArea && node.replaceArea.length > 0 && !node.parent && (code = fixNode(node, code)));
             }
         }
         return [refs, code];
+    }
+    function fixNode(node, code) {
+        for (var m = node.replaceArea.length; --m >= 0;) {
+            var item = node.replaceArea[m];
+            code = splice_string(code, item.begin + item.step, item.end + item.step, item.replaceM);
+            for (var n = node.replaceArea.length; --n >= 0;) {
+                var item2 = node.replaceArea[n];
+                item2.begin > item.begin && (item2.begin += item.step, item2.end += item.step);
+            }
+        }
+        return code;
     }
     function getBaseUrl() {
         for (var baseUrl, scripts = doc.getElementsByTagName("script"), i = 0, len = scripts.length; len > i; i++) {

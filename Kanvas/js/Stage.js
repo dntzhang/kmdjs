@@ -9,7 +9,8 @@
         this.width = this.canvas.width;
         this.height = this.canvas.height;
 
-
+        this.scale = 1;
+        this.scaleCanvasOffset={x:0,y:0};
         this.hitCanvas = document.createElement("canvas");
         this.hitCanvas.width =1;
         this.hitCanvas.height = 1;
@@ -63,6 +64,46 @@
             }
         }
        
+    },
+    scalable: function () {
+        var self = this;
+        Wheel.Hamster(this.canvas).wheel(function (e, delta, deltaX, deltaY) {
+            var positionX = e.pageX - self.offset[0], positionY = e.pageY - self.offset[1];
+
+            var width = self.width * self.scale;
+            var height = self.height * self.scale;
+            var xRatio = (positionX - self.scaleCanvasOffset.x) / width;
+            var yRatio = (positionY - self.scaleCanvasOffset.y) / height;
+            var preX = self.scaleCanvasOffset.x;
+            var preY = self.scaleCanvasOffset.y;
+            if (deltaY < 0) {
+                self.scale -= 0.1;
+                if (self.scale < 0.5) {
+                    self.scale = 0.5
+                    return;
+                }
+                self.scaleCanvasOffset.x += (self.width) * 0.1 * xRatio;
+                self.scaleCanvasOffset.y += (self.height) * 0.1 * yRatio;
+            } else {
+                self.scale += 0.1;
+                self.scaleCanvasOffset.x -= (self.width) * 0.1 * xRatio;
+                self.scaleCanvasOffset.y -= (self.height) * 0.1 * yRatio;
+            };
+            self.redraw(self.scaleCanvasOffset.x, self.scaleCanvasOffset.y, deltaY < 0 ? true : false, preX, preY);
+
+            e.preventDefault();
+        });
+    },
+    redraw: function (x, y, zoomOut, preX, preY) {
+        for (var i = 0, len = this.children.length; i < len; i++) {
+            var child = this.children[i];
+            var preScale = zoomOut ? (this.scale + 0.1) : (this.scale - 0.1);
+            var xx = child.x / preScale;
+            child.x = (this.scale * (child.x - preX) / preScale) + x;
+            child.y = (this.scale * (child.y - preY) / preScale) + y;
+            child.r = this.scale * child.r / preScale;
+        }
+        this.update();
     },
     _handleMouseDown: function (evt) {
         var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);

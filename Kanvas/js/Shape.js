@@ -1,0 +1,65 @@
+﻿define("Kanvas.Shape:Kanvas.DisplayObject", {
+    ctor: function () {
+        this._super();
+     
+        this.cmds = [];
+
+        this.assMethod=["fillStyle", "strokeStyle", "lineWidth"];
+    },
+    draw: function (ctx) {
+        for (var i = 0, len = this.cmds.length; i < len; i++) {
+            var cmd = this.cmds[i]
+            if (this.assMethod.join("-").match(new RegExp("\\b" + cmd[0] + "\\b", "g"))) {
+
+                ctx[cmd[0]] = cmd[1][0];
+            } else {
+                ctx[cmd[0]].apply(ctx, Array.prototype.slice.call(cmd[1]));
+            }
+        }
+    },
+    beginPath: function () {
+
+        this.cmds.push(["beginPath", arguments]);
+        return this;
+    },
+    arc: function () {
+
+        this.cmds.push(["arc", arguments]);
+        return this;
+    },
+    closePath: function () {
+        this.cmds.push(["closePath", arguments]);
+        return this;
+    },
+    fillStyle: function () {
+        this.cmds.push(["fillStyle", arguments]);
+        return this;
+    },
+    fill: function () {
+        this.cmds.push(["fill", arguments]);
+        return this;
+    },
+    strokeStyle: function () {
+        this.cmds.push(["strokeStyle", arguments]);
+        return this;
+    },
+    lineWidth: function () {
+        this.cmds.push(["lineWidth", arguments]);
+        return this;
+    },
+    stroke: function () {
+        this.cmds.push(["stroke", arguments]);
+        return this;
+    },
+    moveTo: function () {
+        this.cmds.push(["moveTo", arguments]);
+        return this;
+    },
+    bezierCurveTo: function () {
+        this.cmds.push(["bezierCurveTo", arguments]);
+        return this;
+    },
+    clone: function () {
+
+    }
+})

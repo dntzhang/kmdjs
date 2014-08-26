@@ -9940,11 +9940,15 @@ var JSLINT = (function () {
             var topNsStr = "";
             each(kmdmdinfo, function (item) {
                 for (var arr = nsToCode(item.c), i = 0; i < arr.length; i++) {
-                    var item2 = arr[i];
-                    -1 == lastIndexOf(topNsStr, item2) && (topNsStr += item2 + "\n");
+                    for (var item2 = arr[i], isInKMD = !1, k = 0, klen = kmdmdinfo.length; klen > k; k++) kmdmdinfo[k].c + "={};" == item2 && (isInKMD = !0);
+                    isInKMD || -1 == lastIndexOf(topNsStr, item2) && (topNsStr += item2 + "\n");
                 }
             });
-            for (var evalOrder = [], outPutMd = [], cpCode = "//create by kmdjs   https://github.com/kmdjs/kmdjs \n", combineCode = ";(function(){\n" + topNsStr, i = 0; i < kmdmdinfo.length; i++) {
+            var evalOrder = [], outPutMd = [], cpCode = "//create by kmdjs   https://github.com/kmdjs/kmdjs \n", combineCode = ";(function(){\n" + topNsStr;
+            kmdmdinfo.sort(function (l, r) {
+                return l.c.split(".").length - r.c.split(".").length;
+            });
+            for (var i = 0; i < kmdmdinfo.length; i++) {
                 var item = kmdmdinfo[i];
                 if (!isInArray(outPutMd, item.c)) if (item.e) createParentCode(item); else {
                     outPutMd.push(item.c);
@@ -10020,7 +10024,7 @@ var JSLINT = (function () {
         result.push("var " + nsSplitArr[0] + "={};");
         for (var i = 1; i < nsSplitArr.length - 1; i++) {
             for (var str = nsSplitArr[0], j = 1; i + 1 > j; j++) str += "." + nsSplitArr[j];
-            result.push(str + "={}");
+            result.push(str + "={};");
         }
         return result;
     }

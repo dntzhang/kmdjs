@@ -791,7 +791,7 @@ if (!String.prototype.trim) {
         return builder.getBlob(type);
     };
 }(typeof self !== "undefined" && self || typeof window !== "undefined" && window || this.content || this));
-var isView = !1, isBuild = !1, isCombine = !1;
+var isView = !1, isBuild = !1, isCombine = !1,isSplit=!1;
 var initializing = false, fnTest = /xyz/.test(function () { xyz; }) ? /\b_super\b/ : /.*/;
 
 // The base Class implementation (does nothing)
@@ -864,7 +864,7 @@ __class.extend = function (prop) {
             if (prop.statics.hasOwnProperty(name)) {
                 __class[name] = prop.statics[name];
                 if (name == "ctor") {
-                    if ((!isView)&&(!isBuild)) __class[name]();
+                    if ((!isView) && (!isBuild) && (!isCombine) && (!isSplit)) __class[name]();
                 }
             }
 
@@ -9972,11 +9972,19 @@ var JSLINT = (function () {
                     lmclone.push(item);
                 });
             }
-            if (!isBuild && !isCombine && !isView) {
+            if (!(isBuild || isCombine || isView || isSplit)) {
                 eval('(function(n){var t=!1,r=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,i=function(){};i.extend=function(n){function u(){!t&&this.ctor&&this.ctor.apply(this,arguments)}var o=this.prototype,e,f,i;t=!0,e=new this,t=!1;for(i in n)i!="statics"&&(e[i]=typeof n[i]=="function"&&typeof o[i]=="function"&&r.test(n[i])?function(n,t){return function(){var r=this._super,i;return this._super=o[n],i=t.apply(this,arguments),this._super=r,i}}(i,n[i]):n[i]);for(f in this)this.hasOwnProperty(f)&&f!="extend"&&(u[f]=this[f]);if(u.prototype=e,n.statics)for(i in n.statics)n.statics.hasOwnProperty(i)&&(u[i]=n.statics[i],i=="ctor"&&u[i]());return u.prototype.constructor=u,u.extend=arguments.callee,u.implement=function(n){for(var t in n)e[t]=n[t]},u},n.__class=i})(this)'),
                 eval(topNsStr);
                 for (var i = 0; i < evalOrder.length; i++) eval(evalOrder[i]);
                 eval("new " + ProjName + ".Main();");
+            }
+            if (isSplit) {
+                var baseCode = '(function(n){var t=!1,r=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,i=function(){};i.extend=function(n){function u(){!t&&this.ctor&&this.ctor.apply(this,arguments)}var o=this.prototype,e,f,i;t=!0,e=new this,t=!1;for(i in n)i!="statics"&&(e[i]=typeof n[i]=="function"&&typeof o[i]=="function"&&r.test(n[i])?function(n,t){return function(){var r=this._super,i;return this._super=o[n],i=t.apply(this,arguments),this._super=r,i}}(i,n[i]):n[i]);for(f in this)this.hasOwnProperty(f)&&f!="extend"&&(u[f]=this[f]);if(u.prototype=e,n.statics)for(i in n.statics)n.statics.hasOwnProperty(i)&&(u[i]=n.statics[i],i=="ctor"&&u[i]());return u.prototype.constructor=u,u.extend=arguments.callee,u.implement=function(n){for(var t in n)e[t]=n[t]},u},n.__class=i})(this)';
+                renderToTextarea(baseCode, "Base.js"), downloadFile(baseCode, "Base.js"), renderToTextarea(topNsStr, "Namespace.js"),
+                downloadFile(topNsStr, "Namespace.js");
+                for (var i = 0; i < evalOrder.length; i++) renderToTextarea(evalOrder[i], evalOrder[i].match(/-------------------[\s\S]*?---------------------/)[0].replace(/[-]*/g, "") + ".js"),
+                downloadFile(evalOrder[i], evalOrder[i].match(/-------------------[\s\S]*?---------------------/)[0].replace(/[-]*/g, "") + ".js");
+                renderToTextarea("new " + ProjName + ".Main();", ProjName + ".Main.js"), downloadFile("new " + ProjName + ".Main();", ProjName + ".Main.js");
             }
             if (isView) {
                 var vp = getViewport(), center = document.createElement("center"), mainCanvas = document.createElement("canvas");
@@ -9997,6 +10005,13 @@ var JSLINT = (function () {
                 }), document.body.appendChild(center), new DependencyTreeControl(data, mainCanvas, signCanvas, lable).init();
             }
         }
+    }
+    function renderToTextarea(code, fileName) {
+        var ctt = doc.createElement("div"), msgDiv = doc.createElement("div");
+        msgDiv.innerHTML = fileName;
+        var codePanel = doc.createElement("textarea");
+        ctt.appendChild(codePanel), ctt.appendChild(msgDiv), doc.body.appendChild(ctt),
+        codePanel.setAttribute("rows", "8"), codePanel.setAttribute("cols", "55"), codePanel.value = code;
     }
     function getViewport() {
         var d = document.documentElement, b = document.body, w = window, div = document.createElement("div");
@@ -10169,7 +10184,7 @@ var JSLINT = (function () {
                     var arr = src.split("/");
                     arr.pop(), baseUrl = arr.length ? arr.join("/") + "/" : "./";
                     var dm = scrp.getAttribute("data-main"), arr2 = dm.split("?");
-                    dataMain = arr2[0], dataMain = dataMain.replace(/.js/g, ""), arr2.length > 1 && ("build" == arr2[1] ? isBuild = !0 : "view" == arr2[1] ? isView = !0 : "combine" == arr2[1] && (isCombine = !0));
+                    dataMain = arr2[0], dataMain = dataMain.replace(/.js/g, ""), arr2.length > 1 && ("build" == arr2[1].toLowerCase() ? isBuild = !0 : "view" == arr2[1].toLowerCase() ? isView = !0 : "combine" == arr2[1].toLowerCase() ? isCombine = !0 : "split" == arr2[1].toLowerCase() && (isSplit = !0));
                     break;
                 }
             }

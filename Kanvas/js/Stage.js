@@ -1,6 +1,6 @@
 ﻿define("Kanvas.Stage:Kanvas.Container", {
     statics: {
-        checkMove:false
+        checkMove: false
     },
     ctor: function (canvas) {
         this._super();
@@ -78,8 +78,8 @@
             var preY = self.scaleCanvasOffset.y;
             if (deltaY < 0) {
                 self.scale -= 0.1;
-                if (self.scale < 0.5) {
-                    self.scale = 0.5
+                if (self.scale < 0.1) {
+                    self.scale = 0.1
                     return;
                 }
                 self.scaleCanvasOffset.x += (self.width) * 0.1 * xRatio;
@@ -95,15 +95,17 @@
         });
     },
     redraw: function (x, y, zoomOut, preX, preY) {
+        var preScale = zoomOut ? (this.scale + 0.1) : (this.scale - 0.1);
+ 
         for (var i = 0, len = this.children.length; i < len; i++) {
             var child = this.children[i];
-            var preScale = zoomOut ? (this.scale + 0.1) : (this.scale - 0.1);
-            var xx = child.x / preScale;
             child.x = (this.scale * (child.x - preX) / preScale) + x;
             child.y = (this.scale * (child.y - preY) / preScale) + y;
-            child.r = this.scale * child.r / preScale;
+            child.scaleX = this.scale * child.scaleX / preScale;
+            child.scaleY = this.scale * child.scaleY / preScale;
         }
         this.update();
+
     },
     _handleMouseDown: function (evt) {
         var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);

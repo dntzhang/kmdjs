@@ -55,6 +55,10 @@
         this.cmds.push(["moveTo", arguments]);
         return this;
     },
+    lineTo: function () {
+        this.cmds.push(["lineTo", arguments]);
+        return this;
+    },
     bezierCurveTo: function () {
         this.cmds.push(["bezierCurveTo", arguments]);
         return this;

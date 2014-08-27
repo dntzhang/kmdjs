@@ -109,6 +109,8 @@
                         var event = Hamster.normalise.event(originalEvent),
                             delta = Hamster.normalise.delta(originalEvent);
 
+                        event.pageX = originalEvent.pageX;
+                        event.pageY = originalEvent.pageY;
                         // fire the original handler with normalised arguments
                         return originalHandler(event, delta[0], delta[1], delta[2]);
 

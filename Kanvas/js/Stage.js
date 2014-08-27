@@ -42,8 +42,20 @@
         if (child) child.execEvent("click");
     },
     _handleMouseMove: function (evt) {
+        var x = evt.pageX - this.offset[0], y = evt.pageY - this.offset[1];
+        if (this.canScale && this.isMouseDown) {
+            var dx =x- this.prePosition[0] ;
+            var dy =y- this.prePosition[1] ;
+            var preX = this.scaleCanvasOffset.x;
+            var preY = this.scaleCanvasOffset.y;
+            this.scaleCanvasOffset.x += dx;
+            this.scaleCanvasOffset.y += dy;
+            this.redraw(this.scaleCanvasOffset.x, this.scaleCanvasOffset.y, this.scale, preX, preY);
+            this.prePosition[0] = x;
+            this.prePosition[1] = y;
+        }
         if (!Stage.checkMove) return;
-        var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
+        var child = this._getHitChild(this.hitCtx, x,y);
         if (child) {
             if (this.overObj) {
                 if (child.id != this.overObj.id) {
@@ -66,6 +78,7 @@
        
     },
     scalable: function () {
+        this.canScale = true;
         var self = this;
         Wheel.Hamster(this.canvas).wheel(function (e, delta, deltaX, deltaY) {
             var positionX = e.pageX - self.offset[0], positionY = e.pageY - self.offset[1];
@@ -89,13 +102,13 @@
                 self.scaleCanvasOffset.x -= (self.width) * 0.1 * xRatio;
                 self.scaleCanvasOffset.y -= (self.height) * 0.1 * yRatio;
             };
-            self.redraw(self.scaleCanvasOffset.x, self.scaleCanvasOffset.y, deltaY < 0 ? true : false, preX, preY);
+            self.redraw(self.scaleCanvasOffset.x, self.scaleCanvasOffset.y, deltaY < 0 ? (self.scale + 0.1) : (self.scale - 0.1), preX, preY);
 
             e.preventDefault();
         });
     },
-    redraw: function (x, y, zoomOut, preX, preY) {
-        var preScale = zoomOut ? (this.scale + 0.1) : (this.scale - 0.1);
+    redraw: function (x, y, preScale, preX, preY) {
+     
  
         for (var i = 0, len = this.children.length; i < len; i++) {
             var child = this.children[i];
@@ -108,12 +121,23 @@
 
     },
     _handleMouseDown: function (evt) {
-        var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
+        var positionX = evt.pageX - this.offset[0], positionY = evt.pageY - this.offset[1];
+        if (this.canScale) {
+            this.canvas.style.cursor = "move";
+            this.prePosition = [positionX, positionY];
+            this.isMouseDown = true;
+        }
+        
+        var child = this._getHitChild(this.hitCtx, positionX, positionY);
         if (child) child.execEvent("mousedown");
     },
 
     _handleMouseUp: function (evt) {
-        var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
+        if (this.canScale) {
+            this.canvas.style.cursor = "default";
+            this.isMouseDown = false;
+        }
+        var child = this._getHitChild(this.hitCtx,evt.pageX - this.offset[0], evt.pageY - this.offset[1] );
         if (child) child.execEvent("mouseup");
     },
     _getXY: function (el) {

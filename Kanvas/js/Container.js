@@ -58,7 +58,7 @@ define("Kanvas.Container:Kanvas.DisplayObject", {
             if (!child.isVisible()) continue;
             ctx.save();
             child.updateContext(ctx);
-            child.InstanceOfName == "Container" ? child._hitDraw(ctx) : child.draw(ctx);
+            child.InstanceOfName == "Container" ? child._hitDraw(ctx,evtType) : child.draw(ctx);
             ctx.restore();
             if (ctx.getImageData(0, 0, 1, 1).data[3] > 1) {
                 child.execEvent(evtType);

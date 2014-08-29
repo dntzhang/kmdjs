@@ -159,17 +159,22 @@ define("Main", ["Kanvas", "Kanvas.Shape", "Kanvas.UI"], {
         ctt.on("click", function () {
             alert("i am a Container!");
         })
+        circle4.on("click", function () {
+            alert("i am a circle4!");
+        })
+        test4.on("click", function () {
+            alert("i am a test4!");
+        })
 
- 
-
+        var ctt2 = new Container();
         var btnTxt=new Txt("Click Me!", "bold 16px Arial", "#f22222");
         btnTxt.regX = 30;
         btnTxt.regY = 8;
         var sb = new ShapeButton(new Circle(48, "#AcE5C2"), btnTxt);
         sb.x =270;
         sb.y = 320;
-        stage.add(sb);
-
+        ctt2.add(sb);
+        stage.add(ctt2);
 
         var tweenCtt = new Container();
         var bbC = new Circle(38, "#ADE8C2");
@@ -206,8 +211,8 @@ define("Main", ["Kanvas", "Kanvas.Shape", "Kanvas.UI"], {
         var step = 0.02;
         RAF.requestInterval(function () {
             text.rotation++;
-            ctt.scaleX += step;
-            ctt.scaleY += step;
+            //ctt.scaleX += step;
+            //ctt.scaleY += step;
             ctt.scaleY > 1.1 && (step *= -1);
             ctt.scaleY < 0.5 && (step *= -1);
             if (pgBmp) pgBmp.rotation--;

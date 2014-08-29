@@ -32,14 +32,16 @@
         this.offset = this._getXY(this.canvas);
 
         this.overObj = null;
+
+        this.InstanceOfName = "Stage";
     },
     update: function () {
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.draw(this.ctx);
     },
     _handleClick: function (evt) {
-        var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1]);
-        if (child) child.execEvent("click");
+        var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1],"click");
+       // if (child) child.execEvent("click");
     },
     _handleMouseMove: function (evt) {
         var x = evt.pageX - this.offset[0], y = evt.pageY - this.offset[1];
@@ -128,8 +130,8 @@
             this.isMouseDown = true;
         }
         
-        var child = this._getHitChild(this.hitCtx, positionX, positionY);
-        if (child) child.execEvent("mousedown");
+        var child = this._getHitChild(this.hitCtx, positionX, positionY, "mousedown");
+      //  if (child) child.execEvent("mousedown");
     },
 
     _handleMouseUp: function (evt) {
@@ -137,8 +139,8 @@
             this.canvas.style.cursor = "default";
             this.isMouseDown = false;
         }
-        var child = this._getHitChild(this.hitCtx,evt.pageX - this.offset[0], evt.pageY - this.offset[1] );
-        if (child) child.execEvent("mouseup");
+        var child = this._getHitChild(this.hitCtx, evt.pageX - this.offset[0], evt.pageY - this.offset[1], "mouseup");
+       // if (child) child.execEvent("mouseup");
     },
     _getXY: function (el) {
         var _t = 0,

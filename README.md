@@ -57,9 +57,6 @@ kmdjs以Kill AMD and CMD为目标
 * [class.js](http://ejohn.org/blog/simple-javascript-inheritance/)
 * [js_beautiful](http://jsbeautifier.org/) 
 * [json.js](https://github.com/douglascrockford/JSON-js)
-* [JX](https://github.com/AlloyTeam/JX)
-* [raphaeljs](http://raphaeljs.com/)
-* [tweenjs](https://github.com/sole/tween.js)
 
 ##关于作者
 
@@ -69,5 +66,6 @@ kmdjs以Kill AMD and CMD为目标
     site : "http://htmlcssjs.duapp.com"
   }
 ```
+
 ##最后
 AMD and CMD are dead.That's all.

@@ -1,1 +1,32 @@
-﻿kmdjs.exec([{ "a": [], "b": "\nOtherTopNs.Ball = __class.extend({\n    \"ctor\": function(x, y, r, vx, vy, text) {\n        this.x = x;\n        this.y = y;\n        this.r = r;\n        this.d = 2 * r;\n        this.vx = vx;\n        this.vy = vy;\n        this.text = text;\n        this.element = document.createElement(\"div\");\n        this.element.innerHTML = text;\n        this.element.style.cssText = \"text-align:center;position:absolute; -moz-border-radius:\" + this.d + \"px; border-radius: \" + this.d + \"px; width: \" + this.d + \"px; height: \" + this.d + \"px;background-color:green;line-height:\" + this.d + \"px;color:white;\";\n        document.body.appendChild(this.element);\n    },\n    \"tick\": function() {\n        this.x += this.vx;\n        this.y += this.vy;\n        this.element.style.left = this.x + \"px\";\n        this.element.style.top = this.y + \"px\";\n    }\n});\nreturn Ball;\n", "c": "OtherTopNs.Ball", "d": [] }])
+﻿kmdjs.exec([
+{
+    a: [],
+    b: function () {
+        OtherTopNs.Ball = __class.extend({
+            "ctor": function (x, y, r, vx, vy, text) {
+                this.x = x;
+                this.y = y;
+                this.r = r;
+                this.d = 2 * r;
+                this.vx = vx;
+                this.vy = vy;
+                this.text = text;
+                this.element = document.createElement("div");
+                this.element.innerHTML = text;
+                this.element.style.cssText = "text-align:center;position:absolute; -moz-border-radius:" + this.d + "px; border-radius: " + this.d + "px; width: " + this.d + "px; height: " + this.d + "px;background-color:green;line-height:" + this.d + "px;color:white;";
+                document.body.appendChild(this.element);
+            },
+            "tick": function () {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.element.style.left = this.x + "px";
+                this.element.style.top = this.y + "px";
+            }
+        });
+        return Ball;
+
+    },
+    c: "OtherTopNs.Ball",
+    d: []
+}
+])

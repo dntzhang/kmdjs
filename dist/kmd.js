@@ -10125,7 +10125,7 @@ var JSLINT = (function () {
             var msgDiv = doc.createElement("div");
             var titleDiv = doc.createElement("div");
             titleDiv.innerHTML = "Build Complete!";
-            msgDiv.innerHTML = isMtClassesBuild ? readyBuildClasses.toString() : ProjName + ".js ";
+            msgDiv.innerHTML = isMtClassesBuild ? readyBuildClasses.join("<br/>") : ProjName + ".js ";
             var codePanel = doc.createElement("textarea");
             ctt.appendChild(titleDiv);
             ctt.appendChild(codePanel);
@@ -10134,8 +10134,17 @@ var JSLINT = (function () {
             codePanel.setAttribute("rows", "8");
             codePanel.setAttribute("cols", "55");
             if (isMtClassesBuild) {
-                cpCode = "";
-                cpCode += "kmdjs.exec(" + JSON.stringify(buildArr) + ")";
+                cpCode = "kmdjs.exec([\n";
+                each(buildArr, function (item, index) {
+                    cpCode += "{\n";
+                    cpCode += "a:" + JSON.stringify(item.a) + ",\n";
+                    cpCode += "b:function(){" + item.b.toString() + "\n},\n";
+                    cpCode += "c:" + JSON.stringify(item.c) + ",\n";
+                    cpCode += "d:" + JSON.stringify(item.d);
+                    if (item.e) cpCode += ",\ne:" + JSON.stringify(item.e) + "\n"; else cpCode += "\n";
+                    cpCode += "}" + (0 == index ? "" : ",") + "\n";
+                });
+                cpCode += "])";
             } else cpCode = isCombine ? cpCode : compressor(cpCode);
             codePanel.value = cpCode;
             codePanel.focus();
@@ -10462,6 +10471,8 @@ var JSLINT = (function () {
     };
     kmdjs.exec = function (a) {
         each(a, function (item) {
+            var entire = item.b.toString();
+            item.b = entire.substring(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
             kmdmdinfo.push(item);
         });
     };

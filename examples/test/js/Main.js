@@ -109,5 +109,7 @@ define("Main", ["Util", "OtherTopNs"], {
             (ball.x + ball.r * 2 > vp[2] || ball.x < 0) && (ball.vx *= -1);
             (ball.y + ball.r * 2 > vp[3] || ball.y < 0) && (ball.vy *= -1);
         }, 20);
+
+        var p2 = new Pig(new Pig(new Pig));
     }
 })

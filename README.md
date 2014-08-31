@@ -8,6 +8,8 @@ kmdjs以统一AMD和CMD为己任
 kmdjs以Kill AMD and CMD为目标
 
 故，得名：kmdjs
+* 文档: [https://github.com/kmdjs/kmdjs/issues/3](https://github.com/kmdjs/kmdjs/issues/3)
+
 
 ##kmdjs优势是什么？
 

@@ -1,5 +1,5 @@
-module.exports = function (grunt) {
-  // 项目配置
+锘縨odule.exports = function (grunt) {
+  // 椤圭洰閰嶇疆
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
@@ -13,6 +13,6 @@ module.exports = function (grunt) {
     }
   });
   grunt.loadNpmTasks('grunt-contrib-concat');
-  // 默认任务
+  // 榛樿浠诲姟
   grunt.registerTask('default', ['concat']);
 }

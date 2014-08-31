@@ -10069,11 +10069,13 @@ var JSLINT = (function () {
         if (kmdmaincpt) return;
         kmdmaincpt = true;
         var buildArr = [];
-        if (isMtClassesBuild) each(readyBuildClasses, function (ns) {
+        if (isMtClassesBuild) {
             each(kmdmdinfo, function (item) {
-                if (item.c == ns) buildArr.push(item);
+                if(item.c.toUpperCase()!=ProjName.toUpperCase()+".MAIN"){
+                    buildArr.push(item);
+                }
             });
-        });
+        }
         setTimeout(function () { }, 0);
         var topNsStr = "";
         each(kmdmdinfo, function (item) {

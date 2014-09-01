@@ -9,7 +9,7 @@ kmdjs以Kill AMD and CMD为目标
 
 故，得名：kmdjs
 
-入门文档见: [https://github.com/kmdjs/kmdjs/issues/3](https://github.com/kmdjs/kmdjs/issues/3)
+入门文档见: [https://github.com/kmdjs/kmdjs/issues/](https://github.com/kmdjs/kmdjs/issues/)
 
 
 ##kmdjs优势是什么？

@@ -33,6 +33,31 @@ define("Kanvas.Container:Kanvas.DisplayObject", {
             }
         }
     },
+    remove: function (obj) {
+        var len = arguments.length,childLen= this.children.length;
+        if (len > 1) {
+            for (var j = 0; j < len; j++) {
+                var currentObj = arguments[j];
+                for (var k = childLen; --k >= 0;) {
+                    if (this.children[k].id == currentObj.id) {
+                        currentObj.parent = null;
+                        this.children.splice(k, 1);
+                        break;
+                    }
+                }
+            }
+        } else {
+            for (var i = childLen; --i >= 0;) {
+                if (this.children[i].id == obj.id) {
+                    obj.parent = null;
+                    this.children.splice(i, 1);
+                    break;
+                }
+            }
+        }
+      
+
+    },
     _getHitChild: function (ctx,x,y,evtType) {
         var l = this.children.length;
         ctx.clearRect(0, 0, 2,2);
@@ -76,5 +101,9 @@ define("Kanvas.Container:Kanvas.DisplayObject", {
         }
         return o;
 
+    },
+    removeAll: function () {
+        var kids = this.children;
+        while (kids.length) { kids.pop().parent = null; }
     }
 })

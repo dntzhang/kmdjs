@@ -11,13 +11,14 @@
         return !!(this.visible && this.alpha > 0 && this.scaleX != 0 && this.scaleY != 0);
     },
     updateContext: function (ctx) {
-            var mtx = this._matrix.identity().appendTransform(this.x, this.y, this.scaleX, this.scaleY, this.rotation, this.skewX, this.skewY, this.regX, this.regY);
+        var mtx = this._matrix.identity().appendTransform(this.x, this.y, this.scaleX, this.scaleY, this.rotation, this.skewX, this.skewY, this.regX, this.regY);
         //http://www.w3.org/TR/2dcontext/#transformations
         //a	c	tx
         //b	d	ty
         //0	0	1
         //transform(a, b, c, d, e, f)
         ctx.transform(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
+        ctx.globalAlpha *= this.alpha;
     },
     on: function (type, fn) {
         ["mouseover", "mousemove", "mouseout", "touchstart", "touchmove", "touchend"].join("_").match(type)&&(Stage.checkMove = true);

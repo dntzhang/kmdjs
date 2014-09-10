@@ -1,0 +1,16 @@
+{
+  "name": "kmdjs",
+  "description": "The ultimate solution of JS project.",
+  "version": "2.0.0",
+  "homepage": "https://github.com/kmdjs/kmdjs",
+  "author": "Lei Zhang",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kmdjs/kmdjs.git"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.1",
+    "gulp-concat": "latest"  
+  },
+  "license": "MIT"
+}

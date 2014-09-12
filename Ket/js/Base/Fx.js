@@ -30,12 +30,10 @@
 			var cptHandle=function () {			
 				if (option.complete) option.complete();
 				//防止触发多次
-				Dom.off(node, "webkitTransitionEnd", cptHandle)
-				Dom.off(node, "transitionEnd", cptHandle)
+				Dom.off(node, "transitionend", cptHandle)
 			}
 			
-			Dom.on(node, "webkitTransitionEnd", cptHandle);
-			Dom.on(node, "transitionEnd", cptHandle);
+			Dom.on(node, "transitionend", cptHandle);
 
 			//防止样式还没设置成功导致transition失效
 			setTimeout(function () {

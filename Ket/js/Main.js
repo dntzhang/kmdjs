@@ -29,27 +29,27 @@ define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas"], {
         });
         Dom.html(Dom.query(".test"));
         var hd=function () {
-            alert(1);
+            
         };
         Dom.on(Dom.query(".test"), "click", hd);
         
         // Dom.off(Dom.query(".test"), "click", hd);
         Fx.animate(Dom.query(".test"), {
-            to: { height:"300px",width: "200px" },
+            to: { height: "300px", width: "200px", transform: "rotateZ(100deg)" },
             duration: 1000,
             timing:"ease-in",
             complete: function () {
 
-                alert(11111111111);
+                alert("complete");
             }
         });
 
 
         var v = new Vector2(1, 2);
         v.add({x:1,y:2});
-        console.log(v.y);
+     //   console.log(v.y);
 
         var obj = new DisplayObject();
-        alert(obj.alpha);
+       // alert(obj.alpha);
     }
 });

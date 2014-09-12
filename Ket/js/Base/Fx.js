@@ -24,7 +24,7 @@
 			}
 			transitionStyle = transitionStyle.substr(0, transitionStyle.length - 1) + ";";
 			
-			
+			Dom.data(node, "endProp", option.to);
 			node.style.cssText += transitionStyle;
 
 			var cptHandle=function () {			
@@ -41,6 +41,16 @@
 					Dom.css(node, key, option.to[key]);
 				}
 			}, 1)
-		}		
+		},
+		stop: function (node, jumpToEnd) {
+		    if (!jumpToEnd) {
+		        var props = window.getComputedStyle(node, null);
+		        var endProp = JSON.parse(Dom.data(node, "endProp"));
+		        for (var name in endProp) {
+		            Dom.css(node, name, props[name]);
+		        }
+		    }
+		    node.style.transition = "";
+		}
 	}
 })

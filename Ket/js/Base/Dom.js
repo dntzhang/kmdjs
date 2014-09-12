@@ -29,10 +29,12 @@
         },
         css: function (node, styleName, value) {
             if (arguments.length == 3) node.style[styleName] = value;
-            if (node.style[styleName]) return node.style[styleName];
+            //因为有transition的存在，所有这行代码需要注释掉
+            //if (node.style[styleName]) return node.style[styleName];
             return window.getComputedStyle(node, null)[styleName];
         },
-        data: function (node,key,value) {
+        data: function (node, key, value) {
+            if (arguments.length == 2) return node.dataset[key];
             node.dataset[key] = typeof value == "object" ? JSON.stringify(value) : value;
         },
         html: function (node,html) {
@@ -44,6 +46,10 @@
         },
         off: function (node, type, fn) {
             node.removeEventListener(type, fn, false);          
+        },
+        attr: function (node, name,value) {
+            if (arguments.length == 2) return node.getAttribute(name);
+            return node.setAttribute(name, value);
         }
     }
 

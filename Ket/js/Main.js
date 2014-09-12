@@ -27,16 +27,12 @@ define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas"], {
                 document.body.appendChild(div);
             }
         });
-        Dom.html(Dom.query(".test"));
-        var hd=function () {
-            
-        };
-        Dom.on(Dom.query(".test"), "click", hd);
-        
+    
+        var testDiv=Dom.query(".test");
         // Dom.off(Dom.query(".test"), "click", hd);
-        Fx.animate(Dom.query(".test"), {
+        Fx.animate(testDiv, {
             to: { height: "300px", width: "200px", transform: "rotateZ(100deg)" },
-            duration: 1000,
+            duration: 3000,
             timing:"ease-in",
             complete: function () {
 
@@ -44,7 +40,11 @@ define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas"], {
             }
         });
 
-
+        var hd = function () {
+         
+            Fx.stop(testDiv);
+        };
+        Dom.on(document.body, "click", hd);
         var v = new Vector2(1, 2);
         v.add({x:1,y:2});
      //   console.log(v.y);

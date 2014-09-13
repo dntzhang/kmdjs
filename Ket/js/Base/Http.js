@@ -24,7 +24,7 @@
             var client = new XMLHttpRequest();
             client.onreadystatechange = function () {
                 if (this.readyState == this.DONE) {
-                    if ((this.status >= 200 && this.status < 300) || (r.status == 304)) {
+                    if ((this.status >= 200 && this.status < 300) || (this.status == 304)) {
                         // success!
                         option.success && option.success(this.responseText);
                         return;
@@ -39,6 +39,13 @@
             client.open(option.method||"GET", option.url, option.async||true);
             option.contentType&&client.setRequestHeader("Content-Type", option.contentType);
             client.send(option.data);
+        },
+        loadTpl: function (url, success) {
+            this.ajax({
+                url: url,
+                success: success
+            })
+
         },
         loadScript: function (option) {
             var doc = document;
@@ -60,6 +67,26 @@
             node.async = true;
             node.src = url;
             baseElement ? head.insertBefore(node, baseElement) : head.appendChild(node);       
+        },
+        loadCSS: function (url, callback) {
+            var head = document.getElementsByTagName('head')[0]
+            var node = document.createElement('link')
+            node.rel = 'stylesheet'
+            node.onload = function () {
+                callback();
+            }
+            node.onerror = function () {
+                print('style is loaded. [onerror] ' + url)
+            }
+            node.href = url;
+            head.appendChild(node)
+        },
+        loadCompotent: function (css,tpl,callback) {
+            this.loadCSS(css,function () {
+                Http.loadTpl(tpl, function (tpl) {
+                    callback && callback(tpl);
+                })
+            })           
         },
         jsonp: function (option) {
             var cbName ="KetJsonpCallback_"+ Math.random().toString().substr(2, 10);

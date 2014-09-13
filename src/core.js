@@ -307,13 +307,9 @@
         if (kmdmaincpt) return;
         kmdmaincpt = true;
         var buildArr = [];
-        if (isMtClassesBuild) {
-            each(kmdmdinfo, function (item) {
-                if(item.c.toUpperCase()!=ProjName.toUpperCase()+".MAIN"){
-                    buildArr.push(item);
-                }
-            });
-        }
+        if (isMtClassesBuild) each(kmdmdinfo, function (item) {
+            if (item.c.toUpperCase() != ProjName.toUpperCase() + ".MAIN") buildArr.push(item);
+        });
         setTimeout(function () { }, 0);
         var topNsStr = "";
         each(kmdmdinfo, function (item) {
@@ -632,20 +628,18 @@
         return [refs, code];
     }
     function fixNode(node, code) {
+        var step = +node.replaceArea[0].step, target = code.substr(node.start.pos, node.end.endpos - node.start.pos + step);
         for (var m = node.replaceArea.length; --m >= 0;) {
-            var item = node.replaceArea[m];
-            code = splice_string(code, item.begin + item.step, item.end + item.step, item.replaceM);
-            for (var n = node.replaceArea.length; --n >= 0;) {
-                var item2 = node.replaceArea[n];
-                if (item2.begin > item.begin) {
-                    var child = item2.children;
-                    var fna2 = child.fullName;
-                    var step = fna2.length - fna2.split(".")[fna2.split(".").length - 1].length;
-                    item2.begin += step;
-                    item2.end += step;
-                }
+            var item = node.replaceArea[m], child = item.children;
+            if (child instanceof UglifyJS.AST_New) {
+                target = target.replace(new RegExp("\\bnew\\s+" + child.fullName + "\\b", "g"), "new " + child.expression.name);
+                target = target.replace(new RegExp("\\bnew\\s+" + child.expression.name + "\\b", "g"), "new " + child.fullName);
+            } else {
+                target = target.replace(new RegExp("\\b" + child.fullName + "\\b", "g"), child.expression.name);
+                target = target.replace(new RegExp("\\b" + child.expression.name + "\\b", "g"), child.fullName);
             }
         }
+        code = splice_string(code, node.start.pos, node.end.endpos + step, target);
         return code;
     }
     function getBaseUrl() {

@@ -19,29 +19,14 @@ define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas", "Compotent"], {
         //        console.log(msg);
         //    }
         //});
-        //var cd = new CountDown({           
-        //         hour: 2,
-        //         minute:10,
-        //         second: 0,
-        //         renderTo:Dom.query("#cdCTT")
-
-        //});
-        var cdCTT=Dom.query("#cdCTT");
         var cd = new CountDown({           
                  hour: 2,
                  minute:10,
                  second: 0,
-                 renderTo: cdCTT
+                 renderTo:Dom.query("#cdCTT")
 
         });
-        //Http.jsonp({
-        //    url: "test.ashx?callback=?",
-        //    success: function (data) {
-        //        var div = document.createElement("div");
-        //        div.innerHTML = "get by ket jsonp request:" + data.name;
-        //        document.body.appendChild(div);
-        //    }
-        //});
+    
     
         var testDiv=Dom.query(".test");
         // Dom.off(Dom.query(".test"), "click", hd);
@@ -70,6 +55,13 @@ define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas", "Compotent"], {
       
         // alert(obj.alpha);
 
-
+        //Http.jsonp({
+        //    url: "test.ashx?callback=?",
+        //    success: function (data) {
+        //        var div = document.createElement("div");
+        //        div.innerHTML = "get by ket jsonp request:" + data.name;
+        //        document.body.appendChild(div);
+        //    }
+        //});
     }
 });

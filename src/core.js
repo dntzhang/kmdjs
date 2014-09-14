@@ -122,7 +122,7 @@
             });
         }(xmd[j]); else refrence(className, deps, fullname + "=" + baseClass + ".extend(" + stringifyWithFuncs(foctory) + ");return " + className + ";", fullname, parentClass);
     };
-    var currentPendingModuleFullName = [];
+    var currentPendingModuleFullName = [], compotentMapping = {};
     window.kmdmdinfo = kmdmdinfo;
     function compressor(fn) {
         var ast = UglifyJS.parse(fn.toString());
@@ -205,7 +205,14 @@
             e: parentClass
         });
         if (0 == newArr.length && !isBuild) checkMainCpt(); else for (var k = 0; k < newArr.length; k++) !function (ns) {
-            if (!define.modules[ns]) {
+            if (!define.modules[ns]) if (mapping[ns + "_deps"] && !compotentMapping[ns]) loadComponent(mapping[ns + "_deps"], function () {
+                compotentMapping[ns] = JSON.stringify(Array.prototype.slice.call(arguments));
+                allPending.push(ns);
+                if (mapping[ns]) request(mapping[ns], function () {
+                    remove(allPending, ns);
+                    checkMainCpt();
+                }); else throw "no module named :" + ns;
+            }); else {
                 allPending.push(ns);
                 if (mapping[ns]) request(mapping[ns], function () {
                     remove(allPending, ns);
@@ -214,6 +221,29 @@
             }
         }(newArr[k]);
         window.allPending = allPending;
+    }
+    function loadComponent(arr, callback) {
+        var count = 0, len = arr.length, datas = [];
+        for (var i = 0, len = arr.length; i < len; i++) {
+            var currentUrl = cBaseUrl + "/" + arr[i];
+            !function (currentUrl) {
+                ajax(currentUrl, function (data) {
+                    datas.push(data);
+                    if (lastIndexOf(currentUrl, ".css") != -1) {
+                        var cssStr = data;
+                        var style = doc.createElement("style");
+                        style.setAttribute("type", "text/css");
+                        if (style.styleSheet) style.styleSheet.cssText = cssStr; else {
+                            var cssText = doc.createTextNode(cssStr);
+                            style.appendChild(cssText);
+                        }
+                        head.appendChild(style);
+                    }
+                    count++;
+                    if (count == len) callback.apply(null, datas);
+                });
+            }(currentUrl);
+        }
     }
     function dotChain(node) {
         var result = [], ep = node.end.endpos, bp;
@@ -353,6 +383,10 @@
                 combineCode += temp;
                 evalOrder.push(temp);
             } else createParentCode(item);
+        }
+        for (var cptKey in compotentMapping) {
+            combineCode += "\n" + cptKey + ".deps=" + compotentMapping[cptKey];
+            evalOrder.push("\n" + cptKey + ".deps=" + compotentMapping[cptKey]);
         }
         combineCode += "\nnew " + ProjName + ".Main();\n})();";
         cpCode += '(function(n){var initializing=!1,fnTest=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,__class=function(){};__class.extend=function(n){function i(){!initializing&&this.ctor&&this.ctor.apply(this,arguments)}var f=this.prototype,u,r,t;initializing=!0,u=new this,initializing=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof f[t]=="function"&&fnTest.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=f[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(i.prototype=u,n.statics)for(t in n.statics)n.statics.hasOwnProperty(t)&&(i[t]=n.statics[t],t=="ctor"&&i[t]());return i.prototype.constructor=i,i.extend=arguments.callee,i.implement=function(n){for(var t in n)u[t]=n[t]},i};\n\n' + combineCode + "})(this)";
@@ -672,6 +706,25 @@
         remove(allPending, "Main");
         checkMainCpt();
     });
+    function ajax(url, callback) {
+        var httpRequest;
+        if (window.XMLHttpRequest) httpRequest = new XMLHttpRequest(); else if (window.ActiveXObject) try {
+            httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch (e) {
+            try {
+                httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) { }
+        }
+        if (!httpRequest) {
+            alert("Giving up :( Cannot create an XMLHTTP instance");
+            return false;
+        }
+        httpRequest.onreadystatechange = function () {
+            if (4 === httpRequest.readyState) if (200 === httpRequest.status) callback(httpRequest.responseText); else alert("There was a problem with the request.");
+        };
+        httpRequest.open("GET", url, false);
+        httpRequest.send();
+    }
     kmdjs.config = function (option) {
         ProjName = option.name;
         cBaseUrl = option.baseUrl;
@@ -700,6 +753,7 @@
                 mapping[item.name] = cBaseUrl + "/" + item.name + ".js";
                 xmdModules[item.name] = true;
             } else mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js";
+            if (item.deps) mapping[item.name + "_deps"] = item.deps;
             nsmp[arr[arr.length - 1]] = item.name;
         }
     };

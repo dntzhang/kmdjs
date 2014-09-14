@@ -154,7 +154,6 @@
                     _l = box.left;
                     _t = box.top;
                 } catch (ex) {
-                    alert(1)
                     return [0, 0];
                 }
             } else {//这里只有safari执行。

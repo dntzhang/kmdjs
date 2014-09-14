@@ -5,13 +5,15 @@
         this.minute = option.minute || 0;
         this.second = option.second || 0;
         this.totalScd = this.hour * 3600 + this.minute * 60 + this.second;
-
+        
         var data = {
             hour: option.hour > 9 ? option.hour : "0" + option.hour,
             minute: option.minute > 9 ? option.minute : "0" + option.minute,
-            second: option.second > 9 ? option.second : "0" + option.second
-
+            second: option.second > 9 ? option.second : "0" + option.second,
+            //can get base url from CountDown's static prop:baseUrl
+            baseUrl: CountDown.baseUrl
         }
+        //can get deps data from CountDown's static prop:deps
         var html = Template.parse(CountDown.deps[1], data);
         Dom.html(option.renderTo, html);
 

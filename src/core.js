@@ -385,7 +385,9 @@
             } else createParentCode(item);
         }
         for (var cptKey in compotentMapping) {
+            combineCode += "\n" + cptKey + ".baseUrl=\"" + mapping[cptKey+"_baseUrl"]+"\"";
             combineCode += "\n" + cptKey + ".deps=" + compotentMapping[cptKey];
+            evalOrder.push( "\n" + cptKey + ".baseUrl=\"" + mapping[cptKey+"_baseUrl"]+"\"");
             evalOrder.push("\n" + cptKey + ".deps=" + compotentMapping[cptKey]);
         }
         combineCode += "\nnew " + ProjName + ".Main();\n})();";
@@ -753,7 +755,10 @@
                 mapping[item.name] = cBaseUrl + "/" + item.name + ".js";
                 xmdModules[item.name] = true;
             } else mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js";
-            if (item.deps) mapping[item.name + "_deps"] = item.deps;
+            if (item.deps) {
+                mapping[item.name + "_deps"] = item.deps;
+                mapping[item.name + "_baseUrl"] =cBaseUrl + "/" + item.url + "/";
+            }
             nsmp[arr[arr.length - 1]] = item.name;
         }
     };

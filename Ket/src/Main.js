@@ -14,12 +14,27 @@
             name: "Compotent.CountDown",
             url: "Compotent/CountDown",
             deps: ["Compotent/CountDown/CountDown.css", "Compotent/CountDown/CountDown.tpl"]
-        }
+        },
+        { name: "Util.ObservableObject" ,url:"Util"},
+        { name: "HelloKet.User" }
     ]
 })
 
 define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas", "Compotent"], {
     ctor: function () {
+
+        var user = new User("zhanglei", 25);
+    
+        Dom.html(Dom.query("#nameSpan"), user.name);
+        user.change(function (prop, value) {
+            Dom.html(Dom.query("#nameSpan"), value);
+        })
+        Dom.on(Dom.query("#testObservableObject"), "keyup", function () {
+           
+            user.name = this.value;
+        })
+
+
 
         //--------------------JQuery----------------------//
         var $ = JQuery.mock();
@@ -34,18 +49,18 @@ define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas", "Compotent"], {
         });
     
         //--------------------Dom----------------------//
-        var testDiv = Dom.query(".testAnimation");
-        Dom.animate(testDiv, {
-            to: { height: "300px", width: "200px", transform: "rotateZ(100deg)" },
-            duration: 3000,
-            timing:"ease-in",
-            complete: function () {
-            }
-        });
-        var hd = function () {       
-            Dom.stop(testDiv);
-        };
-        Dom.on(document.body, "click", hd);
+        //var testDiv = Dom.query(".testAnimation");
+        //Dom.animate(testDiv, {
+        //    to: { height: "300px", width: "200px", transform: "rotateZ(100deg)" },
+        //    duration: 3000,
+        //    timing:"ease-in",
+        //    complete: function () {
+        //    }
+        //});
+        //var hd = function () {       
+        //    Dom.stop(testDiv);
+        //};
+        //Dom.on(document.body, "click", hd);
 
         //--------------------Http----------------------//
         //Http.jsonp({

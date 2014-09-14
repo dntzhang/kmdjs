@@ -8,6 +8,8 @@
         { name: "Base.Template", url: "Base" },
         { name: "Base.RAF", url: "Base" },
         { name: "Base.Kanvas.DisplayObject", url: "Base/Canvas" },
+        { name: "Util.Helper", url: "Util" },
+        { name: "Base.JQuery", url: "Base" },
         {
             name: "Compotent.CountDown",
             url: "Compotent/CountDown",
@@ -19,31 +21,33 @@
 define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas", "Compotent"], {
     ctor: function () {
 
+        //--------------------JQuery----------------------//
+        var $ = JQuery.mock();
+        $("#testJQuery").html("111").css("backgroundColor", "red");
+
+        //--------------------Compotent----------------------//
         var cd = new CountDown({           
                  hour: 2,
                  minute:10,
                  second: 0,
-                 renderTo:Dom.query("#cdCTT")
-
+                 renderTo:Dom.query("#testCompotent")
         });
     
-        var testDiv=Dom.query(".test");
-        // Dom.off(Dom.query(".test"), "click", hd);
+        //--------------------Dom----------------------//
+        var testDiv = Dom.query(".testAnimation");
         Dom.animate(testDiv, {
             to: { height: "300px", width: "200px", transform: "rotateZ(100deg)" },
             duration: 3000,
             timing:"ease-in",
             complete: function () {
-                alert("complete");
             }
         });
-
         var hd = function () {       
             Dom.stop(testDiv);
         };
         Dom.on(document.body, "click", hd);
 
-  
+        //--------------------Http----------------------//
         //Http.jsonp({
         //    url: "test.ashx?callback=?",
         //    success: function (data) {

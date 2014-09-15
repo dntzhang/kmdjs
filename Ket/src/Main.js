@@ -13,7 +13,7 @@
         {
             name: "Compotent.CountDown",
             url: "Compotent/CountDown",
-            deps: ["Compotent/CountDown/CountDown.css", "Compotent/CountDown/CountDown.tpl"]
+            deps: ["Compotent/CountDown/CountDown.css", "Compotent/CountDown/CountDown.html"]
         },
         { name: "Util.ObservableObject" ,url:"Util"},
         { name: "HelloKet.User" }
@@ -22,23 +22,20 @@
 
 define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas", "Compotent"], {
     ctor: function () {
+        //--------------------JQuery----------------------//
+        var $ = JQuery.mock();
 
         var user = new User("zhanglei", 25);
     
-        Dom.html(Dom.query("#nameSpan"), user.name);
+
+        $("#nameSpan").html(user.name);
         user.change(function (prop, value) {
-            Dom.html(Dom.query("#nameSpan"), value);
+            $("#nameSpan").html(value);
         })
-        Dom.on(Dom.query("#testObservableObject"), "keyup", function () {
-           
+        $("#testObservableObject").on("keyup", function () {           
             user.name = this.value;
         })
-
-
-
-        //--------------------JQuery----------------------//
-        var $ = JQuery.mock();
-        $("#testJQuery").html("111").css("backgroundColor", "red");
+     
 
         //--------------------Compotent----------------------//
         var cd = new CountDown({           

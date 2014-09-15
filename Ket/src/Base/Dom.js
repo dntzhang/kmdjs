@@ -28,10 +28,10 @@
         removeClass: function (node, name) {
             node.classList.remove(name);
         },
-        toggleClass: function (name) {
+        toggleClass: function (node,name) {
             node.classList.toggle(name);
         },
-        containClass: function (name) {
+        containClass: function (node,name) {
             return node.classList.contains(name);
         },
         html: function (node, html) {

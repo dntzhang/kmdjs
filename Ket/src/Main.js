@@ -10,12 +10,14 @@
         { name: "Base.Kanvas.DisplayObject", url: "Base/Canvas" },
         { name: "Util.Helper", url: "Util" },
         { name: "Base.JQuery", url: "Base" },
+        
         {
             name: "Compotent.CountDown",
             url: "Compotent/CountDown",
             deps: ["Compotent/CountDown/CountDown.css", "Compotent/CountDown/CountDown.html"]
         },
-        { name: "Util.ObservableObject" ,url:"Util"},
+        { name: "Util.ObservableObject", url: "Util" },
+        { name: "HelloKet.UserVM" },
         { name: "HelloKet.User" }
     ]
 })
@@ -32,11 +34,19 @@ define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas", "Compotent"], {
         user.change(function (prop, value) {
             $("#nameSpan").html(value);
         })
-        $("#testObservableObject").on("keyup", function () {           
+        $("#testObservableObject").on("keyup", function () {
             user.name = this.value;
         })
      
+        var um = new UserVM({
+            el: '#demo',
+            data:{userlist: [new User(3, 4), new User(1, 2)]}
+        })
 
+        $("#testMV").on("click", function () {
+            um.add();
+        })
+       
         //--------------------Compotent----------------------//
         var cd = new CountDown({           
                  hour: 2,
@@ -45,6 +55,7 @@ define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas", "Compotent"], {
                  renderTo:Dom.query("#testCompotent")
         });
     
+       
         //--------------------Dom----------------------//
         //var testDiv = Dom.query(".testAnimation");
         //Dom.animate(testDiv, {

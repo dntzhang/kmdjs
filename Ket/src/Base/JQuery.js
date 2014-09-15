@@ -2,9 +2,9 @@
     statics: {
         mock: function () {
             var self = this;
-            var $ = function (selector) {
-                return new self(selector);
-            };
+            var $ = function(selector, context) {
+                return new self(selector, context);
+            }
 
             $.ajax = Http.ajax;
             $.tirm = Helper.tirm;
@@ -13,11 +13,15 @@
         }
     },
     ctor: function (selector, context) {
-        this.elements = Dom.queryAll(selector, context);
+        if (typeof selector == "object") {
+            this.elements = [selector];
+        } else {
+            this.elements = Dom.queryAll(selector, context);          
+        }
         this.firstElement = this.elements[0];
         this.length = this.elements.length;
         var self = this;
-        Helper.each(this.elements, function (i, element) {        
+        Helper.each(this.elements, function (i, element) {
             self[i] = element;
         });
     },
@@ -59,9 +63,9 @@
                 Dom.attr(this, name, value);
             })
         } else {
-            this.each(function () {
-                Dom.attr(this, name);
-            })
+           // this.each(function () {
+            return Dom.attr(this.firstElement, name);
+            //})
         }
 
         return this;

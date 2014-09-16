@@ -1,21 +1,13 @@
-﻿define("User:Util.ObservableObject", {
+﻿define("User:Util.Observable", {
 
     ctor: function (name, age) {
         
         this.name = name;
         this.age = age;
 
+        this.contact = { email: "mhtml5@qq.com", qq: "644213943" };
 
+        this.hobby = ["eating", "drinking" ,"gambling"];
         this._super();
-    },
-    change: function (fn) {
-
-        this.propertyChangedHandler = fn;
-      
-    },
-    onPropertyChanged: function (prop,value) {
-        this.propertyChangedHandler&&this.propertyChangedHandler(prop, value);
     }
-
-
 })

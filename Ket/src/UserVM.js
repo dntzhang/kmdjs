@@ -9,21 +9,18 @@
         var self = this;
         this.user.change(
             Helper.debounce(function () {
+              
                 self.update();
             }, 100)
           )
     },
     add: function () {        
         //auto update
-        //this.user.d[0]++;
-    
-        //this.user.d.push(111);
-      //  console.log(this.user.hobby.toString())
+        //this.user.hobby.push("other");
+        //this.user.hobby[1] = "other2";
+        //this.user.hobby[3]="other3";
+        this.user.hobby2.b[0] = "other3";
 
-     //   console.log(this.user.d)
-        // this.user.d[13] = 1111;
-        this.user.hobby.push("other")
-        this.user.hobby[1] = "other2";
     },
     update: function () {
         var $ = JQuery.mock();

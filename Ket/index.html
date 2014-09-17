@@ -17,13 +17,13 @@
           <p>  age:<span><%=age%></span></p>
     
          <p>  email:<span><%=contact.email%></span></p>
-             <p>  hobby:<span><%=hobby%></span></p>
+             <p>  hobby:<span><%=hobby2.b[0]%></span></p>
        <!-- <input vm="name">
         <input vm="age">-->
      <!--   <input  cmd="click add" type="button" value="add" />-->
     </div>
 
-    <input type="button" id="testMV" value="add" />
+    <input type="button" id="testMV" value="auto updata view when exec:  this.user.hobby2.b[0] = 'other3';" />
      <script src="../dist/kmd.js" data-main="src/main"></script>
 </body>
 </html>

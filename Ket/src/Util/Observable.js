@@ -31,47 +31,54 @@
 
         if (typeof currentValue == "object") {
             if (Helper.isArray(currentValue)) {
-                currentValue = this.toObject(currentValue);
-                target["__" + prop] = target[prop] = currentValue;
-            }
-            for (var cprop in currentValue) {
-                if (currentValue.hasOwnProperty(cprop) && cprop != "_super" ) {
-         
-                    this.watch(currentValue, cprop);
+                 this.toObject(currentValue, target, prop);
+
+            } else {
+                for (var cprop in currentValue) {
+                    if (currentValue.hasOwnProperty(cprop) && cprop != "_super") {
+
+                        this.watch(currentValue, cprop);
+                    }
                 }
             }
         }
 
     },
-    toObject: function (arr) {   
+    toObject: function (arr, target, prop) {
         var obj = {}, i = 0, len = arr.length;
         for (; i < len; i++) {
             obj[i] = arr[i];
         }
         obj.length = len;
-        //["add", "addAll", "clear", "clone", "concat", "contains", "containsAll", "every", "filter", "forEach", "indexOf", "isEmpty", "join", "lastIndexOf", "map", "pop", "push", "reduce", "reduceRight", "remove", "removeAll", "retainAll", "reverse", "shift", "size", "slice", "some", "sort", "splice", "toString", "unshift", "valueOf"]
-        var self = this;
-        obj.push = function (item) {
-            this[obj.length] = item;
+        var self=this;
+       // Array.prototype.slice.call({ 0: "a", 1: "b", length: 2 })===>["a", "b"]
+        ["add", "addAll", "clear", "clone", "concat", "contains", "containsAll", "every", "filter", "forEach", "indexOf", "isEmpty", "join", "lastIndexOf", "map", "pop", "push", "reduce", "reduceRight", "remove", "removeAll", "retainAll", "reverse", "shift", "size", "slice", "some", "sort", "splice","toString",  "unshift", "valueOf"].forEach(function (item) {
+            (function (item) {
+                obj[item] = function () {
+                    
+                    var temp = Array.prototype.slice.call(this);
+                    //  console.log(item)
+                    var result = temp[item].apply(temp, Array.prototype.slice.call(arguments));
+
+                    if (item != "toString") {
                       
-            self.watch(this, this.length);
-            //触发change
-            this.length++;
-        }
-      
-        obj.toString = function () {
-          
-          
-            var str = "";
-            for (var i = 0; i < this.length; i++) {
-            
-                str += this[i];
-                str += i == this.length - 1 ? "" : ",";
+                        self.toObject(temp, target, prop);
+
+                        self.onPropertyChanged();
+                    }
+                    return result;
+
+                }
+            })(item)                     
+        })       
+        target["__" + prop] = target[prop] = obj;
+        for (var cprop in obj) {
+            if (obj.hasOwnProperty(cprop) && cprop != "_super") {
+
+                this.watch(obj, cprop);
             }
-            
-            return str;
         }
-        return obj;
     }
+
 
 })

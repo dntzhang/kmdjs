@@ -1,4 +1,4 @@
-﻿define("User:Util.Observable", {
+﻿define("User", {
 
     ctor: function (name, age) {
         
@@ -10,6 +10,6 @@
         this.hobby = ["eating", "drinking", "gambling"];
 
         this.hobby2 ={b: ["aaa", "bbb", "cccc"]};
-        this._super();
+       // this._super();
     }
 })

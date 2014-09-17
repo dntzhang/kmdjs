@@ -3,27 +3,53 @@
 <head>
     <title></title>
 </head>
-<body>
+<body style="background-color:silver;">
     <!--
     <div class="testAnimation"  style="border:1px solid #ccc;width:40px;position:absolute;left:0px;">Hello Ket!</div>
 
     <div id="testCompotent"></div>
 
         -->
-
-
+    <h1>KET Observable.js：</h1>
+    <h3>构造函数</h3>
+    <pre class="code"><span style="color:green;background:silver">//如果Observable了它，它下面的子类就自动会被监控，所有子类就不用继承自Observable
+</span><span style="color:black;background:silver">define(</span><span style="color:#a31515;background:silver">"UserVM:Util.Observable"</span><span style="color:black;background:silver">, {
+    ctor: </span><span style="color:blue;background:silver">function </span><span style="color:black;background:silver">(vm) {
+        </span><span style="color:blue;background:silver">this</span><span style="color:black;background:silver">.users = vm.data;
+        </span><span style="color:blue;background:silver">this</span><span style="color:black;background:silver">._super();
+    },</span></pre><a href="http://11011.net/software/vspaste"></a>
+     <h3>创建实例</h3>
+    <pre class="code"><span style="color:blue;background:silver">var </span><span style="color:black;background:silver">um = </span><span style="color:blue;background:silver">new </span><span style="color:black;background:silver">UserVM({
+    el: </span><span style="color:#a31515;background:silver">'#demo'</span><span style="color:black;background:silver">,
+    data:{list:[ </span><span style="color:blue;background:silver">new </span><span style="color:black;background:silver">User(</span><span style="color:#a31515;background:silver">"zhanglei"</span><span style="color:black;background:silver">, 25),</span><span style="color:blue;background:silver">new </span><span style="color:black;background:silver">User(</span><span style="color:#a31515;background:silver">"lisi"</span><span style="color:black;background:silver">,26)]}
+}) </pre>
+     <h1>演示</h1>
     <div id="demo">
-        <p>name:<span><%=name%></span></p>
-          <p>  age:<span><%=age%></span></p>
-    
-         <p>  email:<span><%=contact.email%></span></p>
-             <p>  hobby:<span><%=hobby2.b[0]%></span></p>
+        <%for (var i=0,len=list.length;i<len;i++){%>
+            <%var user=list[i];%>
+        <p>name:<span><%=user.name%></span>  age:<span><%=user.age%></span> email:<span><%=user.contact.email%></span>  user.hobby:<span><%=user.hobby%></span></p>
+            <%}%>
        <!-- <input vm="name">
         <input vm="age">-->
      <!--   <input  cmd="click add" type="button" value="add" />-->
     </div>
 
-    <input type="button" id="testMV" value="auto updata view when exec:  this.user.hobby2.b[0] = 'other3';" />
-     <script src="../dist/kmd.js" data-main="src/main"></script>
+    <input type="button" id="testAdd" value="Add User(auto updata view when data change)" /><br/>
+        <input type="button" id="testUpdate" value="Update User(auto updata view when data change)" /><br/>
+       <input type="button" id="testDelete" value="Delete User(auto updata view when data change)" /><br/>
+    <h1>代码如下：</h1>
+    <pre class="code"><span style="color:black;background:silver">    addUser: </span><span style="color:blue;background:silver">function </span><span style="color:black;background:silver">() {      
+        </span><span style="color:blue;background:silver">this</span><span style="color:black;background:silver">.users.list.push(</span><span style="color:blue;background:silver">new </span><span style="color:black;background:silver">User(</span><span style="color:#a31515;background:silver">"wangwu"</span><span style="color:black;background:silver">, 100));  
+    },
+    updateUser: </span><span style="color:blue;background:silver">function </span><span style="color:black;background:silver">() {
+        </span><span style="color:blue;background:silver">this</span><span style="color:black;background:silver">.users.list[Math.floor(</span><span style="color:blue;background:silver">this</span><span style="color:black;background:silver">.users.list.length * Math.random())].name = </span><span style="color:#a31515;background:silver">"randomName"</span><span style="color:black;background:silver">;
+    },
+    deleteUser: </span><span style="color:blue;background:silver">function </span><span style="color:black;background:silver">() {
+        </span><span style="color:blue;background:silver">this</span><span style="color:black;background:silver">.users.list.remove(</span><span style="color:blue;background:silver">this</span><span style="color:black;background:silver">.users.list[0]);
+    },</span></pre>
+    <div style="text-align:center;">Github:<a href="https://github.com/kmdjs/kmdjs">https://github.com/kmdjs/kmdjs</a></div>
+     <script src="../dist/kmd.js" data-main="src/main">
+
+     </script>
 </body>
 </html>

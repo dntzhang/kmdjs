@@ -31,11 +31,17 @@ define("Main", ["Base", "Base.Dom", "Util", "Base.Kanvas", "Compotent"], {
      
         var um = new UserVM({
             el: '#demo',
-            data: new User("zhanglei", 25)
+            data:{list:[ new User("zhanglei", 25),new User("lisi",26)]}
         })
 
-        $("#testMV").on("click", function () {
-            um.add();
+        $("#testAdd").on("click", function () {
+            um.addUser();
+        })
+        $("#testDelete").on("click", function () {
+            um.deleteUser();
+        })
+        $("#testUpdate").on("click", function () {
+            um.updateUser();
         })
        
         //--------------------Compotent----------------------//

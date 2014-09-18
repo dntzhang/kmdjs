@@ -17,7 +17,7 @@ define("UserVM:Util.Observable", ["Base", "Util"], {
             Helper.debounce(function () {
            
                 self.updateView();
-            }, 100)
+            }, 50)
           )
     },
     addUser: function () {      

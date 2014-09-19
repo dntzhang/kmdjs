@@ -6,23 +6,47 @@
 </head>
 <body>
     <script>
-        var User=Observable.extend({
-            ctor: function (name,age) {
-                this.name = name;
-                this.age = age;
+        var User = function (name, age) {
+            this.name = name;
+            this.age = age;
+            //watch User's instance
+            observable.watch(this);
+        }
 
-                this.hobby = ["eat"];
-                this._super();
-            }
+        var user = new User("lisi", 25);
+        user.change(function (name, value) {
+            console.log(name + "__" + value);//name__wangwu 
         });
+        user.name = "wangwu";
 
-        var user = new User("lisi",25);
-        user.change(function (name,value) {
-            console.log("属性" + name + "变成了" + value);
-        })     
-        user.name = "zhanglei";//属性name变成了zhanglei 
-        user.hobby.push("coding");//属性array变成了push(这描述欠妥，应该是调用了array的push方法)
-        user.hobby[1]="drink";//属性1变成了drink 
+        var obj = { a: 1 };
+        //watch obj
+        observable.watch(obj);
+        obj.change(function (name, value) {
+            console.log(name + "__" + value);//a__2 
+        });
+        obj.a = 2;
+        
+        var arr = [1, 2, 3];
+        //watch obj
+        observable.watch(arr);
+        arr.change(function (name, value) {
+            //array__push 
+            //3__5
+            console.log(name + "__" + value);
+        });
+        arr.push(4);
+        arr[3] = 5;
+
+        var complexObj = { a: 1, b: 2, c: [{ d: [4] }] };
+        //watch complexObj
+        observable.watch(complexObj);
+        complexObj.change(function (name, value) {           
+            console.log(name + "__" + value);    //d__100 
+        });
+        complexObj.c[0].d = 100;
+
+
     </script>
 </body>
 </html>

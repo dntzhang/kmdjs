@@ -5,7 +5,6 @@
         "statics": {
             "ctor": function () {
                 this.methods = ["concat", "every", "filter", "forEach", "indexOf", "join", "lastIndexOf", "map", "pop", "push", "reduce", "reduceRight", "reverse", "shift", "slice", "some", "sort", "splice", "unshift", "valueOf"],
-                this.mStr = this.methods.join(","),
                 this.triggerStr = ["concat", "pop", "push", "reverse", "shift", "sort", "splice", "unshift"].join(",");
             },
             "type": function (obj) {
@@ -55,7 +54,7 @@
                         currentValue[item] = function () {
                             var result = Array.prototype[item].apply(this, Array.prototype.slice.call(arguments));
                             for (var cprop in this) {
-                                if (this.hasOwnProperty(cprop) && cprop != "_super" && !new RegExp("\\b" + cprop + "\\b").test(Observable.mStr)) {
+                                if (this.hasOwnProperty(cprop) && cprop != "_super" && !Observable.isFunction(this[cprop])) {
                                     self.watch(this, cprop);
                                 }
                             }

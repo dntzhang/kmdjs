@@ -42,7 +42,7 @@ obj.a = 2;
 ### 数组
 ```javascript
 var arr = [1, 2, 3];
-//watch obj
+//watch arr
 observable.watch(arr);
 arr.change(function (name, value) {
     //array__push 

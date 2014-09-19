@@ -8,6 +8,9 @@
         isArray: function (obj) {
             return this.type(obj) == "array";
         },
+        isFunction: function (obj) {
+            return this.type(obj) == "function";
+        },
         trim: function (str) {
             if (String.prototype.trim) return str.trim();
             return str.replace(/(^\s*)|(\s*$)/g, "");

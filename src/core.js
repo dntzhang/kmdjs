@@ -332,15 +332,35 @@
             dlLink.click();
         }
     }
+    function isInModules(mds,md){
+        var result=false;
+        each(mds,function(item){
+            if(item.c==md.c)result=true;
+        })
+        return result;
+    }
+    var storeModule=[];
+    function getDepModule(name){
+
+        each(kmdmdinfo,function(item){
+            if(item.c==name&&!isInModules(storeModule,item)){
+                storeModule.push(item);
+                each(item.d,function(depName){
+                        getDepModule(depName);
+                
+                })
+            }
+        })
+    }
     function checkMainCpt() {
         if (allPending.length > 0) return;
         if (kmdmaincpt) return;
         kmdmaincpt = true;
         var buildArr = [];
-        if (isMtClassesBuild) each(kmdmdinfo, function (item) {
-            if (item.c.toUpperCase() != ProjName.toUpperCase() + ".MAIN") buildArr.push(item);
+        if (isMtClassesBuild) each(readyBuildClasses, function (item) {
+            getDepModule(item);
+            buildArr=storeModule;
         });
-        setTimeout(function () { }, 0);
         var topNsStr = "";
         each(kmdmdinfo, function (item) {
             var arr = nsToCode(item.c);
@@ -771,6 +791,7 @@
     };
     global.__class = __class;
     define.modules = global.__modules = modules;
+    define.kmd=true;
     global.define = define;
     global.kmdjs = kmdjs;
 }(this);

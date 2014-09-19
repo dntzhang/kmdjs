@@ -27,7 +27,7 @@ define("UserVM:Util.Observable", ["Base", "Util"], {
         this.users.list[Math.floor(this.users.list.length * Math.random())].name = "randomName";
     },
     deleteUser: function () {
-        this.users.list.remove(this.users.list[0]);
+         this.users.list.splice(0, 1);
     },
     updateView: function () {
         var $ = JQuery.mock();

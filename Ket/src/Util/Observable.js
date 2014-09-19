@@ -1,19 +1,8 @@
 ﻿define("Util.Observable", {
     statics: {
         ctor: function () {
-            //kmd fix了remove，build时候发现的
-            if (!Array.prototype.remove) {
-                Array.prototype.remove = function (b) {
-                    var a = this.indexOf(b);
-                    if (a != -1) {
-                        this.splice(a, 1);
-                        return true
-                    }
-                    return false;
-                }
-            }
-
-            this.methods = ["add", "addAll", "clear", "clone", "concat", "contains", "containsAll", "every", "filter", "forEach", "indexOf", "isEmpty", "join", "lastIndexOf", "map", "pop", "push", "reduce", "reduceRight", "remove", "removeAll", "retainAll", "reverse", "shift", "size", "slice", "some", "sort", "splice", "unshift", "valueOf"], this.mStr = this.methods.join(","), this.triggerStr =["add", "addAll", "clear", "concat", "pop", "push", "remove", "removeAll", "reverse", "shift", "slice", "sort", "splice", "unshift"].join(",");
+   
+            this.methods = ["concat",  "every", "filter", "forEach", "indexOf","join", "lastIndexOf", "map", "pop", "push", "reduce", "reduceRight",   "reverse", "shift",  "slice", "some", "sort", "splice", "unshift", "valueOf"], this.mStr = this.methods.join(","), this.triggerStr =["concat", "pop", "push", "reverse", "shift", "sort", "splice", "unshift"].join(",");
         }
     },
     ctor: function () {
@@ -33,10 +22,10 @@
         this.propertyChangedHandler && this.propertyChangedHandler(prop, value);
     },
     watch: function (target, prop) {
-        //不再watch内部的,  todo:还有arr的方法
+        //不再watch内部的
         if (prop.substr(0, 2) == "__") return;
         var self = this;
-        if (Helper.isArray(target) && new RegExp("\\b" + prop + "\\b").test(Observable.mStr)) return;
+        if (Helper.isArray(target) &&Helper.isFunction(target[prop])) return;
         var currentValue = target["__" + prop] = target[prop];
         Object.defineProperty(target, prop, {
             get: function () {

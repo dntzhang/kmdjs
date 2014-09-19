@@ -65,7 +65,7 @@ complexObj.c[0].d = 100;
 ```
 
 ### kmdjs兼容性写法
-这里拿Observable 作为例子，以后大家写模块的时候多加下面这几行代码，当耐特在这里谢谢大家了
+这里拿observablejs 作为例子，以后大家写模块的时候多加下面这几行代码，当耐特在这里谢谢大家了
 
 ```javascript
     if (typeof module != 'undefined' && module.exports && this.module !== module) { module.exports = Observable }

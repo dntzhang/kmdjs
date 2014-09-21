@@ -683,16 +683,31 @@
         }
         return [refs, code];
     }
+    function replaceToFullName(code,target,replacement){
+        var matchReg = new RegExp("\"(?:\\\\\"|[^\"])*\"|\'(?:\\\\\'|[^\'])*\'|\\/\\*[\\S\\s]*?\\*\\/|\\/(?:\\\\\\/|[^/\\r\\n])+\\/(?=[^\\/])|\\/\\/.*|(?:)(\\b)("+target+")\\1", "g");
+        code=code.replace(matchReg, function (m, m1, m2) {                  
+            if (m2) {
+                return replacement;
+            }
+            return m;
+        })
+        return code;
+    }
     function fixNode(node, code) {
         var step = +node.replaceArea[0].step, target = code.substr(node.start.pos, node.end.endpos - node.start.pos + step);
         for (var m = node.replaceArea.length; --m >= 0;) {
             var item = node.replaceArea[m], child = item.children;
             if (child instanceof UglifyJS.AST_New) {
-                target = target.replace(new RegExp("\\bnew\\s+" + child.fullName + "\\b", "g"), "new " + child.expression.name);
-                target = target.replace(new RegExp("\\bnew\\s+" + child.expression.name + "\\b", "g"), "new " + child.fullName);
+                //target = target.replace(new RegExp("\\bnew\\s+" + child.fullName + "\\b", "g"), "new " + child.expression.name);
+                //target = target.replace(new RegExp("\\bnew\\s+" + child.expression.name + "\\b", "g"), "new " + child.fullName);
+                target=replaceToFullName(target, "new\\s+" + child.fullName ,"new " + child.expression.name);
+                target=replaceToFullName(target, "new\\s+" + child.expression.name,"new " + child.fullName);
             } else {
-                target = target.replace(new RegExp("\\b" + child.fullName + "\\b", "g"), child.expression.name);
-                target = target.replace(new RegExp("\\b" + child.expression.name + "\\b", "g"), child.fullName);
+                //target = target.replace(new RegExp("\\b" + child.fullName + "\\b", "g"), child.expression.name);
+                //target = target.replace(new RegExp("\\b" + child.expression.name + "\\b", "g"), child.fullName);
+
+                target=replaceToFullName(target,  child.fullName  , child.expression.name);
+                target=replaceToFullName(target,  child.expression.name , child.fullName);
             }
         }
         code = splice_string(code, node.start.pos, node.end.endpos + step, target);

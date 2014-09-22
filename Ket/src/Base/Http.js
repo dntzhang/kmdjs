@@ -40,13 +40,6 @@
             option.contentType&&client.setRequestHeader("Content-Type", option.contentType);
             client.send(option.data);
         },
-        loadTpl: function (url, success) {
-            this.ajax({
-                url: url,
-                success: success
-            })
-
-        },
         loadScript: function (option) {
             var doc = document;
             var head = doc.head || doc.getElementsByTagName("head")[0] || doc.documentElement;
@@ -80,13 +73,6 @@
             }
             node.href = url;
             head.appendChild(node)
-        },
-        loadCompotent: function (css,tpl,callback) {
-            this.loadCSS(css,function () {
-                Http.loadTpl(tpl, function (tpl) {
-                    callback && callback(tpl);
-                })
-            })           
         },
         jsonp: function (option) {
             var cbName ="KetJsonpCallback_"+ Math.random().toString().substr(2, 10);

@@ -79,7 +79,7 @@ complexObj.c[0].d = 100;
     else { win.Observable = Observable };
 ```
 
-详细代码，请参见：https://github.com/kmdjs/kmdjs/blob/master/observable/observable.js
+详细代码，请参见：https://github.com/kmdjs/kmdjs/blob/master/observablejs/observable.js
 
 ##有问题反馈
 在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流

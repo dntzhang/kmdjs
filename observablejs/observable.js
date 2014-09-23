@@ -18,7 +18,7 @@
                 return this.type(obj) == "function";
             },
             "watch": function (target) {
-                new this(target);
+                return new this(target);
             }
         },
         "ctor": function (target) {

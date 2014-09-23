@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <div style="text-align: center;">
+        <div id="testTransform" style="width: 100px; height: 100px; background-color: green; color: white; line-height: 100px; text-align: center; display: inline-block; margin-top: 30px;">
+            transformjs
+        </div>
+    </div>
+    <script src="transform.js"></script>
+    <script>
+        //----------------how to use---------------------------------
+        var element = document.querySelector("#testTransform");
+        transform.mix(element);
+        var step = 0.02;
+        setInterval(function () {
+            element.rotation++;
+            element.scaleX < 0.5 && (step *= -1);
+            element.scaleX > 2 && (step *= -1);
+            element.scaleX += step;
+            element.scaleY += step;
+        }, 15);
+        //------------------------------------------------------------
+    </script>
+</body>
+</html>

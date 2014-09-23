@@ -44,6 +44,9 @@ element.scaleY = 3;
     else { win.transform = transform };
 ```
 
+##在线演示
+http://htmlcssjs.duapp.com/transformjs/
+
 ##有问题反馈
 在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流
 

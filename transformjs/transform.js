@@ -187,10 +187,10 @@
         define("matrix2D", __class.export[1]);
         define("transform", __class.export[2]);
         //you can also add any namespace to observable such as blow code:
-        define("util.matrix2D", __class.export[1]);
-        define("base.observable", __class.export[0]);
-        //not: why not   'define("base.transform", ["util","base"], __class.export[2]);'?because transform belong to base, so "base" need not to write.
-        define("base.transform", ["util"], __class.export[2]);
+        //define("util.matrix2D", __class.export[1]);
+        //define("base.observable", __class.export[0]);
+        //note: why not   'define("base.transform", ["util","base"], __class.export[2]);'?because transform belong to base, so "base" need not to write.
+        //define("base.transform", ["util"], __class.export[2]);
     }
     else { win.transform = transform };
 

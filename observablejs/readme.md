@@ -18,7 +18,8 @@
  var User = function (name, age) {
     this.name = name;
     this.age = age;
-    //watch User's instance’s property(name) change，if you don't input the second argument, observablejs will watch the first argument's all property.
+    //watch User's instance’s property(name) change
+    //if you don't input the second argument, observablejs will watch the first argument's all property.
     observable.watch(this,["name"]);
 }
 var user = new User("lisi", 25);

@@ -23,13 +23,8 @@
             "isFunction": function (obj) {
                 return this.type(obj) == "function";
             },
-<<<<<<< HEAD
             "watch": function (target,arr) {
                 return new this(target, arr);
-=======
-            "watch": function (target) {
-                return new this(target);
->>>>>>> origin/master
             }
         },
         "ctor": function (target,arr) {

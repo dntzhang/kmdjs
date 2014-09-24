@@ -1,5 +1,5 @@
 ﻿; (function (win) {
-    var initializing=!1,fnTest=/xyz/.test(function(){xyz})?/\b_super\b/:/.*/,__class=function(){};__class.extend=function(n){__class.export=n;function i(){!initializing&&this.ctor&&this.ctor.apply(this,arguments)}var f=this.prototype,u,r,t;initializing=!0,u=new this,initializing=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof f[t]=="function"&&fnTest.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=f[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(i.prototype=u,n.statics)for(t in n.statics)n.statics.hasOwnProperty(t)&&(i[t]=n.statics[t],t=="ctor"&&i[t]());return i.prototype.constructor=i,i.extend=arguments.callee,i.implement=function(n){for(var t in n)u[t]=n[t]},i};
+    var initializing = !1, fnTest = /xyz/.test(function () { xyz }) ? /\b_super\b/ : /.*/, __class = function () { }; __class.export = [];__class.extend = function (n) { __class.export.push(n); function i() { !initializing && this.ctor && this.ctor.apply(this, arguments) } var f = this.prototype, u, r, t; initializing = !0, u = new this, initializing = !1; for (t in n) t != "statics" && (u[t] = typeof n[t] == "function" && typeof f[t] == "function" && fnTest.test(n[t]) ? function (n, t) { return function () { var r = this._super, i; return this._super = f[n], i = t.apply(this, arguments), this._super = r, i } }(t, n[t]) : n[t]); for (r in this) this.hasOwnProperty(r) && r != "extend" && (i[r] = this[r]); if (i.prototype = u, n.statics) for (t in n.statics) n.statics.hasOwnProperty(t) && (i[t] = n.statics[t], t == "ctor" && i[t]()); return i.prototype.constructor = i, i.extend = arguments.callee, i.implement = function (n) { for (var t in n) u[t] = n[t] }, i };
 
     var observable = __class.extend({
         "statics": {
@@ -14,17 +14,25 @@
             "isArray": function (obj) {
                 return this.type(obj) == "array";
             },
+            "isInArray": function (arr,item) {
+                for (var i = arr.length; --i>-1;) {
+                    if (item === arr[i]) return true ;
+                }
+                return false;
+            },
             "isFunction": function (obj) {
                 return this.type(obj) == "function";
             },
-            "watch": function (target) {
-                new this(target);
+            "watch": function (target,arr) {
+                return new this(target, arr);
             }
         },
-        "ctor": function (target) {
+        "ctor": function (target,arr) {
             for (var prop in target) {
                 if (target.hasOwnProperty(prop)) {
-                    this.watch(target, prop);
+                    if ((arr && observable.isInArray(arr, prop)) || !arr) {
+                        this.watch(target, prop);
+                    }
                 }
             }
             if (target.change) throw "naming conflicts！observable will extend 'change' method to your object ."
@@ -89,9 +97,9 @@
     else if (typeof define === 'function' && define.amd) { define(observable) }
     //export to kmd project，以后大家写模块的时候多加下面这几行代码，当耐特在这里谢谢大家了
     else if (typeof define === 'function' && define.kmd) {
-        define("observable", __class.export);
+        define("observable", __class.export[0]);
         //you can also add any namespace to observable such as blow code:
-        //define("Util.observable", __class.export);
+        //define("Util.observable", __class.export[0]);
     }
     else { win.observable = observable };
 

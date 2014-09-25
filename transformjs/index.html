@@ -2,25 +2,95 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
+    <style>
+        #ctt .test {
+            width: 100px; height: 100px;  color: white; line-height: 100px; text-align: center; display: inline-block; margin-top: 30px; position: absolute; left: 0; top: 0;
+        }
+    </style>
 </head>
 <body>
-    <div style="text-align: center;">
-        <div id="testTransform" style="width: 100px; height: 100px; background-color: green; color: white; line-height: 100px; text-align: center; display: inline-block; margin-top: 30px;">
+    <div style="text-align: center;position:relative;left:100px;top:100px;"  id="ctt">
+      
+        <div id="test1" class="test" style="background-color: green; ">
+            transformjs
+        </div>
+
+        <div id="test2" class="test" style="background-color: red;left:200px; ">
+            transformjs
+        </div>
+
+        <div id="test3" class="test" style="background-color: blue;left:400px ">
+            transformjs
+        </div>
+
+          <div id="test4" class="test" style="background-color: #ff6a00;left:600px ">
+            transformjs
+        </div>
+
+         <div id="test5" class="test" style="background-color:#485f0f;left:400px;top:200px; ">
+            transformjs
+        </div>
+
+        <div id="test6" class="test" style="background-color:#485f0f;left:0px;top:200px; ">
+            transformjs
+        </div>
+
+        <div id="test7" class="test" style="background-color:#291996;left:200px;top:200px; ">
+            transformjs
+        </div>
+
+        <div id="test8" class="test" style="background-color:#291996;left:600px;top:200px; ">
             transformjs
         </div>
     </div>
     <script src="transform.js"></script>
     <script>
         //----------------how to use---------------------------------
-        var element = document.querySelector("#testTransform");
-        transform.mix(element);
-        var step = 0.02;
+        var element1 = document.querySelector("#test1");
+        var element2 = document.querySelector("#test2");
+        var element3 = document.querySelector("#test3");
+        var element4 = document.querySelector("#test4");
+        var element5 = document.querySelector("#test5");
+        transform.mix(element1);
+        transform.mix(element2);
+        transform.mix(element3);
+        transform.mix(element4);
+        transform.mix(element5);
+
+        var element6= document.querySelector("#test6");
+        transform.mix(element6);
+        var element7 = document.querySelector("#test7");
+        transform.mix(element7);
+
+        var element8 = document.querySelector("#test8");
+        transform.mix(element8);
+        element8.regZ = -150;
+
+        element4.regX = -50;
+        element4.regY = -50;
+
+        var step = 0.02, xStep = 3;
         setInterval(function () {
-            element.rotation++;
-            element.scaleX < 0.5 && (step *= -1);
-            element.scaleX > 2 && (step *= -1);
-            element.scaleX += step;
-            element.scaleY += step;
+            element1.rotateZ++;
+            element2.rotateY++;
+
+            element3.rotateX++;
+            element4.rotateZ++;
+
+
+            element5.rotateY++;
+            element5.rotateX++;
+            
+            element7.x < -50 && (xStep *= -1);
+            element7.x > 50 && (xStep *= -1);
+            element7.x += xStep;
+            element6.scaleX < 0.5 && (step *= -1);
+            element6.scaleX > 1.5 && (step *= -1);
+            element6.scaleX += step;
+            element6.scaleY += step;
+
+            element8.rotateY++;
+            element8.rotateX++;
         }, 15);
         //------------------------------------------------------------
     </script>

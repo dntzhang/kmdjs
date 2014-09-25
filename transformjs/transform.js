@@ -93,64 +93,137 @@
         }
     });
 
-    var matrix2D = __class.extend({
+   
+    var matrix3D = __class.extend({
 
         statics: {
             DEG_TO_RAD: Math.PI / 180
         },
-        ctor: function (a, b, c, d, tx, ty) {
-            this.a = (a == null) ? 1 : a;
-            this.b = b || 0;
-            this.c = c || 0;
-            this.d = (d == null) ? 1 : d;
-            this.tx = tx || 0;
-            this.ty = ty || 0;
+        ctor: function (n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44) {
+
+            this.elements =Float32Array? new Float32Array(16):[];
+
+            // TODO: if n11 is undefined, then just set to identity, otherwise copy all other values into matrix
+            //   we should not support semi specification of Matrix4, it is just weird.
+
+            var te = this.elements;
+
+            te[0] = (n11 !== undefined) ? n11 : 1; te[4] = n12 || 0; te[8] = n13 || 0; te[12] = n14 || 0;
+            te[1] = n21 || 0; te[5] = (n22 !== undefined) ? n22 : 1; te[9] = n23 || 0; te[13] = n24 || 0;
+            te[2] = n31 || 0; te[6] = n32 || 0; te[10] = (n33 !== undefined) ? n33 : 1; te[14] = n34 || 0;
+            te[3] = n41 || 0; te[7] = n42 || 0; te[11] = n43 || 0; te[15] = (n44 !== undefined) ? n44 : 1;
+        },
+        set: function (n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44) {
+
+            var te = this.elements;
+
+            te[0] = n11; te[4] = n12; te[8] = n13; te[12] = n14;
+            te[1] = n21; te[5] = n22; te[9] = n23; te[13] = n24;
+            te[2] = n31; te[6] = n32; te[10] = n33; te[14] = n34;
+            te[3] = n41; te[7] = n42; te[11] = n43; te[15] = n44;
+
             return this;
+
         },
         identity: function () {
-            this.a = this.d = 1;
-            this.b = this.c = this.tx = this.ty = 0;
+             this.set(
+
+			    1, 0, 0, 0,
+			    0, 1, 0, 0,
+			    0, 0, 1, 0,
+			    0, 0, 0, 1
+
+		    );
+
             return this;
         },
-        appendTransform: function (x, y, scaleX, scaleY, rotation, skewX, skewY, regX, regY) {
-            if (rotation % 360) {
-                var r = rotation * matrix2D.DEG_TO_RAD;
-                var cos = Math.cos(r);
-                var sin = Math.sin(r);
-            } else {
-                cos = 1;
-                sin = 0;
-            }
+        append: function (m) {
+            return this.multiplyMatrices(this, m);
 
-            if (skewX || skewY) {
-                skewX *= matrix2D.DEG_TO_RAD;
-                skewY *= matrix2D.DEG_TO_RAD;
-                this.append(Math.cos(skewY), Math.sin(skewY), -Math.sin(skewX), Math.cos(skewX), x, y);
-                this.append(cos * scaleX, sin * scaleX, -sin * scaleY, cos * scaleY, 0, 0);
-            } else {
-                this.append(cos * scaleX, sin * scaleX, -sin * scaleY, cos * scaleY, x, y);
-            }
-
-            if (regX || regY) {
-                this.tx -= regX * this.a + regY * this.c;
-                this.ty -= regX * this.b + regY * this.d;
-            }
-            return this;
         },
-        append: function (a, b, c, d, tx, ty) {
-            var a1 = this.a;
-            var b1 = this.b;
-            var c1 = this.c;
-            var d1 = this.d;
+        multiplyMatrices: function (a, b) {
 
-            this.a = a * a1 + b * c1;
-            this.b = a * b1 + b * d1;
-            this.c = c * a1 + d * c1;
-            this.d = c * b1 + d * d1;
-            this.tx = tx * a1 + ty * c1 + this.tx;
-            this.ty = tx * b1 + ty * d1 + this.ty;
+            var ae = a.elements;
+            var be = b.elements;
+            var te = this.elements;
+
+            var a11 = ae[0], a12 = ae[4], a13 = ae[8], a14 = ae[12];
+            var a21 = ae[1], a22 = ae[5], a23 = ae[9], a24 = ae[13];
+            var a31 = ae[2], a32 = ae[6], a33 = ae[10], a34 = ae[14];
+            var a41 = ae[3], a42 = ae[7], a43 = ae[11], a44 = ae[15];
+
+            var b11 = be[0], b12 = be[4], b13 = be[8], b14 = be[12];
+            var b21 = be[1], b22 = be[5], b23 = be[9], b24 = be[13];
+            var b31 = be[2], b32 = be[6], b33 = be[10], b34 = be[14];
+            var b41 = be[3], b42 = be[7], b43 = be[11], b44 = be[15];
+
+            te[0] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
+            te[4] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
+            te[8] = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43;
+            te[12] = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44;
+
+            te[1] = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41;
+            te[5] = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42;
+            te[9] = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43;
+            te[13] = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44;
+
+            te[2] = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41;
+            te[6] = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42;
+            te[10] = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43;
+            te[14] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
+
+            te[3] = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41;
+            te[7] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
+            te[11] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
+            te[15] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
+
+            return this;
+
+        },
+        appendTransform: function (perspective, x, y, z, scaleX, scaleY, scaleZ, rotateX, rotateY, rotateZ, regX, regY, regZ) {
+
+            var rx = rotateX * matrix3D.DEG_TO_RAD;
+            var cosx = Math.cos(rx);
+            var sinx = Math.sin(rx);
+
+            var ry = rotateY * matrix3D.DEG_TO_RAD;
+            var cosy = Math.cos(ry);
+            var siny = Math.sin(ry);
+            var rz = rotateZ * matrix3D.DEG_TO_RAD;
+            var cosz = Math.cos(rz);
+            var sinz = Math.sin(rz);
+
+            this.append(new matrix3D(
+                cosy, 0, siny, x,
+                0, 1, 0, y,
+                -siny, 0, cosy, z,
+                siny / perspective, 0, -cosy / perspective, (perspective - z) / perspective
+            ));
+
+            this.append(new matrix3D(
+                1, 0, 0, 0,
+                0, cosx, sinx, 0,
+                0, -sinx, cosx, 0,
+                0, sinx / perspective, -cosx / perspective, 1
+            ));
+
+            this.append(new matrix3D(
+                cosz * scaleX, sinz * scaleY, 0, 0,
+               -sinz * scaleX, cosz * scaleY, 0, 0,
+                0, 0, 1 * scaleZ, 0,
+               0, 0, -1 / perspective, 1
+            ));
+
+
+            if (regX || regY || regZ) {
+          
+                this.elements[12] -= regX * this.elements[0] + regY * this.elements[4]+ regZ * this.elements[8];
+                this.elements[13] -= regX * this.elements[1] + regY * this.elements[5]+ regZ * this.elements[9];
+                this.elements[14] -= regX * this.elements[2] + regY * this.elements[6] + regZ * this.elements[10];
+            }
             return this;
         }
+
     });
 
     var transform = __class.extend({
@@ -161,17 +234,18 @@
             }
         },
         ctor: function (element) {
-            element.scaleX = element.scaleY = 1;
-            element.x = element.y = element.rotation = element.regX = element.regY = element.skewX = element.skewY = 0;
-            element.matrix2D = new matrix2D();
-            var observer = observable.watch(element, ["scaleX", "scaleY", "x", "y", "rotation", "regX", "regY", "skewX", "skewY"]);
+            element.perspective = 400;
+            element.scaleX = element.scaleY = element.scaleZ = 1;
+            element.x = element.y = element.z = element.rotateX = element.rotateY=  element.rotateZ= element.regX = element.regY = element.skewX = element.skewY=element.regX=element.regY=element.regZ = 0;
+            element.matrix3D = new matrix3D();
+            var observer = observable.watch(element, ["x","y","z","scaleX","scaleY","scaleZ","perspective","rotateX", "rotateY", "rotateZ","regX","regY","regZ"]);
 
             this.element = element;
             var self = this;
             observer.propertyChangedHandler = function () {
-                var mtx = self.element.matrix2D.identity().appendTransform(self.element.x, self.element.y, self.element.scaleX, self.element.scaleY, self.element.rotation, self.element.skewX, self.element.skewY, self.element.regX, self.element.regY);
-                //兼容性前缀
-                self.element.style.transform = self.element.style.msTransform = self.element.style.OTransform = self.element.style.MozTransform = self.element.style.webkitTransform = "matrix(" + [mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty].join(",") + ")";
+                var mtx = self.element.matrix3D.identity().appendTransform(self.element.perspective, self.element.x, self.element.y, self.element.z, self.element.scaleX, self.element.scaleY, self.element.scaleZ, self.element.rotateX, self.element.rotateY, self.element.rotateZ, self.element.regX, self.element.regY, self.element.regZ);
+  
+                self.element.style.transform = self.element.style.msTransform = self.element.style.OTransform = self.element.style.MozTransform = self.element.style.webkitTransform = "matrix3d(" + Array.prototype.slice.call(mtx.elements).join(",") + ")";
             }
         }
 
@@ -184,10 +258,10 @@
         //export to kmd project，以后大家写模块的时候多加下面这几行代码，当耐特在这里谢谢大家了
     else if (typeof define === 'function' && define.kmd) {
         define("observable", __class.export[0]);
-        define("matrix2D", __class.export[1]);
+        define("matrix3D", __class.export[1]);
         define("transform", __class.export[2]);
         //you can also add any namespace to observable such as blow code:
-        //define("util.matrix2D", __class.export[1]);
+        //define("util.matrix3D", __class.export[1]);
         //define("base.observable", __class.export[0]);
         //note: why not   'define("base.transform", ["util","base"], __class.export[2]);'?because transform belong to base, so "base" need not to write.
         //define("base.transform", ["util"], __class.export[2]);

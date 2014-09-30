@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <style>
+        #ctt .test {
+            width: 100px; height: 100px;  color: white; line-height: 100px; text-align: center; display: inline-block; margin-top: 30px; position: absolute; left: 0; top: 0;
+            font-size:40px;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;position:relative;left:100px;top:100px;"  id="ctt">
+      
+        <div id="test1" class="test" style="background-color: green; ">
+            tojs
+        </div>
+
+        <div id="test2" class="test" style="background-color: red;left:200px; ">
+            tojs
+        </div>
+
+        <div id="test3" class="test" style="background-color: blue;left:400px ">
+            tojs
+        </div>
+
+          <div id="test4" class="test" style="background-color: #ff6a00;left:150px;top:200px; ">
+            tojs
+        </div>
+
+         <div id="test5" class="test" style="background-color:#485f0f;left:350px;top:200px; ">
+            tojs
+        </div>
+
+   
+    </div>
+    <script src="to.js"></script>
+    <script>
+var task2 = tojs.get("#test2").to().scaleX(2.5, 1000, tojs.bounceOut).scaleY(2.5, 1000, tojs.bounceOut).wait(1000).to().scaleX(1, 400).scaleY(1, 400)
+ var task3 = tojs.get("#test3").to().rotateZ(280, 1000, tojs.bounceOut).wait(1000).to().rotateZ(0, 400)
+ var task4 = tojs.get("#test4").to().x(200, 1000, tojs.bounceOut).y(200, 1000).wait(1000).to().x(0, 1000, tojs.bounceOut).y(0, 1000)
+ var task5 = tojs.get("#test5").to().rotateX(280, 1000, tojs.bounceOut).wait(1000).to().rotateX(0, 1000, tojs.bounceOut)
+ var task = tojs.get("#test1").to().rotateY(120, 1000, tojs.bounceOut).wait(1000).to().rotateY(0, 1000, tojs.bounceOut).then(task2).then(task3).then(task4).then(task5).cycle(0)
+ task.start();
+    </script>
+</body>
+</html>

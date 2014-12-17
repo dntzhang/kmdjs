@@ -6007,7 +6007,7 @@ var JSLINT = (function () {
         x.thru = 1;
         x.line = 0;
         x.edge = true;
-        s.value = s;
+        try { s.value = s; } catch (e) { };
         return postscript(x);
     }
 

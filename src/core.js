@@ -1,4 +1,4 @@
-﻿!function (global, undefined) {
+!function (global, undefined) {
     var define, kmdjs = {};
     var currentAST;
     var isDebug = false, modules = {}, classList = [], baseUrl = getBaseUrl(), mapping = {}, cBaseUrl, nsmp = {}, dataMain;
@@ -583,6 +583,12 @@
                 var item = node.args[0].elements[i];
                 lazyMdArr.push(item.value);
             }
+
+            if (node instanceof U2.AST_SymbolRef) {
+                var name = node.name, scope = node.scope;
+                if (name && "this" != name && "arguments" != name && !(name in window) && !isInScopeChainVariables(scope, name)) isResultNodeInArray(resultNode, node) || (result.push(name),
+               resultNode.push(node));
+            }
         }));
         var code = fn.toString();
         var refs = [], refNodes = [], checkNames = [], checkClassNames = [], secNames = [];
@@ -702,12 +708,14 @@
                 //target = target.replace(new RegExp("\\bnew\\s+" + child.expression.name + "\\b", "g"), "new " + child.fullName);
                 target=replaceToFullName(target, "new\\s+" + child.fullName ,"new " + child.expression.name);
                 target=replaceToFullName(target, "new\\s+" + child.expression.name,"new " + child.fullName);
-            } else {
+            } else if (child instanceof UglifyJS.AST_SymbolRef) {
                 //target = target.replace(new RegExp("\\b" + child.fullName + "\\b", "g"), child.expression.name);
                 //target = target.replace(new RegExp("\\b" + child.expression.name + "\\b", "g"), child.fullName);
-
-                target=replaceToFullName(target,  child.fullName  , child.expression.name);
-                target=replaceToFullName(target,  child.expression.name , child.fullName);
+                target = replaceToFullName(target, child.fullName, child.name);
+                target = replaceToFullName(target, child.name, child.fullName);
+            } else {
+                target = replaceToFullName(target, child.fullName, child.expression.name);
+                target = replaceToFullName(target, child.expression.name, child.fullName);
             }
         }
         code = splice_string(code, node.start.pos, node.end.endpos + step, target);

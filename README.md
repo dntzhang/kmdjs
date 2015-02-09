@@ -47,11 +47,7 @@ kmdjs以Kill AMD and CMD为目标
 * weibo: [@当耐特](http://weibo.com/iamleizhang)
 
 
-##捐助开发者
-在兴趣的驱动下,写一个`免费`的东西，有欣喜，也还有汗水，希望你喜欢我的作品，同时也能支持一下。
-当然，有钱捧个钱场（支付宝账号:mhtml5@qq.com或用支付宝钱包扫描下面图片），没钱给个star，谢谢各位。
 
-![dnt](http://htmlcssjs.duapp.com/dnt/alipay.png)
 ##感激
 感谢以下的项目,排名不分先后
 

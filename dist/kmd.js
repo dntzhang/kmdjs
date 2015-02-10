@@ -10373,7 +10373,22 @@ var JSLINT = (function () {
             break;
         }
         remove(refs, "arguments");
-        for (var m = 0; m < refs.length; m++) for (var n = 0; n < deps.length; n++) if (isInArray(classList, deps[n] + "." + refs[m])) if (refNodes[m]) refNodes[m].fullName = deps[n] + "." + refs[m];
+        for (var m = 0; m < refs.length; m++) {
+            var hasAddToClass = false;
+            for (var n = 0; n < deps.length; n++) {
+
+
+
+                if (isInArray(classList, deps[n] + "." + refs[m])) {
+                    if (refNodes[m]) { refNodes[m].fullName = deps[n] + "." + refs[m]; }
+                    hasAddToClass = true;
+                } 
+            }
+
+    
+            if (refs[m]!=ProjName&&refs[m].toUpperCase() !="MAIN"&& !hasAddToClass) throw refs[m] +" class is not in classes!"
+       
+        }
         each(refNodes, function (item) {
             item.replaceArea = [];
         });

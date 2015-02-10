@@ -9928,7 +9928,7 @@ var JSLINT = (function () {
             var parentNs = parentClass.substr(0, lastIndexOf(parentClass, "."));
             !isInArray(deps, parentNs) && deps.push(parentNs);
         }
-        var refArr = getRef(fn, deps), ref = refArr[0];
+        var refArr = getRef(fn, deps, fullname), ref = refArr[0];
         remove(ref, "__class");
         var newArr = [];
         for (var i = 0, len = deps.length; i < len; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
@@ -10325,7 +10325,7 @@ var JSLINT = (function () {
         for (var i = 0; i < arr.length; i++) if (arr[i].start.pos == item.start.pos) return true;
         return false;
     }
-    function getRef(fn, deps) {
+    function getRef(fn, deps, fullname) {
         var U2 = UglifyJS;
         currentAST = U2.parse(fn.toString());
         currentAST.figure_out_scope();
@@ -10386,7 +10386,7 @@ var JSLINT = (function () {
             }
 
     
-            if (refs[m]!=ProjName&&refs[m].toUpperCase() !="MAIN"&& !hasAddToClass) throw refs[m] +" class is not in classes!"
+            if (refs[m] != ProjName && refs[m].toUpperCase() != "MAIN" && !hasAddToClass) throw refs[m] + " class is not in classes ! the error is from  " + fullname + ".js";
        
         }
         each(refNodes, function (item) {

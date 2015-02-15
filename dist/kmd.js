@@ -10386,7 +10386,7 @@ var JSLINT = (function () {
             }
 
     
-            if (refs[m] != ProjName && refs[m].toUpperCase() != "MAIN" && !hasAddToClass) throw refs[m] + " class is not in classes ! the error is from  " + fullname + ".js";
+             if (refs[m] != ProjName && refs[m].toUpperCase() != "MAIN" && !hasAddToClass) throw "【"+ refs[m] + "】 class is not in classes ! the error is from  【" + fullname + ".js】";
        
         }
         each(refNodes, function (item) {

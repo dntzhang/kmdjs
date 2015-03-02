@@ -1,6 +1,6 @@
 !function (global, undefined) {
     var define, kmdjs = {};
-    var currentAST;
+    var currentAST, exportNamespace;
     var isDebug = false, modules = {}, classList = [], baseUrl = getBaseUrl(), mapping = {}, cBaseUrl, nsmp = {}, dataMain;
     var isBrowser = !!("undefined" !== typeof window && "undefined" !== typeof navigator && window.document);
     var ProjName;
@@ -86,6 +86,8 @@
             deps = [];
         } else if (isString(deps)) deps = [deps];
         var mda = name.split(":");
+        mda[0] = mda[0].trim();
+        if (mda.length > 1) { mda[1] = mda[1].trim() }
         var fullname = mda[0];
         var lastIndex = lastIndexOf(fullname, ".");
         if (lastIndex == -1) {
@@ -170,6 +172,12 @@
         remove(ref, "__class");
         var newArr = [];
         for (var i = 0, len = deps.length; i < len; i++) for (var k = 0; k < ref.length; k++) isInArray(classList, deps[i] + "." + ref[k]) && !isInArray(newArr, deps[i] + "." + ref[k]) && newArr.push(deps[i] + "." + ref[k]);
+
+        var frArr=refArr[2]
+        for (var m = 0, frLen = frArr.length; m < frLen; m++) {
+            var fr = frArr[m];
+            !isInArray(newArr, fr) && newArr.push(fr);
+        }
         if (parentClass && !isInArray(newArr, parentClass)) newArr.push(parentClass);
         if (isMtClassesBuild && "MAIN" == className.toUpperCase()) each(readyBuildClasses, function (item) {
             newArr.push(item);
@@ -371,6 +379,10 @@
                 if (!isInKMD) lastIndexOf(topNsStr, item2) == -1 && (topNsStr += item2 + "\n");
             }
         });
+        if (exportNamespace) {
+            topNsStr = "var " + exportNamespace + "={};";
+
+        }
         var evalOrder = [];
         var outPutMd = [];
         function createParentCode(item) {
@@ -383,7 +395,14 @@
             temp += "\n//begin-------------------" + item.c + "---------------------begin\n";
             temp += item.b.substr(0, lastIndexOf(item.b, "return"));
             temp += "\n//end-------------------" + item.c + "---------------------end\n";
-            combineCode += temp;
+            if (exportNamespace) {
+                if (item.c.split(".")[0].toUpperCase() == exportNamespace.toUpperCase()) {
+
+                    combineCode += temp;
+                }
+            } else {
+                combineCode += temp;
+            }
             evalOrder.push(temp);
         }
         var cpCode = "//create by kmdjs   https://github.com/kmdjs/kmdjs \n";
@@ -400,7 +419,14 @@
                 temp += "\n//begin-------------------" + item.c + "---------------------begin\n";
                 temp += item.b.substr(0, lastIndexOf(item.b, "return"));
                 temp += "\n//end-------------------" + item.c + "---------------------end\n";
-                combineCode += temp;
+                if (exportNamespace) {
+                    if (item.c.split(".")[0].toUpperCase() == exportNamespace.toUpperCase()) {
+
+                        combineCode += temp;
+                    }
+                } else {
+                    combineCode += temp;
+                }
                 evalOrder.push(temp);
             } else createParentCode(item);
         }
@@ -410,14 +436,24 @@
             evalOrder.push( "\n" + cptKey + ".baseUrl=\"" + mapping[cptKey+"_baseUrl"]+"\"");
             evalOrder.push("\n" + cptKey + ".deps=" + compotentMapping[cptKey]);
         }
-        combineCode += "\nnew " + ProjName + ".Main();\n})();";
-        cpCode += '(function(n){var initializing=!1,fnTest=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,__class=function(){};__class.extend=function(n){function i(){!initializing&&this.ctor&&this.ctor.apply(this,arguments)}var f=this.prototype,u,r,t;initializing=!0,u=new this,initializing=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof f[t]=="function"&&fnTest.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=f[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(i.prototype=u,n.statics)for(t in n.statics)n.statics.hasOwnProperty(t)&&(i[t]=n.statics[t],t=="ctor"&&i[t]());return i.prototype.constructor=i,i.extend=arguments.callee,i.implement=function(n){for(var t in n)u[t]=n[t]},i};\n\n' + combineCode + "})(this)";
+        if (!exportNamespace) combineCode += "\nnew " + ProjName + ".Main();\n";
+        if (exportNamespace) {
+            combineCode+=
+                 "  if (typeof module != 'undefined' && module.exports && this.module !== module) { module.exports = "+exportNamespace+" }\n"+
+        "else if (typeof define === 'function' && define.amd) { define("+exportNamespace+") }\n"+
+        "else { win." + exportNamespace + " = " + exportNamespace + " };"
+        }
+        cpCode += '(function(win){var initializing=!1,fnTest=/xyz/.test(function(){xyz})?/\\b_super\\b/:/.*/,__class=function(){};__class.extend=function(n){function i(){!initializing&&this.ctor&&this.ctor.apply(this,arguments)}var f=this.prototype,u,r,t;initializing=!0,u=new this,initializing=!1;for(t in n)t!="statics"&&(u[t]=typeof n[t]=="function"&&typeof f[t]=="function"&&fnTest.test(n[t])?function(n,t){return function(){var r=this._super,i;return this._super=f[n],i=t.apply(this,arguments),this._super=r,i}}(t,n[t]):n[t]);for(r in this)this.hasOwnProperty(r)&&r!="extend"&&(i[r]=this[r]);if(i.prototype=u,n.statics)for(t in n.statics)n.statics.hasOwnProperty(t)&&(i[t]=n.statics[t],t=="ctor"&&i[t]());return i.prototype.constructor=i,i.extend=arguments.callee,i.implement=function(n){for(var t in n)u[t]=n[t]},i};\n\n' + combineCode + "})();})(Function('return this')())";
         if (isBuild || isCombine) {
             var ctt = doc.createElement("div");
             var msgDiv = doc.createElement("div");
             var titleDiv = doc.createElement("div");
             titleDiv.innerHTML = "Build Complete!";
             msgDiv.innerHTML = isMtClassesBuild ? readyBuildClasses.join("<br/>") : ProjName + ".js ";
+            if (exportNamespace) {
+                msgDiv.innerHTML = exportNamespace.toLowerCase() + ".js ";
+
+            }
             var codePanel = doc.createElement("textarea");
             ctt.appendChild(titleDiv);
             ctt.appendChild(codePanel);
@@ -441,7 +477,12 @@
             codePanel.value = cpCode;
             codePanel.focus();
             codePanel.select();
-            downloadFile(cpCode, ProjName + ".Main.js");
+            if (exportNamespace) {
+                downloadFile(cpCode, exportNamespace.toLowerCase()+ ".js");
+            } else {
+                downloadFile(cpCode, ProjName + ".Main.js");
+            }
+           
             var lmclone = [];
             each(lazyMdArr, function (item) {
                 lmclone.push(item);
@@ -563,11 +604,21 @@
         for (var i = 0; i < arr.length; i++) if (arr[i].start.pos == item.start.pos) return true;
         return false;
     }
+    function chainDotNames(dotNode) {
+        var arr = [];
+        function chain(node) {
+            arr.push(node.property||node.name);
+            if (node.expression)
+                chain(node.expression);
+        }
+        chain(dotNode)
+        return arr.reverse().join(".")
+    }
     function getRef(fn, deps, fullname) {
         var U2 = UglifyJS;
         currentAST = U2.parse(fn.toString());
         currentAST.figure_out_scope();
-        var result = [], resultNode = [];
+        var result = [], resultNode = [],dotNodes=[];
         currentAST.walk(new U2.TreeWalker(function (node) {
             if (node instanceof U2.AST_New) {
                 var ex = node.expression, name = ex.name, scope = ex.scope;
@@ -578,6 +629,7 @@
                 var ex = node.expression, name = ex.name, scope = ex.scope;
                 if (name && "this" != name && "arguments" != name && !(name in window) && !isInScopeChainVariables(scope, name)) isResultNodeInArray(resultNode, node) || (result.push(name),
                 resultNode.push(node));
+                dotNodes.push(node);
             }
             if (node instanceof U2.AST_Call) if ("get" == node.expression.property && "kmdjs" == node.expression.expression.name) if (node.args[0].value) lazyMdArr.push(node.args[0].value); else for (var i = 0, len = node.args[0].elements.length; i < len; i++) {
                 var item = node.args[0].elements[i];
@@ -590,6 +642,8 @@
                resultNode.push(node));
             }
         }));
+
+       
         var code = fn.toString();
         var refs = [], refNodes = [], checkNames = [], checkClassNames = [], secNames = [];
         for (var j = 0; j < classList.length; j++) {
@@ -702,7 +756,18 @@
             code = splice_string(code, start_pos, end_pos, replacement);
             if (node.replaceArea && node.replaceArea.length > 0 && !node.parent) code = fixNode(node, code);
         }
-        return [refs, code];
+
+        //找出直接ns打点使用类的
+        var fullRef = [];
+            for (var kkk = 0, len = dotNodes.length; kkk < len; kkk++) {
+                var fr= chainDotNames(dotNodes[kkk]);
+                if (isInArray(classList, fr) && !isInArray(fullRef, fr)) {
+                    fullRef.push(fr);
+                }
+            }
+           
+      
+        return [refs, code, fullRef];
     }
     function replaceToFullName(code,target,replacement){
         var matchReg = new RegExp("\"(?:\\\\\"|[^\"])*\"|\'(?:\\\\\'|[^\'])*\'|\\/\\*[\\S\\s]*?\\*\\/|\\/(?:\\\\\\/|[^/\\r\\n])+\\/(?=[^\\/])|\\/\\/.*|(?:)(\\b)("+target+")\\1", "g");
@@ -755,7 +820,16 @@
                 var arr2 = dm.split("?");
                 dataMain = arr2[0];
                 dataMain = dataMain.replace(/.js/g, "");
-                if (arr2.length > 1) if ("build" == arr2[1].toLowerCase()) isBuild = true; else if ("view" == arr2[1].toLowerCase()) isView = true; else if ("combine" == arr2[1].toLowerCase()) isCombine = true; else if ("split" == arr2[1].toLowerCase()) isSplit = true;
+                if (arr2.length > 1) {
+                    if (lastIndexOf(arr2[1], "&") == -1) {
+                        if ("build" == arr2[1].toLowerCase()) isBuild = true; else if ("view" == arr2[1].toLowerCase()) isView = true; else if ("combine" == arr2[1].toLowerCase()) isCombine = true; else if ("split" == arr2[1].toLowerCase()) isSplit = true;
+                    } else {
+                        var actionCmd = arr2[1].split("&")[0];
+                        exportNamespace = arr2[1].split("&")[1];
+                        
+                        if ("build" == actionCmd.toLowerCase()) isBuild = true; else if ("view" == actionCmd.toLowerCase()) isView = true; else if ("combine" == actionCmd.toLowerCase()) isCombine = true; else if ("split" == actionCmd.toLowerCase()) isSplit = true;
+                    }
+                }
                 break;
             }
         }

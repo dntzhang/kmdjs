@@ -11,7 +11,7 @@ kmdjs.config({
              ]
         },
         {
-            url: "http://htmlcssjs.duapp.com/Bom.js",
+            url: "http://files.cnblogs.com/files/iamzhanglei/Bom.js",
             classes: [
                    { name: "Util.Bom" }
             ]

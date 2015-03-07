@@ -154,6 +154,8 @@ for more detail,you can go to https://github.com/kmdjs/kmdjs/tree/master/example
 
 ##ShowCase
 
+a simple demo: http://kmdjs.github.io/kmdjs/
+
 arejs:https://github.com/AlloyTeam/AlloyRenderingEngine
 
 arejs website:http://alloyteam.github.io/AlloyRenderingEngine/

@@ -16,8 +16,22 @@ kmdjs let you define fine-grained files for `classes` , `not modules`.
 * Extract and Download any namespace in any broswer
 * Build the project in any broswer
 
+##install
+the min file is in here: https://raw.githubusercontent.com/kmdjs/kmdjs/master/dist/kmd.js
 
-##getting start:
+include the file in your html,such as:
+
+```html
+<script src="../../dist/kmd.js"  data-main="js/main"></script>
+```
+
+You can also install it via  npm:
+
+```html
+npm install kmdjs
+```
+
+##getting start
 kmdjs api has only two methods .one is `kmdjs.config`, the other is `define`
 ### config the project
 kmdjs.config is used for the whole project configuration, the general configuration is shown below:

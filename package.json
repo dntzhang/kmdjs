@@ -1,16 +1,32 @@
 {
   "name": "kmdjs",
-  "description": "The ultimate solution of JS project.",
-  "version": "2.0.0",
-  "homepage": "https://github.com/kmdjs/kmdjs",
-  "author": "Lei Zhang",
+  "version": "0.0.4",
+  "description": "Kill module definition,kill all the libraries of module definition, class definition is the future . one file one class is the future.",
+  "main": "kmd.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kmdjs/kmdjs.git"
+    "url": "https://github.com/kmdjs/kmdjs"
   },
+  "keywords": [
+    "module",
+    "amd",
+    "cmd",
+	"class",
+	"namespace",
+    "CommonJS"
+  ],
+  "dependencies": {},
   "devDependencies": {
     "gulp": "^3.8.1",
     "gulp-concat": "latest"  
   },
-  "license": "MIT"
+  "author": "dntzhang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kmdjs/kmdjs/issues"
+  },
+  "homepage": "https://github.com/kmdjs/kmdjs"
 }

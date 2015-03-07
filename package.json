@@ -1,6 +1,6 @@
 {
   "name": "kmdjs",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Kill module definition,kill all the libraries of module definition, class definition is the future . one file one class is the future.",
   "main": "kmd.js",
   "scripts": {

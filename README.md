@@ -17,12 +17,12 @@ kmdjs let you define fine-grained files for `classes` , `not modules`.
 * Build the project in any broswer
 
 ##install
-the min file is in here: https://raw.githubusercontent.com/kmdjs/kmdjs/master/dist/kmd.js
+the min file is  here: https://raw.githubusercontent.com/kmdjs/kmdjs/master/dist/kmd.js
 
 include the file in your html,such as:
 
 ```html
-<script src="../../dist/kmd.js"  data-main="js/main"></script>
+<script src="kmd.js"  data-main="js/main"></script>
 ```
 
 You can also install it via  npm:

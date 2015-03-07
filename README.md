@@ -1,4 +1,4 @@
-##what's kmdjs?
+##What's kmdjs?
 kmdjs is the `end-all`  solution for javascript project
 
 kmdjs unites the project based on namespace and class
@@ -7,7 +7,7 @@ The name kmdjs means "kill all the libraries of module definitionâ€œ or "kill mo
 
 kmdjs let you define fine-grained files for `classes` , `not modules`.
 
-##features
+##Features
 * Circular dependency
 * Dependency  visualization
 * Name conflict
@@ -16,7 +16,7 @@ kmdjs let you define fine-grained files for `classes` , `not modules`.
 * Extract and Download any namespace in any broswer
 * Build the project in any broswer
 
-##install
+##Install
 the min file is  here: https://raw.githubusercontent.com/kmdjs/kmdjs/master/dist/kmd.js
 
 include the file in your html,such as:
@@ -31,7 +31,7 @@ You can also install it via  npm:
 npm install kmdjs
 ```
 
-##getting start
+##Getting start
 kmdjs api has only two methods .one is `kmdjs.config`, the other is `define`
 ### config the project
 kmdjs.config is used for the whole project configuration, the general configuration is shown below:
@@ -151,7 +151,7 @@ the ctor method is constructor, this._super method can access the parent classâ€
 kmdjs has powerful cmd , to be continued....
 
 for more detail,you can go to https://github.com/kmdjs/kmdjs/tree/master/examples
-##many thanks 
+##Many thanks 
 
 * [uglify2](https://github.com/mishoo/UglifyJS2) 
 * [jslint](https://github.com/douglascrockford/JSLint)

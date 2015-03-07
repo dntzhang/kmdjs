@@ -151,6 +151,12 @@ the ctor method is constructor, this._super method can access the parent classâ€
 kmdjs has powerful cmd , to be continued....
 
 for more detail,you can go to https://github.com/kmdjs/kmdjs/tree/master/examples
+
+##ShowCase
+
+arejs:https://github.com/AlloyTeam/AlloyRenderingEngine
+arejs website:http://alloyteam.github.io/AlloyRenderingEngine/
+
 ##Many thanks 
 
 * [uglify2](https://github.com/mishoo/UglifyJS2) 

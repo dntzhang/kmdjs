@@ -1,3 +1,7 @@
+##kmdjs?
+Kill Module Definition
+readme[中文] ：https://github.com/kmdjs/kmdjs/blob/master/README-cn.md
+
 ##What's kmdjs?
 kmdjs is the `end-all`  solution for javascript project
 

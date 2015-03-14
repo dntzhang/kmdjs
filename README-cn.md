@@ -51,7 +51,6 @@ kmdjs可以...
 * weibo: [@当耐特](http://weibo.com/iamleizhang)
 
 
-
 ##感激
 感谢以下的项目,排名不分先后
 
@@ -67,9 +66,9 @@ kmdjs可以...
 ```javascript
   var me = {
     nickName  : "当耐特",
-    site : "http://htmlcssjs.duapp.com"
+    site : "http://kmdjs.github.io"
   }
 ```
 
 ##最后
-AMD and CMD are dead.That's all.
+AMD , CMD and CommonJS are dead.That's all.

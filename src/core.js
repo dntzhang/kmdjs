@@ -665,6 +665,7 @@
             break;
         }
         remove(refs, "arguments");
+        remove(refs, "console");
         for (var m = 0; m < refs.length; m++) {
             var hasAddToClass = false;
             for (var n = 0; n < deps.length; n++) {

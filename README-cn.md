@@ -32,7 +32,7 @@ kmdjs可以美化代码/检测代码质量等
 
 kmdjs可以解决命名重读（如：MathHelper.Vector2和Util.Vector2）
 
-kmdjs的class和文件目录完全接偶，更加灵活
+kmdjs的class和文件目录完全解耦，更加灵活
 
 kmdjs只需要浏览器环境就可以完成所以js工程化的事情（打包、美化、压缩、合并..）
 

@@ -892,9 +892,9 @@
             if (item.url) {
                 if (lastIndexOf(item.url, "http:") == -1) {
                     if (item.url.indexOf("./") == 0) {
-                        mapping[item.name] =  item.url.replace("./","") + "/" + arr[arr.length - 1] + ".js";
+                        mapping[item.name] = correctionUrl(item.url.replace("./",""));
                     } else {
-                        mapping[item.name] = cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js";
+                        mapping[item.name] = correctionUrl(cBaseUrl + "/" + item.url);
                     }
                 } else {
                     mapping[item.name] = item.url;
@@ -903,7 +903,7 @@
                 mapping[item.name] = cBaseUrl + "/" + item.name + ".js";
                 xmdModules[item.name] = true;
             } else {
-                mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js";
+                mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1].toLowerCase() + ".js";
             }
             if (item.deps) {
                 mapping[item.name + "_deps"] = item.deps;

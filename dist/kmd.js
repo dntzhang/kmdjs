@@ -10627,6 +10627,14 @@ var JSLINT = (function () {
         httpRequest.open("GET", url, false);
         httpRequest.send();
     }
+    function correctionUrl(url) {
+        if (url.substring(url.length - 3) == ".js") {
+            return url;
+        } else {
+            return url+".js";
+        }
+
+    }
     kmdjs.config = function (option) {
         ProjName = option.name;
         cBaseUrl = option.baseUrl;
@@ -10654,9 +10662,9 @@ var JSLINT = (function () {
             if (item.url) {
                 if (lastIndexOf(item.url, "http:") == -1) {
                     if (item.url.indexOf("./") == 0) {
-                        mapping[item.name] =  item.url.replace("./","") + "/" + arr[arr.length - 1] + ".js";
+                        mapping[item.name] = correctionUrl(item.url.replace("./",""));
                     } else {
-                        mapping[item.name] = cBaseUrl + "/" + item.url + "/" + arr[arr.length - 1] + ".js";
+                        mapping[item.name] = correctionUrl(cBaseUrl + "/" + item.url);
                     }
                 } else {
                     mapping[item.name] = item.url;
@@ -10665,7 +10673,7 @@ var JSLINT = (function () {
                 mapping[item.name] = cBaseUrl + "/" + item.name + ".js";
                 xmdModules[item.name] = true;
             } else {
-                mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1] + ".js";
+                mapping[item.name] = cBaseUrl + "/" + arr[arr.length - 1].toLowerCase() + ".js";
             }
             if (item.deps) {
                 mapping[item.name + "_deps"] = item.deps;

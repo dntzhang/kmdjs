@@ -879,9 +879,53 @@
         }
 
     }
+    function generateUrl(baseUrl, url) {
+        var index = baseUrl.length - 1;
+        if (baseUrl[index] === "/") baseUrl = baseUrl.substr(0, index);
+
+        var urlDotArr = url.match(/\.\./g);
+        var urlDotCount = urlDotArr ? urlDotArr.length : 0;
+
+        var fullUrl = (baseUrl + "/" + url).replace(/\/+/g, "/");
+        if (urlDotCount === 0) return fullUrl;
+
+        var arr1 = baseUrl.split("/");
+        var arr2 = url.split("/");
+
+        var uLen = arr2.length, bLen = arr1.length, removeCount = 0;;
+        for (var i = bLen - 1; i > -1 ; i--) {
+            if (arr1[i] !== ".." && removeCount < urlDotCount) {
+                arr1.splice(i, 1);
+                removeCount++;
+                arr2.splice(0, 1);
+
+            } else {
+                break;
+            }
+
+
+        }
+        var result = arr1.join("/") + "/" + arr2.join("/");
+        if (result[0] === "/") {
+            result = result.substr(1, result.length - 1);
+        }
+        return result;
+    }
     kmdjs.config = function (option) {
         ProjName = option.name;
         cBaseUrl = option.baseUrl;
+        if (!cBaseUrl) {
+           
+            var dataMainArr = dataMain.split("/"), dataMainArrLen = dataMainArr.length;
+           
+            if (dataMainArrLen > 0) {
+                dataMainArr.splice(dataMainArr.length - 1, 1)
+                cBaseUrl = dataMainArr.join("/");
+            } else {
+                cBaseUrl = "";
+            }       
+        }
+       
         var i;
         if (!isBuild) if (option.build) {
             isMtClassesBuild = true;
@@ -895,7 +939,11 @@
                 var cls = item.classes[j];
                 classList.push(cls.name);
                 var arr = cls.name.split(".");
-                if (lastIndexOf(item.url, "http:") == -1) mapping[cls.name] = (cBaseUrl ? cBaseUrl + "/" : "") + (lastIndexOf(currentUrl, ".js") == -1 ? currentUrl + ".js" : currentUrl); else mapping[cls.name] = currentUrl;
+                if (lastIndexOf(item.url, "http:") == -1) {
+                    mapping[cls.name] = correctionUrl(generateUrl(cBaseUrl, currentUrl));
+                } else {
+                    mapping[cls.name] = currentUrl;
+                }
                 nsmp[arr[arr.length - 1]] = cls.name;
             }
         }
@@ -909,7 +957,7 @@
                         if (item.url.indexOf("./") == 0) {
                             mapping[item.name] = correctionUrl(item.url.replace("./", ""));
                         } else {
-                            mapping[item.name] = correctionUrl(cBaseUrl + "/" + item.url);
+                            mapping[item.name] = correctionUrl(generateUrl(cBaseUrl, item.url));
                         }
                     } else {
                         mapping[item.name] = item.url;

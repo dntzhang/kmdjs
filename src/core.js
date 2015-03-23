@@ -783,8 +783,9 @@
     }
     function replaceToFullName(code,target,replacement){
         var matchReg = new RegExp("\"(?:\\\\\"|[^\"])*\"|\'(?:\\\\\'|[^\'])*\'|\\/\\*[\\S\\s]*?\\*\\/|\\/(?:\\\\\\/|[^/\\r\\n])+\\/(?=[^\\/])|\\/\\/.*|(?:)(\\b)("+target+")\\1", "g");
-        code=code.replace(matchReg, function (m, m1, m2) {                  
+        code=code.replace(matchReg, function (m, m1, m2,index,str) {                  
             if (m2) {
+                if (str[index - 1] === "." || str[index + m2.length] === "_") return m;
                 return replacement;
             }
             return m;

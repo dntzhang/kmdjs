@@ -3,7 +3,7 @@
     baseUrl: "js",
     classes: [
         { name: "HelloKMD.Ball" },
-		//the same as :  { name: "Util.Bom",url:"./js/Util" }  , "[./] can ignore the baseUrl "
+	//the same as :  { name: "Util.Bom",url:"./js/Util" }  , "[./] can ignore the baseUrl "
         { name: "Util.Bom",url:"util/bom.js" }
     ]
 });

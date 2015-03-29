@@ -354,7 +354,7 @@
             if(item.c==name&&!isInModules(storeModule,item)){
                 storeModule.push(item);
                 each(item.d,function(depName){
-                        getDepModule(depName);
+                    getDepModule(depName);
                 
                 })
             }
@@ -582,14 +582,28 @@
         }
         return result;
     }
+    function replaceForStringify(key, val) {
+        if ("function" == typeof val) {
+               
+            return addSi(val);
+        } else {
+            return val;
+        }
+    }
     function stringifyWithFuncs(obj) {
-        Object.prototype.toJSON = function () {
-            var sobj = {}, i;
-            for (i in this) if (this.hasOwnProperty(i)) if ("function" == typeof this[i]) sobj[i] = addSi(this[i]); else sobj[i] = this[i];
-            return sobj;
-        };
-        var str = JSON.stringify(obj);
-        delete Object.prototype.toJSON;
+        var str;
+        //http://stackoverflow.com/questions/6754919/json-stringify-function
+        if (JSON.__isExtendByJSON2) {
+            Object.prototype.toJSON = function () {
+                var sobj = {}, i;
+                for (i in this) if (this.hasOwnProperty(i)) if ("function" == typeof this[i]) sobj[i] = addSi(this[i]); else sobj[i] = this[i];
+                return sobj;
+            };
+            str = JSON.stringify(obj);
+            delete Object.prototype.toJSON;
+        } else {
+            str = JSON.stringify(obj, replaceForStringify);
+        }
         return str;
     }
     function isInScopeChainVariables(scope, name) {
@@ -771,12 +785,12 @@
 
         //找出直接ns打点使用类的
         var fullRef = [];
-            for (var kkk = 0, len = dotNodes.length; kkk < len; kkk++) {
-                var fr= chainDotNames(dotNodes[kkk]);
-                if (isInArray(classList, fr) && !isInArray(fullRef, fr)) {
-                    fullRef.push(fr);
-                }
+        for (var kkk = 0, len = dotNodes.length; kkk < len; kkk++) {
+            var fr= chainDotNames(dotNodes[kkk]);
+            if (isInArray(classList, fr) && !isInArray(fullRef, fr)) {
+                fullRef.push(fr);
             }
+        }
            
       
         return [refs, code, fullRef];

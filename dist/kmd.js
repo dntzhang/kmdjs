@@ -10716,6 +10716,7 @@ var JSLINT = (function () {
     kmdjs.config = function (option) {
         ProjName = option.name;
         cBaseUrl = option.baseUrl;
+        mapping[ProjName + ".Main"] = "main.js";
         if (!cBaseUrl) {
            
             var dataMainArr = dataMain.split("/"), dataMainArrLen = dataMainArr.length;

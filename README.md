@@ -47,7 +47,7 @@ kmdjs.config({
     baseUrl: "js",
     classes: [
         { name: "HelloKMD.Ball" },
-        { name: "Util.Bom",url:"Util" }
+        { name: "Util.Bom", url:"util/bom.js" }
     ]
 });
 ```

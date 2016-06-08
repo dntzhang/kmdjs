@@ -159,10 +159,7 @@ for more detail,you can go to https://github.com/kmdjs/kmdjs/tree/master/example
 
 ##ShowCase
 
-a simple demo: http://kmdjs.github.io/kmdjs/demo.html
-
-agejs:https://github.com/AlloyTeam/AlloyGameEngine
-
+a simple game demo:https://github.com/kmdjs/game
 
 ##Many thanks 
 

@@ -22,7 +22,6 @@ kmdjs let you define fine-grained files for `classes` , `not modules`.
 * Build the project in any broswer
 
 ##Install
-the file is  here: https://raw.githubusercontent.com/kmdjs/kmdjs/master/dist/kmd.js
 
 include the file in your html,such as:
 

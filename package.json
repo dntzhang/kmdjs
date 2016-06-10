@@ -1,7 +1,7 @@
 {
   "name": "kmdjs",
-  "version": "0.0.7",
-  "description": "Kill module definition,kill all the libraries of module definition, class definition is the future . one file one class is the future.",
+  "version": "0.1.0",
+  "description": "Kill all the libraries of module definition.",
   "main": "kmd.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,15 +14,10 @@
     "module",
     "amd",
     "cmd",
-	"class",
 	"namespace",
     "CommonJS"
   ],
   "dependencies": {},
-  "devDependencies": {
-    "gulp": "^3.8.1",
-    "gulp-concat": "latest"  
-  },
   "author": "dntzhang",
   "license": "MIT",
   "bugs": {

@@ -1,6 +1,5 @@
-##kmdjs?
+##kmdjs
 Kill Module Definition
-
 
 ##What's kmdjs?
 kmdjs is the `end-all`  solution for javascript project

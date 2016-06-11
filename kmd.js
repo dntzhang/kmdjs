@@ -34,10 +34,24 @@ kmdjs.setting ={};
         var script = document.createElement("script");
         script.type = "text/javascript";
 
-        script.onload = function () {
+        if("onload" in script){
+            script.onload = onload;
+        }else {
+            script.onreadystatechange = function() {
+                if (/loaded|complete/.test(script.readyState)) {
+                    onload()
+                }
+            }
+        }
+
+        function onload() {
             JSLoader.cache[url].state = 'done';
             JSLoader.exec(url);
-        };
+
+            script.onload = script.onreadystatechange = null;
+            document.body.removeChild(script);
+            script= null;
+        }
 
         script.src = url;
         document.body.appendChild(script);

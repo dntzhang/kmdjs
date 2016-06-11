@@ -3,7 +3,7 @@ kmdjs.define("util.bom", function(){
 
     Bom.getViewport=function() {
         var d = document.documentElement, b = document.body, w = window, div = document.createElement("div");
-        div.innerHTML = "  <link/>";
+        div.innerHTML = "  <div></div>";
         var lt = !(div.firstChild.nodeType === 3) ?
         { left: b.scrollLeft || d.scrollLeft, top: b.scrollTop || d.scrollTop } :
         { left: w.pageXOffset, top: w.pageYOffset };

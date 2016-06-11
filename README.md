@@ -1,13 +1,10 @@
 ##kmdjs
-Kill Module Definition
+kill all the libraries of module definition
 
 ##What's kmdjs?
 kmdjs is the `end-all`  solution for javascript project
 
 kmdjs unites the project based on namespace tree
-
-The name kmdjs means 'kill all the libraries of module definition'.
-
 
 ##Install
 

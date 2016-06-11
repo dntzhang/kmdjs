@@ -29,10 +29,11 @@ kmdjs.config is used for the whole project configuration, the general configurat
 kmdjs.config({
     'util.bom':'js/util/bom.js',
     'app.Ball':'js/ball.js',
+    'util.dom':'js/util/dom.js',
 
     'main': 'js/main.js'
 });
-//program entry
+
 kmdjs.main();
 ```
 
@@ -70,10 +71,11 @@ kmdjs.define("app.Ball",function(){
 Also the statement dependence, passed three parameters, such as:
 
 ```javascript
-kmdjs.define('main',['util.bom','app.Ball'], function(Bom,Ball) {
+kmdjs.define('main',['util.bom','app.Ball'], function() {
 
-    var ball = new Ball(0, 0, 28, 1, -2, 'kmdjs');
-    var vp = Bom.getViewport();
+    var ball = new app.Ball(0, 0, 28, 1, -2, 'kmdjs');
+
+    var vp = util.bom.getViewport();
 
     setInterval(function () {
         ball.tick();
@@ -83,6 +85,23 @@ kmdjs.define('main',['util.bom','app.Ball'], function(Bom,Ball) {
 
 });
 ```
+
+##bundler
+you can get the bundle string from main callback method such as blow code:
+
+```javascript
+kmdjs.config({
+    'util.bom':'js/util/bom.js',
+    'app.Ball':'js/ball.js',
+    'util.dom':'js/util/dom.js',
+
+    'main': 'js/main.js'
+});
+
+kmdjs.main(function(bundler){
+    alert(bundler)
+});
+```   
 
 ##ShowCase
 

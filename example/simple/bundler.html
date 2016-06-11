@@ -10,11 +10,14 @@
     kmdjs.config({
         'util.bom':'js/util/bom.js',
         'app.Ball':'js/ball.js',
+        'util.dom':'js/util/dom.js',
 
         'main': 'js/main.js'
     });
 
-    kmdjs.bundler();
+    kmdjs.main(function(bundler){
+        alert(bundler)
+    });
 </script>
 </body>
 </html>

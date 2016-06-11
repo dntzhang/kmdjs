@@ -4,13 +4,12 @@
  * MIT Licensed.
  */
 var kmdjs = {};
-
-kmdjs.module = {};
-
 kmdjs.setting = null;
-kmdjs.isBuild = false;
 kmdjs.loadedScript = 0;
 kmdjs.moduleCount = 0;
+kmdjs.buildEnd = null;
+kmdjs.factories = [];
+
 (function() {
 
     var JSLoader = {};
@@ -77,7 +76,6 @@ kmdjs.moduleCount = 0;
             })
         }
     };
-    kmdjs.factories = [];
     kmdjs.define = function (namespace, deps, factory) {
         kmdjs.loadedScript ++;
         var argLen = arguments.length;
@@ -86,14 +84,12 @@ kmdjs.moduleCount = 0;
         } else {
             kmdjs.factories.push([namespace, deps, factory]);
             var len = deps.length;
-            if (kmdjs.setting) {
-                var urls = [],
-                    i = 0;
-                for ( ; i < len; i++) {
-                    urls.push(kmdjs.setting[deps[i]]);
-                }
-                JSLoader.getByUrls(urls)
+            var urls = [],
+                i = 0;
+            for (; i < len; i++) {
+                urls.push(kmdjs.setting[deps[i]]);
             }
+            JSLoader.getByUrls(urls)
         }
        if(kmdjs.loadedScript === kmdjs.moduleCount){
            eval(buildBundler());
@@ -110,7 +106,7 @@ kmdjs.moduleCount = 0;
         each(kmdjs.factories, function (item) {
             topNsStr+=item[0]+' = ('+item[2]+')();\n\n' ;
         });
-        console.log(topNsStr)
+        if(kmdjs.buildEnd) kmdjs.buildEnd(topNsStr);
         return topNsStr;
     }
 
@@ -132,10 +128,9 @@ kmdjs.moduleCount = 0;
         return result;
     }
 
-    kmdjs.main = function () {
-        if(kmdjs.setting){
-            JSLoader.get(kmdjs.setting['main'])
-        }
+    kmdjs.main = function (callback) {
+        JSLoader.get(kmdjs.setting['main'])
+        kmdjs.buildEnd = callback;
     };
 
     kmdjs.config = function (setting) {
@@ -146,10 +141,5 @@ kmdjs.moduleCount = 0;
                 kmdjs.moduleCount++;
             }
         }
-    }
-
-    kmdjs.bundler = function(){
-        kmdjs.isBuild = true;
-        kmdjs.main();
     }
 })();

@@ -7,7 +7,7 @@ var kmdjs = {};
 
 kmdjs.module = {};
 
-kmdjs.setting ={};
+kmdjs.setting = null;
 
 (function() {
 
@@ -82,20 +82,29 @@ kmdjs.setting ={};
             nsToObj(namespace.split('.'), window, deps, namespace)
         }
         else {
-            var urls=[];
-            for(var i= 0,len=deps.length;i<len;i++){
-                urls.push(kmdjs.setting[deps[i]]);
-            }
-
-            JSLoader.getByUrls(urls, function () {
-                var args=[];
-                for( i= 0;i<len;i++){
-                    args.push(kmdjs.module[deps[i]]);
+            var len = deps.length;
+            if (kmdjs.setting) {
+                var urls = [],
+                    i = 0;
+                for ( ; i < len; i++) {
+                    urls.push(kmdjs.setting[deps[i]]);
                 }
-                callback.apply(null,args);
-            })
+                JSLoader.getByUrls(urls, function () {
+                    execFactory(callback,deps,len);
+                })
+            } else {
+                execFactory(callback,deps,len);
+            }
         }
     };
+
+    function execFactory(callback,deps,len){
+        var args = [];
+        for (i = 0; i < len; i++) {
+            args.push(kmdjs.module[deps[i]]);
+        }
+        callback.apply(null, args);
+    }
 
     function nsToObj(arr, obj, callback, namespace) {
         var name = arr.shift();
@@ -109,8 +118,9 @@ kmdjs.setting ={};
     }
 
     kmdjs.main = function () {
-        JSLoader.get(kmdjs.setting['main'])
-
+        if(kmdjs.setting){
+            JSLoader.get(kmdjs.setting['main'])
+        }
     };
 
     kmdjs.config = function (setting) {

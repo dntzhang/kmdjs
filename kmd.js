@@ -132,22 +132,6 @@ kmdjs.moduleCount = 0;
         return result;
     }
 
-    //function nsToObj(arr, obj, factory, namespace,args) {
-    //    var name = arr.shift();
-    //    if (!obj[name]) obj[name] = {};
-    //    if (arr.length > 0) {
-    //        nsToObj(arr, obj[name], factory, namespace,args)
-    //    } else if (arr.length === 0) {
-    //        if(args){
-    //           // obj[name] = factory.apply(null, args);
-    //        }else {
-    //            obj[name] = factory();
-    //            kmdjs.module[namespace] = obj[name];
-    //        }
-    //
-    //    }
-    //}
-
     kmdjs.main = function () {
         if(kmdjs.setting){
             JSLoader.get(kmdjs.setting['main'])

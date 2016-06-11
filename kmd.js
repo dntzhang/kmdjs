@@ -8,7 +8,8 @@ var kmdjs = {};
 kmdjs.module = {};
 
 kmdjs.setting = null;
-
+kmdjs.isBuild = false;
+kmdjs.buildList = [];
 (function() {
 
     var JSLoader = {};
@@ -76,12 +77,15 @@ kmdjs.setting = null;
         }
     };
 
-    kmdjs.define = function (namespace, deps, callback) {
+    kmdjs.define = function (namespace, deps, factory) {
+
         var argLen = arguments.length;
         if (argLen === 2) {
+            kmdjs.buildList.push({namespace:namespace,deps:"",factory:deps.toString()});
             nsToObj(namespace.split('.'), window, deps, namespace)
         }
         else {
+            kmdjs.buildList.push({namespace:namespace,deps:deps.toString(),factory:factory.toString()});
             var len = deps.length;
             if (kmdjs.setting) {
                 var urls = [],
@@ -90,20 +94,29 @@ kmdjs.setting = null;
                     urls.push(kmdjs.setting[deps[i]]);
                 }
                 JSLoader.getByUrls(urls, function () {
-                    execFactory(callback,deps,len);
+                    execFactory(factory,deps,len);
                 })
             } else {
-                execFactory(callback,deps,len);
+                execFactory(factory,deps,len);
             }
         }
     };
 
-    function execFactory(callback,deps,len){
+    function execFactory(factory,deps,len){
         var args = [];
         for (i = 0; i < len; i++) {
             args.push(kmdjs.module[deps[i]]);
         }
-        callback.apply(null, args);
+        factory.apply(null, args);
+    }
+
+    function buildBundler(){
+        var bundlerStr = '';
+        var i= 0,
+            len = kmdjs.buildList.length;
+        for(;i<len;i++) {
+
+        }
     }
 
     function nsToObj(arr, obj, callback, namespace) {
@@ -114,6 +127,9 @@ kmdjs.setting = null;
         } else if (arr.length === 0) {
             obj[name] = callback();
             kmdjs.module[namespace] = obj[name];
+            if(namespace === 'main'){
+
+            }
         }
     }
 
@@ -125,5 +141,10 @@ kmdjs.setting = null;
 
     kmdjs.config = function (setting) {
         kmdjs.setting = setting;
+    }
+
+    kmdjs.bundler = function(){
+        kmdjs.isBuild = true;
+        kmdjs.main();
     }
 })();

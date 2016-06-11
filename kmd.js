@@ -1,4 +1,4 @@
-/* kmdjs Kill Module Definition 0.1.0
+/* kmdjs : kill all the libraries of module definition 0.1.3
  * By dntzhang(ÕÅÀÚ)
  * Github: https://github.com/kmdjs/kmdjs
  * MIT Licensed.

@@ -1,5 +1,5 @@
-/* kmdjs Kill Module Definition 0.1.0
- * By dntzhang(’≈¿⁄)
+Ôªø/* kmdjs Kill Module Definition 0.1.0
+ * By dntzhang(Âº†Á£ä)
  * Github: https://github.com/kmdjs/kmdjs
  * Team: http://alloyteam.github.io/
  * MIT Licensed.

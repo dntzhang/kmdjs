@@ -4,14 +4,14 @@ kill all the libraries of module definition
 ##What's kmdjs?
 kmdjs is the `end-all`  solution for javascript project
 
-kmdjs unites the project based on namespace tree
+kmdjs organizes the project based on namespace tree
 
 ##Install
 
 include the file in your html,such as:
 
 ```html
-<script src="kmd.js"  data-main="js/main"></script>
+<script src="kmd.js" ></script>
 ```
 
 You can also install it via  npm:
@@ -21,7 +21,7 @@ npm install kmdjs
 ```
 
 ##Getting start
-kmdjs api has only two methods .one is `kmdjs.config`, the other is `define`
+kmdjs api has only three methods : `kmdjs.config`, `kmdjs.define` and `kmdjs.main`
 ### config the project
 kmdjs.config is used for the whole project configuration, the general configuration is shown below:
 
@@ -32,7 +32,7 @@ kmdjs.config({
 
     'main': 'js/main.js'
 });
-
+//program entry
 kmdjs.main();
 ```
 

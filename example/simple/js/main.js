@@ -1,4 +1,4 @@
-kmdjs.define('MyApp.Main',['Util.Bom','MyApp.Ball'], function(Bom,Ball){
+kmdjs.define('main',['util.bom','app.Ball'], function(Bom,Ball) {
 
     var ball = new Ball(0, 0, 28, 1, -2, 'kmdjs');
     var vp = Bom.getViewport();

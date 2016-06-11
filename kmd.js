@@ -96,7 +96,7 @@ kmdjs.setting ={};
     }
 
     kmdjs.main = function () {
-        JSLoader.get(kmdjs.setting['Main'])
+        JSLoader.get(kmdjs.setting['main'])
 
     };
 

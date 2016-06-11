@@ -30,18 +30,20 @@ kmdjs.config is used for the whole project configuration, the general configurat
 
 ```javascript
 kmdjs.config({
-    'Util.Bom':'js/util/bom.js',
-    'MyApp.Ball':'js/ball.js',
+    'util.bom':'js/util/bom.js',
+    'app.Ball':'js/ball.js',
 
-    'Main': 'js/main.js'
+    'main': 'js/main.js'
 });
+
+kmdjs.main();
 ```
 
-### defnie a class
+### defnie a module
 define can be passed to the two parameters, such as:
 
 ```javascript
-kmdjs.define("MyApp.Ball",function(){
+kmdjs.define("app.Ball",function(){
     var Ball = function (x, y, r, vx, vy, text) {
         this.x = x;
         this.y = y;
@@ -71,7 +73,7 @@ kmdjs.define("MyApp.Ball",function(){
 Also the statement dependence, passed three parameters, such as:
 
 ```javascript
-kmdjs.define('MyApp.Main',['Util.Bom','MyApp.Ball'], function(Bom,Ball){
+kmdjs.define('main',['util.bom','app.Ball'], function(Bom,Ball) {
 
     var ball = new Ball(0, 0, 28, 1, -2, 'kmdjs');
     var vp = Bom.getViewport();

@@ -1,6 +1,6 @@
 {
   "name": "kmdjs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Kill all the libraries of module definition.",
   "main": "kmd.js",
   "scripts": {

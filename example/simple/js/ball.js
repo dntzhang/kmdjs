@@ -1,4 +1,4 @@
-kmdjs.define("MyApp.Ball",function(){
+kmdjs.define("app.Ball",function(){
     var Ball = function (x, y, r, vx, vy, text) {
         this.x = x;
         this.y = y;

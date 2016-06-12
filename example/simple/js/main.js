@@ -1,4 +1,4 @@
-kmdjs.define('main',['util.bom','app.Ball'], function() {
+kmdjs.define('main',['util.bom','app.Ball','util.dom.element'], function() {
 
     var ball = new app.Ball(0, 0, 28, 1, -2, 'kmdjs');
 

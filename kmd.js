@@ -95,19 +95,26 @@ kmdjs.factories = [];
            eval(buildBundler());
         }
     };
-
+    kmdjs.nsList = []
     function buildBundler(){
         var topNsStr = "";
         each(kmdjs.factories, function (item) {
-            var arr = nsToCode(item[0]);
-            topNsStr+= arr+'\n';
+             nsToCode(item[0]);
         });
-        topNsStr+="\n";
+        topNsStr+=  kmdjs.nsList.join('\n') +"\n\n";
         each(kmdjs.factories, function (item) {
             topNsStr+=item[0]+' = ('+item[2]+')();\n\n' ;
         });
         if(kmdjs.buildEnd) kmdjs.buildEnd(topNsStr);
         return topNsStr;
+    }
+
+    function isInArray(str,arr){
+        for(var i= 0,len=arr.length;i<len;i++){
+            if(str === arr[i]){
+                return true;
+            }
+        }
     }
 
     function each(array, action) {
@@ -117,15 +124,18 @@ kmdjs.factories = [];
         }
     }
     function nsToCode(ns) {
-        var result = [];
         var nsSplitArr = ns.split(".");
-        result.push("var " + nsSplitArr[0] + "={};");
+        var topStr = "var " + nsSplitArr[0] + "={};";
+        if(!isInArray(topStr,kmdjs.nsList)){
+            kmdjs.nsList.push(topStr);
+        }
         for (var i = 1; i < nsSplitArr.length -1; i++) {
             var str = nsSplitArr[0];
             for (var j = 1; j < i + 1; j++) str += "." + nsSplitArr[j];
-            result.push(str + "={};");
+            if(!isInArray(str + "={};",kmdjs.nsList)){
+                kmdjs.nsList.push(str + "={};");
+            }
         }
-        return result;
     }
 
     kmdjs.main = function (callback) {

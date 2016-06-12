@@ -90,14 +90,6 @@ kmdjs.define('main',['util.bom','app.Ball'], function() {
 you can get the bundle string from main callback method such as blow code:
 
 ```javascript
-kmdjs.config({
-    'util.bom':'js/util/bom.js',
-    'app.Ball':'js/ball.js',
-    'util.dom':'js/util/dom.js',
-
-    'main': 'js/main.js'
-});
-
 kmdjs.main(function(bundler){
     alert(bundler)
 });

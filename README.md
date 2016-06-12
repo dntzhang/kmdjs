@@ -1,5 +1,5 @@
 ##kmdjs
-kill all the libraries of module definition
+kernel module definition
 
 ##What's kmdjs?
 kmdjs is the `end-all`  solution for javascript project

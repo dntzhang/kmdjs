@@ -9,6 +9,7 @@ kmdjs.loadedScript = 0;
 kmdjs.moduleCount = 0;
 kmdjs.buildEnd = null;
 kmdjs.factories = [];
+kmdjs.nsList = [];
 
 (function() {
 
@@ -95,7 +96,7 @@ kmdjs.factories = [];
            window.eval(buildBundler());
         }
     };
-    kmdjs.nsList = []
+
     function buildBundler(){
         var topNsStr = "";
         each(kmdjs.factories, function (item) {

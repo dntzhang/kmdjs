@@ -1,4 +1,4 @@
-kmdjs.define("util.dom.element" ,function(){
+kmdjs.define("util.dom.test" ,function(){
     var Element={};
 
     Element.m = function(a,b){

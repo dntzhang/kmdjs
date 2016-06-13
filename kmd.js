@@ -104,7 +104,7 @@ kmdjs.nsList = [];
         });
         topNsStr+=  kmdjs.nsList.join('\n') +"\n\n";
         each(kmdjs.factories, function (item) {
-            topNsStr+=item[0]+' = ('+item[2]+')();\n\n' ;
+            topNsStr+=item[0]+' = ('+item[2]+')('+item[1]+');\n\n' ;
         });
         if(kmdjs.buildEnd) kmdjs.buildEnd(topNsStr);
         return topNsStr;

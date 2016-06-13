@@ -1,8 +1,8 @@
-kmdjs.define("util.bom",["util.dom"], function(){
+kmdjs.define("util.bom",["util.dom"], function(dom){
     var Bom={};
 
     Bom.getViewport=function() {
-        alert(util.dom.add(1,4));
+        alert(dom.add(1,4));
         var d = document.documentElement, b = document.body, w = window, div = document.createElement("div");
         div.innerHTML = "  <div></div>";
         var lt = !(div.firstChild.nodeType === 3) ?

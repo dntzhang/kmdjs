@@ -1,8 +1,8 @@
-kmdjs.define('main',['util.bom','app.Ball','util.dom.element'], function() {
+kmdjs.define('main',['util.bom','app.Ball','util.dom.test'], function(bom,Ball,test) {
 
-    var ball = new app.Ball(0, 0, 28, 1, -2, 'kmdjs');
-
-    var vp = util.bom.getViewport();
+    var ball = new Ball(0, 0, 28, 1, -2, 'kmdjs');
+    alert(test.m(3, 3));
+    var vp = bom.getViewport();
 
     setInterval(function () {
         ball.tick();

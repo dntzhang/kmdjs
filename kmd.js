@@ -92,7 +92,7 @@ kmdjs.factories = [];
             JSLoader.getByUrls(urls)
         }
        if(kmdjs.loadedScript === kmdjs.moduleCount){
-           eval(buildBundler());
+           window.eval(buildBundler());
         }
     };
     kmdjs.nsList = []

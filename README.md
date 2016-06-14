@@ -73,9 +73,9 @@ Also the statement dependence, passed three parameters, such as:
 ```javascript
 kmdjs.define('main',['util.bom','app.Ball'], function() {
 
-    var ball = new app.Ball(0, 0, 28, 1, -2, 'kmdjs');
+    var ball = new Ball(0, 0, 28, 1, -2, 'kmdjs');
 
-    var vp = util.bom.getViewport();
+    var vp = bom.getViewport();
 
     setInterval(function () {
         ball.tick();
@@ -85,6 +85,8 @@ kmdjs.define('main',['util.bom','app.Ball'], function() {
 
 });
 ```
+
+'Ball' and 'bom' can be used directly in your code , because they will be transformed to 'app.Ball' and 'util.bom' by uglifyjs2.
 
 ##bundler
 you can get the bundle string from main callback method such as blow code:

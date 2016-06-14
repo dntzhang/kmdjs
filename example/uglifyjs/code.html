@@ -145,6 +145,7 @@
     }
 
     function isInWindow(name){
+        if(name==='this')return true;
         return name in window;
     }
 

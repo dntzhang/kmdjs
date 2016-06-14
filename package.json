@@ -1,6 +1,6 @@
 {
   "name": "kmdjs",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "kernel module definition",
   "main": "kmd.js",
   "scripts": {
@@ -11,6 +11,7 @@
     "url": "https://github.com/kmdjs/kmdjs"
   },
   "keywords": [
+    "uglifyjs",
     "module",
     "amd",
     "cmd",

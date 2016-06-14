@@ -1,4 +1,4 @@
-kmdjs.define("util.bom",["util.dom"], function(dom){
+kmdjs.define("util.bom",["util.dom"], function(){
     var Bom={};
 
     Bom.getViewport=function() {

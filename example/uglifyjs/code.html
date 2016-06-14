@@ -9,7 +9,8 @@
 <script>
     function fixDeps(fn,deps) {
         var U2 = UglifyJS;
-        var code = fn.toString();
+        //uglify2不支持匿名转ast
+        var code = fn.toString().replace('function','function ___kmdjs_temp');
         var ast = U2.parse(code);
         ast.figure_out_scope();
         var nodes = [];
@@ -90,7 +91,7 @@
                 beautify: true
             }));
         }
-        return code;
+        return code.replace('function ___kmdjs_temp','function');
     }
 
     function getFullName(deps,name){
@@ -147,15 +148,15 @@
         return name in window;
     }
 
-    function xx(A) {
+
+
+    console.log(fixDeps(function (A) {
         var eee = m;
         var b = new A();
         var b = new B();
         var c = new C();
         var d = G.a;
-    }
-
-    console.log(fixDeps(xx,['c.B','AAA.G','SFSF.C','AAAA.m'] ))
+    },['c.B','AAA.G','SFSF.C','AAAA.m'] ))
 </script>
 </body>
 </html>

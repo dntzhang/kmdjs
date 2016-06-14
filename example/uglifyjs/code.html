@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script src="../../uglifyjs.js"></script>
+<script>
+    function getDeps(fn) {
+        var U2 = UglifyJS;
+        var code = fn.toString();
+        var ast = U2.parse(code);
+        ast.figure_out_scope();
+        var nodes = [];
+
+        ast.walk(new U2.TreeWalker(function (node) {
+
+            if (node instanceof U2.AST_New) {
+                var ex = node.expression;
+                var name = ex.name;
+                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push(node);
+            }
+
+            if (node instanceof U2.AST_Dot) {
+                var ex = node.expression;
+                var name = ex.name;
+                var scope = ex.scope;
+                if (scope) {
+                    isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push(node);
+                }
+            }
+
+            if (node instanceof U2.AST_SymbolRef) {
+                var name = node.name;
+                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(node.scope, name) || nodes.push(node);
+            }
+        }));
+
+        var cloneNodes = [].concat(nodes);
+        //过滤new nodes 中的symbo nodes
+        for (var i = 0, len = nodes.length; i < len; i++) {
+            var nodeA = nodes[i];
+            for (var j = 0, cLen = cloneNodes.length; j < cLen; j++) {
+                var nodeB = cloneNodes[j];
+                if (nodeA.expression === nodeB) {
+                    cloneNodes.splice(j, 1);
+                    j--;
+                    cLen--;
+                }
+                if (nodeB.expression === nodeA) {
+                    nodes.splice(i, 1);
+                    i--;
+                    len--;
+                }
+            }
+        }
+
+        console.log(nodes)
+        for (var i = nodes.length; --i >= 0;) {
+            var node = nodes[i];
+
+            var replacement;
+            if (node instanceof  U2.AST_New) {
+                replacement = new U2.AST_New({
+                    expression: new U2.AST_SymbolRef({
+                        name: 'c.b'
+                    }),
+                    args: node.args
+                });
+            } else if (node instanceof  U2.AST_Dot) {
+                replacement = new U2.AST_Dot({
+                    expression: new U2.AST_SymbolRef({
+                        name: 'e.f'
+                    }),
+                    property: node.property
+                });
+            }else if(node instanceof U2.AST_SymbolRef){
+                replacement = new U2.AST_SymbolRef({
+                        name: 'G.h'
+                });
+            }
+
+            var start_pos = node.start.pos;
+            var end_pos = node.end.endpos;
+
+            code = splice_string(code, start_pos, end_pos, replacement.print_to_string({
+                beautify: true
+            }));
+        }
+        return code;
+    }
+
+    function splice_string(str, begin, end, replacement) {
+        return str.substr(0, begin) + replacement + str.substr(end);
+    }
+
+    function isInScopeChainVariables(scope, name) {
+        var vars = scope.variables._values;
+        if (Object.prototype.hasOwnProperty.call(vars, "$" + name)) {
+            return true;
+        }
+
+        if (scope.parent_scope) {
+            return isInScopeChainVariables(scope.parent_scope, name);
+        }
+
+        return false;
+    }
+
+    function isInArray(arr,name){
+        var i= 0,len=arr.length;
+        for(;i<len;i++){
+            if(arr[i]===name){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function isInWindow(name){
+        return name in window;
+    }
+
+    function xx(A){
+        var eee=m;
+       var b = new B();
+
+        var c = new C();
+
+        var d = G.a;
+    }
+
+    console.log(getDeps(xx ))
+</script>
+</body>
+</html>

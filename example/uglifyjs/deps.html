@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <script src="../../uglifyjs.js"></script>
+    <script>
+        function getDeps(fn) {
+            var U2 = UglifyJS;
+            var ast = U2.parse(fn.toString());
+            ast.figure_out_scope();
+            var result = [];
+            ast.walk(new U2.TreeWalker(function (node) {
+
+                if (node instanceof U2.AST_New) {
+                    var ex = node.expression;
+                    var name = ex.name;
+                  isInWindow(name)||isInArray(result,name)||isInScopeChainVariables(ex.scope,name)||result.push(name);
+                }
+
+                if (node instanceof U2.AST_Dot) {
+                    var ex = node.expression;
+                    var name = ex.name;
+                    var scope = ex.scope;
+                    if (scope) {
+                        isInWindow(name)|| isInArray(result,name)||isInScopeChainVariables(ex.scope,name)||result.push(name);
+                    }
+                }
+
+                if(node instanceof U2.AST_SymbolRef){
+                    var name = node.name;
+                    isInWindow(name)||isInArray(result,name)||isInScopeChainVariables(node.scope,name)||result.push(name);
+                }
+            }));
+            return result;
+        }
+
+        function isInScopeChainVariables(scope, name) {
+            var vars = scope.variables._values;
+            if (Object.prototype.hasOwnProperty.call(vars, "$" + name)) {
+                return true;
+            }
+
+            if (scope.parent_scope) {
+                return isInScopeChainVariables(scope.parent_scope, name);
+            }
+
+            return false;
+        }
+
+        function isInArray(arr,name){
+            var i= 0,len=arr.length;
+            for(;i<len;i++){
+                if(arr[i]===name){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function isInWindow(name){
+            return name in window;
+        }
+
+        function xx(A){
+                var Bom={};
+           var CC=DD;
+            var D=E.D.C;
+                Bom.getViewport=function() {
+                    new A();
+                    new B();
+                    alert(dom.add(1,4));
+                    var d = document.documentElement, b = document.body, w = window, div = document.createElement("div");
+                    div.innerHTML = "  <div></div>";
+                    var lt = !(div.firstChild.nodeType === 3) ?
+                    { left: b.scrollLeft || d.scrollLeft, top: b.scrollTop || d.scrollTop } :
+                    { left: w.pageXOffset, top: w.pageYOffset };
+                    var wh = w.innerWidth ?
+                    { width: w.innerWidth, height: w.innerHeight } :
+                            (d && d.clientWidth && d.clientWidth != 0 ?
+                            { width: d.clientWidth, height: d.clientHeight } :
+                            { width: b.clientWidth, height: b.clientHeight });
+
+                    return [lt.left, lt.top, wh.width, wh.height]
+                };
+
+                Bom.sub = function(a,b){
+                    return a-b;
+                };
+                return Bom;
+            }
+
+        console.log(getDeps(xx ))
+    </script>
+</body>
+</html>

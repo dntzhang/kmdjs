@@ -7,7 +7,7 @@
 <body>
 <script src="../../uglifyjs.js"></script>
 <script>
-    function getDeps(fn,deps) {
+    function fixDeps(fn,deps) {
         var U2 = UglifyJS;
         var code = fn.toString();
         var ast = U2.parse(code);
@@ -155,7 +155,7 @@
         var d = G.a;
     }
 
-    console.log(getDeps(xx,['c.B','AAA.G','SFSF.C','AAAA.m'] ))
+    console.log(fixDeps(xx,['c.B','AAA.G','SFSF.C','AAAA.m'] ))
 </script>
 </body>
 </html>

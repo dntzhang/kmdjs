@@ -7,19 +7,20 @@
 <body>
 <script src="../../uglifyjs.js"></script>
 <script>
-    function getDeps(fn) {
+    function getDeps(fn,deps) {
         var U2 = UglifyJS;
         var code = fn.toString();
         var ast = U2.parse(code);
         ast.figure_out_scope();
         var nodes = [];
 
+
         ast.walk(new U2.TreeWalker(function (node) {
 
             if (node instanceof U2.AST_New) {
                 var ex = node.expression;
                 var name = ex.name;
-                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push(node);
+                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
             }
 
             if (node instanceof U2.AST_Dot) {
@@ -27,22 +28,22 @@
                 var name = ex.name;
                 var scope = ex.scope;
                 if (scope) {
-                    isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push(node);
+                    isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
                 }
             }
 
             if (node instanceof U2.AST_SymbolRef) {
                 var name = node.name;
-                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(node.scope, name) || nodes.push(node);
+                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(node.scope, name) || nodes.push({name:name,node:node});
             }
         }));
 
         var cloneNodes = [].concat(nodes);
         //过滤new nodes 中的symbo nodes
         for (var i = 0, len = nodes.length; i < len; i++) {
-            var nodeA = nodes[i];
+            var nodeA = nodes[i].node;
             for (var j = 0, cLen = cloneNodes.length; j < cLen; j++) {
-                var nodeB = cloneNodes[j];
+                var nodeB = cloneNodes[j].node;
                 if (nodeA.expression === nodeB) {
                     cloneNodes.splice(j, 1);
                     j--;
@@ -56,28 +57,29 @@
             }
         }
 
-        console.log(nodes)
         for (var i = nodes.length; --i >= 0;) {
-            var node = nodes[i];
-
+            var item = nodes[i],
+                node=item.node,
+                name=item.name;
+            var fullName=getFullName(deps,name);
             var replacement;
             if (node instanceof  U2.AST_New) {
                 replacement = new U2.AST_New({
                     expression: new U2.AST_SymbolRef({
-                        name: 'c.b'
+                        name:fullName
                     }),
                     args: node.args
                 });
             } else if (node instanceof  U2.AST_Dot) {
                 replacement = new U2.AST_Dot({
                     expression: new U2.AST_SymbolRef({
-                        name: 'e.f'
+                        name: fullName
                     }),
                     property: node.property
                 });
             }else if(node instanceof U2.AST_SymbolRef){
                 replacement = new U2.AST_SymbolRef({
-                        name: 'G.h'
+                        name: fullName
                 });
             }
 
@@ -89,6 +91,29 @@
             }));
         }
         return code;
+    }
+
+    function getFullName(deps,name){
+        var i= 0,
+            len=deps.length,
+                matchCount= 0,
+                result=[];
+
+        for(;i<len;i++) {
+            var fullName = deps[i];
+            if (fullName.split('.').pop() === name) {
+                matchCount++;
+                if (!isInArray(result, fullName))  result.push(fullName);
+            }
+        }
+
+        if(matchCount>1){
+            throw "the same name conflict: "+result.join(" and ");
+        } else if(matchCount===1){
+            return result[0];
+        }else{
+            throw ' can not find module ['+name+']';
+        }
     }
 
     function splice_string(str, begin, end, replacement) {
@@ -131,7 +156,7 @@
         var d = G.a;
     }
 
-    console.log(getDeps(xx ))
+    console.log(getDeps(xx,['c.B','AAA.G','SFSF.C','AAAA.m'] ))
 </script>
 </body>
 </html>

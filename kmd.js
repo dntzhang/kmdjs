@@ -183,14 +183,8 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
             var nodeA = nodes[i].node;
             for (var j = 0, cLen = cloneNodes.length; j < cLen; j++) {
                 var nodeB = cloneNodes[j].node;
-                if (nodeA.expression === nodeB) {
-                    cloneNodes.splice(j, 1);
-                    j--;
-                    cLen--;
-                }
                 if (nodeB.expression === nodeA) {
-                    nodes.splice(i, 1);
-                    i--;
+                    nodes.splice(i--, 1);
                     len--;
                 }
             }

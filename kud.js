@@ -1,12 +1,7 @@
 /**
  * Created by dntzhang on 2016/6/17.
  */
-var KMD_CONFIG= {
-    'util.bom':'js/util/bom.js',
-    'app.Ball':'js/ball.js',
-    'main': 'js/main.js'
-};
-
+var KMD_CONFIG= require("./kmd.json");
 
 
 var u2 = require("uglify-js"),

@@ -22,8 +22,6 @@ var U2 = require("uglify-js"),
 
 readModule(KMD_CONFIG['main'])
 
-//console.log(U2.minify(mainContent, {fromString: true}))
-
 function readModule(path){
     if( hasReadModule[path])return;
     hasReadModule[path]=true;
@@ -224,7 +222,6 @@ function isInScopeChainVariables(scope, name) {
 
     return false;
 }
-
 
 function isInWindow(name){
     if(name==='this')return true;

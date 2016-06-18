@@ -32,9 +32,15 @@ kmdjs.config({
     'util.dom':'js/util/dom.js',
 
     'main': 'js/main.js'
-});
+}).main();
+```
+or
 
-kmdjs.main();
+```javascript
+kmdjs.config('kmd.json')
+     .main(function(bundler){
+            alert(bundler);
+        });
 ```
 
 ### defnie a module
@@ -89,7 +95,12 @@ kmdjs.define('main',['util.bom','app.Ball'], function() {
 'Ball' and 'bom' can be used directly in your code , because they will be transformed to 'app.Ball' and 'util.bom' by uglifyjs2.
 
 ##bundler
-you can get the bundle string from main callback method such as blow code:
+set your kmd.json file and using the 'node kud' command to bundle the kmdjs project  :
+
+```javascript
+node kud
+```   
+you can also get the bundle string in browser  from main callback method such as blow code:
 
 ```javascript
 kmdjs.main(function(bundler){

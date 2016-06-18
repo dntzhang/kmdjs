@@ -1,6 +1,6 @@
 {
   "name": "kmdjs",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "kernel module definition",
   "main": "kmd.js",
   "scripts": {
@@ -19,6 +19,9 @@
     "CommonJS"
   ],
   "dependencies": {},
+  "devDependencies": {
+    "uglify-js": "^2.6.2"
+  },
   "author": "dntzhang",
   "license": "MIT",
   "bugs": {

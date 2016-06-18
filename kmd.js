@@ -297,5 +297,6 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
                 kmdjs.moduleCount++;
             }
         }
+        return kmdjs;
     }
 })();

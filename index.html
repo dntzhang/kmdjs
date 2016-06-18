@@ -7,15 +7,10 @@
 <body>
 <script src="kmd.js"></script>
 <script>
-    kmdjs.config({
-        'util.bom':'js/util/bom.js',
-        'app.Ball':'js/ball.js',
-        'main': 'js/main.js'
-    });
-
-    kmdjs.main(function(bundler){
-        alert(bundler);
-    });
+    kmdjs.config('kmd.json')
+         .main(function(bundler){
+                alert(bundler);
+            });
 </script>
 </body>
 </html>

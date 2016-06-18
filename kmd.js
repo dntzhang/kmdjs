@@ -277,10 +277,23 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
     };
 
     kmdjs.config = function (setting) {
-        kmdjs.setting = setting;
+        if(typeof setting ==='string' ){
+            var xmlhttp = new XMLHttpRequest();
+            var url = setting;
+
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    kmdjs.setting = JSON.parse(xmlhttp.responseText);
+                }
+            };
+            xmlhttp.open("GET", url, false);
+            xmlhttp.send();
+        }else {
+            kmdjs.setting = setting;
+        }
         kmdjs.moduleCount = 0;
-        for(var prop in kmdjs.setting){
-            if(kmdjs.setting.hasOwnProperty(prop)) {
+        for (var prop in kmdjs.setting) {
+            if (kmdjs.setting.hasOwnProperty(prop)) {
                 kmdjs.moduleCount++;
             }
         }

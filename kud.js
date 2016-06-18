@@ -1,5 +1,6 @@
 /**
- * kmdjs builder
+ * kmdjs bundler -> kud
+ * kmdjs bundle builder-> kud
  * Created by dntzhang on 2016/6/17.
  */
 var KMD_CONFIG= require("./kmd.json"),

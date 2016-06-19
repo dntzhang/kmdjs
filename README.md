@@ -8,19 +8,19 @@ kmdjs organizes the project based on namespace tree
 
 ##Install
 
-include the file in your html,such as:
-
-```html
-<script src="kmd.js" ></script>
-```
-
-You can also install it via  npm:
+install it via  npm:
 
 ```html
 npm install kmdjs
 ```
 
 ##Getting start
+include the file in your html,such as:
+
+```html
+<script src="kmd.js" ></script>
+```
+
 kmdjs api has only three methods : `kmdjs.config`, `kmdjs.define` and `kmdjs.main`
 ### config the project
 kmdjs.config is used for the whole project configuration, the general configuration is shown below:
@@ -95,11 +95,18 @@ kmdjs.define('main',['util.bom','app.Ball'], function() {
 'Ball' and 'bom' can be used directly in your code , because they will be transformed to 'app.Ball' and 'util.bom' by uglifyjs2.
 
 ##bundler
-set your kmd.json file and using the 'node kud' command to bundle the kmdjs project  :
+using the 'node build' command to bundle the kmdjs project :
 
 ```javascript
-node kud
+node build
 ```   
+
+the build.js will require kud and kmd.json to bundle your project :
+
+```javascript
+require('kud')(require('./kmd.json'));
+```
+
 you can also get the bundle string in browser  from main callback method such as blow code:
 
 ```javascript

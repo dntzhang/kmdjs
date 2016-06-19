@@ -1,4 +1,4 @@
-/* kmdjs : kernel module definition 0.2.1
+/* kmdjs : kernel module definition 0.2.2
  * By dntzhang(张磊)
  * Github: https://github.com/kmdjs/kmdjs
  * MIT Licensed.

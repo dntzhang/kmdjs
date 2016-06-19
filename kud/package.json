@@ -1,0 +1,31 @@
+{
+  "name": "kud",
+  "version": "0.1.0",
+  "description": "kmdjs bundler",
+  "main": "kud.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kmdjs/kmdjs"
+  },
+  "keywords": [
+    "uglifyjs",
+    "module",
+    "amd",
+    "cmd",
+	"namespace",
+    "CommonJS"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "uglify-js": "^2.6.2"
+  },
+  "author": "dntzhang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kmdjs/kmdjs/issues"
+  },
+  "homepage": "https://github.com/kmdjs/kmdjs"
+}

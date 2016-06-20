@@ -6,6 +6,8 @@ kmdjs is the `end-all`  solution for javascript project
 
 kmdjs organizes the project based on namespace tree
 
+![kmdjs](http://dnt.coding.me/demo/asset/kmdjs.png)
+
 ##Install
 
 install it via  npm:

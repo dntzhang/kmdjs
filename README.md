@@ -104,14 +104,18 @@ node build
 the build.js will require kud and kmd.json to bundle your project :
 
 ```javascript
-require('kud')(require('./kmd.json'));
+require('kud')(require('./kmd.json'),function(bundle){
+    //you can get bundle here
+    console.log(bundle);
+    console.log("------------------- end of kud -------------------")
+});
 ```
 
 you can also get the bundle string in browser  from main callback method such as blow code:
 
 ```javascript
-kmdjs.main(function(bundler){
-    alert(bundler)
+kmdjs.main(function(bundle){
+    alert(bundle)
 });
 ```   
 

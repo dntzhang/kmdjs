@@ -1,4 +1,4 @@
-/** kud v0.1.0
+/** kud v0.1.2
  * kmdjs bundler -> kud
  * kmdjs bundle builder-> kud
  * Created by dntzhang on 2016/6/17.
@@ -29,10 +29,10 @@ function readModule(path,end){
 
     if(moduleCount===cacheModule.length){
         var bundle=buildBundler();
-        fs.writeFileSync('bundle.js', bundle);
-        fs.writeFileSync('bundle.min.js', U2.minify(bundle, {fromString: true}).code);
+        //fs.writeFileSync('bundle.js', bundle);
+        //fs.writeFileSync('bundle.min.js', U2.minify(bundle, {fromString: true}).code);
         //console.log(bundle)
-        end&&end(bundle);
+        end&&end(bundle, U2.minify(bundle, {fromString: true}).code);
     }
 }
 

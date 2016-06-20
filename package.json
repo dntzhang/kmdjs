@@ -1,6 +1,6 @@
 {
   "name": "kmdjs",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "kernel module definition",
   "main": "kmd.js",
   "scripts": {
@@ -19,12 +19,16 @@
     "CommonJS"
   ],
   "dependencies": {
-    "kud": "^0.1.1"
+    "kud": "^0.1.2"
   },
   "author": "dntzhang",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/kmdjs/kmdjs/issues"
   },
-  "homepage": "https://github.com/kmdjs/kmdjs"
+  "homepage": "https://github.com/kmdjs/kmdjs",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "run-sequence": "^1.2.1"
+  }
 }

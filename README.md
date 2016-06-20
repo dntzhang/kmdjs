@@ -96,7 +96,7 @@ kmdjs.define('main',['util.bom','app.Ball'], function() {
 
 'Ball' and 'bom' can be used directly in your code , because they will be transformed to 'app.Ball' and 'util.bom' by uglifyjs2.
 
-##bundler
+##Bundler
 using the 'node build' command to bundle the kmdjs project :
 
 ```javascript

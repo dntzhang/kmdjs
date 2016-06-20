@@ -15,7 +15,7 @@ var moduleCount = 0;
 var U2 = require("uglify-js"),
     fs = require("fs");
 
-function readModule(path){
+function readModule(path,end){
     if( hasReadModule[path])return;
     hasReadModule[path]=true;
     var content=fs.readFileSync(path, "utf8");
@@ -29,16 +29,10 @@ function readModule(path){
 
     if(moduleCount===cacheModule.length){
         var bundle=buildBundler();
-        fs.writeFile('bundle.js', bundle, function (err) {
-            if (err) return console.log(err);
-        });
-
-
-        fs.writeFile('bundle.min.js', U2.minify(bundle, {fromString: true}).code, function (err) {
-            if (err) return console.log(err);
-        });
-        console.log(bundle)
-        console.log("------------------- end -------------------")
+        fs.writeFileSync('bundle.js', bundle);
+        fs.writeFileSync('bundle.min.js', U2.minify(bundle, {fromString: true}).code);
+        //console.log(bundle)
+        end&&end(bundle);
     }
 }
 
@@ -221,12 +215,12 @@ function isInWindow(name){
     return isInArray(name,winProps);
 }
 
-module.exports =  function(config){
+module.exports =  function(config,end){
     KMD_CONFIG = config;
     for (var prop in KMD_CONFIG) {
         if (KMD_CONFIG.hasOwnProperty(prop)) {
             moduleCount++;
         }
     }
-    readModule(KMD_CONFIG['main'])
+    readModule(KMD_CONFIG['main'],end)
 }

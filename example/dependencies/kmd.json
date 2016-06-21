@@ -1,0 +1,6 @@
+{
+  "dependencies": ["$","jQuery"],
+  "mapping": {
+    "main": "js/main.js"
+  }
+}

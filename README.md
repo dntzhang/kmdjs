@@ -28,11 +28,14 @@ kmdjs.config is used for the whole project configuration, the general configurat
 
 ```javascript
 kmdjs.config({
-    'util.bom':'js/util/bom.js',
-    'app.Ball':'js/ball.js',
-    'util.dom':'js/util/dom.js',
-
-    'main': 'js/main.js'
+    "dependencies": [],
+    "mapping": {
+        'util.bom':'js/util/bom.js',
+        'app.Ball':'js/ball.js',
+        'util.dom':'js/util/dom.js',
+        'util.dom.test':'js/util/test.js',
+        'main': 'js/main.js'
+    }
 }).main();
 ```
 or
@@ -44,6 +47,23 @@ kmdjs.config('kmd.json')
         });
 ```
 
+what does the dependencies prop do ? 
+if you refer the other lib in your page and referencing in the window such as : window.$ or window.jQuery ,
+```javascript
+<script src="js/jquery-3.0.0.min.js"></script>
+<script src="../../kmd.js"></script>
+...
+...
+```
+then you should write the dependencies prop for the kud bundler.
+```javascript
+{
+  "dependencies": ["$","jQuery"],
+  "mapping": {
+    "main": "js/main.js"
+  }
+}
+```
 ### defnie a module
 define can be passed to the two parameters, such as:
 

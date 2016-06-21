@@ -1,4 +1,4 @@
-/* kmdjs : kernel module definition 0.2.2
+/* kmdjs : kernel module definition 0.2.5
  * By dntzhang(张磊)
  * Github: https://github.com/kmdjs/kmdjs
  * MIT Licensed.
@@ -94,7 +94,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
             var urls = [],
                 i = 0;
             for (; i < len; i++) {
-                urls.push(kmdjs.setting[deps[i]]);
+                urls.push(kmdjs.setting.mapping[deps[i]]);
             }
             JSLoader.getByUrls(urls)
         }
@@ -272,7 +272,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
     }
 
     kmdjs.main = function (callback) {
-        JSLoader.get(kmdjs.setting['main'])
+        JSLoader.get(kmdjs.setting.mapping['main'])
         kmdjs.buildEnd = callback;
     };
 
@@ -292,8 +292,9 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
             kmdjs.setting = setting;
         }
         kmdjs.moduleCount = 0;
-        for (var prop in kmdjs.setting) {
-            if (kmdjs.setting.hasOwnProperty(prop)) {
+        var mapping = kmdjs.setting.mapping;
+        for (var prop in mapping) {
+            if (mapping.hasOwnProperty(prop)) {
                 kmdjs.moduleCount++;
             }
         }

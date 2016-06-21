@@ -8,11 +8,14 @@
 <script src="../../kmd.js"></script>
 <script>
     kmdjs.config({
-        'util.bom':'js/util/bom.js',
-        'app.Ball':'js/ball.js',
-        'util.dom':'js/util/dom.js',
-        'util.dom.test':'js/util/test.js',
-        'main': 'js/main.js'
+        "dependencies": [],
+        "mapping": {
+            'util.bom':'js/util/bom.js',
+            'app.Ball':'js/ball.js',
+            'util.dom':'js/util/dom.js',
+            'util.dom.test':'js/util/test.js',
+            'main': 'js/main.js'
+        }
     }).main(function(bundler){
         console.log(bundler)
     });

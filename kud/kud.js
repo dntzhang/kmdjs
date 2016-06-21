@@ -23,7 +23,7 @@ function readModule(path,end){
     var i= 0,
         len=moduleInfo.deps.length;
     for(;i<len;i++){
-        readModule(KMD_CONFIG[moduleInfo.deps[i]]);
+        readModule(KMD_CONFIG.mapping[moduleInfo.deps[i]]);
     }
     cacheModule.push(moduleInfo);
 
@@ -212,15 +212,20 @@ function isInScopeChainVariables(scope, name) {
 
 function isInWindow(name){
     if(name==='this')return true;
+    if(isInArray(name,KMD_CONFIG.dependencies))return true;
     return isInArray(name,winProps);
 }
 
 module.exports =  function(config,end){
     KMD_CONFIG = config;
-    for (var prop in KMD_CONFIG) {
-        if (KMD_CONFIG.hasOwnProperty(prop)) {
+    if(!KMD_CONFIG.dependencies){
+        KMD_CONFIG.dependencies=[];
+    }
+    var mapping = KMD_CONFIG.mapping;
+    for (var prop in mapping) {
+        if (mapping.hasOwnProperty(prop)) {
             moduleCount++;
         }
     }
-    readModule(KMD_CONFIG['main'],end)
+    readModule(mapping['main'],end)
 }

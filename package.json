@@ -1,6 +1,6 @@
 {
   "name": "kmdjs",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "kernel module definition",
   "main": "kmd.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "CommonJS"
   ],
   "dependencies": {
-    "kud": "^0.1.3"
+    "kud": "^0.1.4"
   },
   "author": "dntzhang",
   "license": "MIT",

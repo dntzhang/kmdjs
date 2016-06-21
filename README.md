@@ -2,7 +2,6 @@
 kernel module definition
 
 ##What's kmdjs?
-kmdjs is the `end-all`  solution for javascript project
 
 kmdjs organizes the project based on namespace tree
 

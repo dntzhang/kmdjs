@@ -110,7 +110,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
         });
         topNsStr+=  kmdjs.nsList.join('\n') +"\n\n";
         each(kmdjs.factories, function (item) {
-            topNsStr+=item[0]+' = ('+ fixDeps(item[2],item[1])+')();\n\n' ;
+            topNsStr+=item[0]+' = ('+ fixDeps(item[2],item[1],item[0])+')();\n\n' ;
         });
         if(kmdjs.buildEnd) kmdjs.buildEnd(topNsStr);
         return topNsStr;
@@ -146,7 +146,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
     }
 
     var U2 = UglifyJS;
-    function fixDeps(fn,deps) {
+    function fixDeps(fn,deps,md) {
 
         //uglify2不支持匿名转ast
         var code = fn.toString().replace('function','function ___kmdjs_temp');
@@ -184,7 +184,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
             var item = nodes[i];
             var nodeA = item.node;
             nodeA.replaceArea = [];
-            nodeA.fullName=getFullName(deps, item.name);
+            nodeA.fullName=getFullName(deps, item.name,md);
             for (var j = 0, cLen = cloneNodes.length; j < cLen; j++) {
                 var nodeB = cloneNodes[j].node;
                 if (nodeB.expression === nodeA) {
@@ -301,7 +301,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
         return code;
     }
 
-    function getFullName(deps,name){
+    function getFullName(deps,name,md){
         var i= 0,
             len=deps.length,
             matchCount= 0,
@@ -320,7 +320,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
         } else if(matchCount===1){
             return result[0];
         }else{
-            throw ' can not find module ['+name+']';
+            throw ' can not find module ['+name+'] in module ['+md+']';
         }
     }
 

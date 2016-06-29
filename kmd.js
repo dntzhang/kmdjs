@@ -316,7 +316,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
         }
 
         if(matchCount>1){
-            throw "the same name conflict: "+result.join(" and ");
+            throw "the same name conflict: "+result.join(" and ")+' in module ['+md+']';
         } else if(matchCount===1){
             return result[0];
         }else{

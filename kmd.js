@@ -99,21 +99,38 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
             JSLoader.getByUrls(urls)
         }
         if(kmdjs.loadedScript === kmdjs.moduleCount){
-            window.eval(buildBundler());
+            buildBundler();
+            execCode();
         }
     };
 
     function buildBundler(){
-        var topNsStr = "";
+        var code = "";
         each(kmdjs.factories, function (item) {
-            nsToCode(item[0]);
+            if(checkBundleIgnore(item[0]))nsToCode(item[0], kmdjs.nsList);
         });
-        topNsStr+=  kmdjs.nsList.join('\n') +"\n\n";
+        code+=  kmdjs.nsList.join('\n') +"\n\n";
         each(kmdjs.factories, function (item) {
-            topNsStr+=item[0]+' = ('+ fixDeps(item[2],item[1],item[0])+')();\n\n' ;
+            if(checkBundleIgnore(item[0]))code+=item[0]+' = ('+ fixDeps(item[2],item[1],item[0])+')();\n\n' ;
         });
-        if(kmdjs.buildEnd) kmdjs.buildEnd(topNsStr);
-        return topNsStr;
+        if(kmdjs.buildEnd) kmdjs.buildEnd(code);
+    }
+
+    function execCode(){
+        var code = "",arr=[];
+        each(kmdjs.factories, function (item) {
+            nsToCode(item[0],arr);
+        });
+        code+= arr.join('\n') +"\n\n";
+        each(kmdjs.factories, function (item) {
+            code+=item[0]+' = ('+ fixDeps(item[2],item[1],item[0])+')();\n\n' ;
+        });
+        window.eval(code);
+    }
+
+    function checkBundleIgnore(name){
+        if(isInArray(name ,kmdjs.setting.bundleIgnore))return false;
+        return true;
     }
 
     function isInArray(str,arr){
@@ -130,17 +147,17 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
             if (result === false) break;
         }
     }
-    function nsToCode(ns) {
+    function nsToCode(ns,arr) {
         var nsSplitArr = ns.split(".");
         var topStr = "var " + nsSplitArr[0] + "={};";
-        if(!isInArray(topStr,kmdjs.nsList)){
-            kmdjs.nsList.push(topStr);
+        if(!isInArray(topStr,arr)){
+            arr.push(topStr);
         }
         for (var i = 1; i < nsSplitArr.length -1; i++) {
             var str = nsSplitArr[0];
             for (var j = 1; j < i + 1; j++) str += "." + nsSplitArr[j];
-            if(!isInArray(str + "={};",kmdjs.nsList)){
-                kmdjs.nsList.push(str + "={};");
+            if(!isInArray(str + "={};",arr)){
+                arr.push(str + "={};");
             }
         }
     }
@@ -368,6 +385,9 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
         }
         kmdjs.moduleCount = 0;
         var mapping = kmdjs.setting.mapping;
+        if(!kmdjs.setting.bundleIgnore){
+            kmdjs.setting.bundleIgnore=[];
+        }
         for (var prop in mapping) {
             if (mapping.hasOwnProperty(prop)) {
                 kmdjs.moduleCount++;

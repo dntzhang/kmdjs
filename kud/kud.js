@@ -52,13 +52,18 @@ function getModuleInfo(code){
 function buildBundler(){
     var bundle = "";
     each(cacheModule, function (item) {
-        nsToCode(item.name);
+        if(checkBundleIgnore(item.name))nsToCode(item.name);
     });
     bundle+=  nsList.join('\n') +"\n\n";
     each(cacheModule, function (item) {
-        bundle+=item.name+' = ('+ fixDeps(item.factory,item.deps)+')();\n\n' ;
+        if(checkBundleIgnore(item.name))bundle+=item.name+' = ('+ fixDeps(item.factory,item.deps)+')();\n\n' ;
     });
     return bundle;
+}
+
+function checkBundleIgnore(name){
+    if(isInArray(name ,KMD_CONFIG.bundleIgnore))return false;
+    return true;
 }
 
 function isInArray(str,arr){
@@ -295,6 +300,9 @@ module.exports =  function(config,end){
     KMD_CONFIG = config;
     if(!KMD_CONFIG.dependencies){
         KMD_CONFIG.dependencies=[];
+    }
+    if(!KMD_CONFIG.bundleIgnore){
+        KMD_CONFIG.bundleIgnore=[];
     }
     var mapping = KMD_CONFIG.mapping;
     for (var prop in mapping) {

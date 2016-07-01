@@ -35,7 +35,8 @@ kmdjs.config({
         'util.dom':'js/util/dom.js',
         'util.dom.test':'js/util/test.js',
         'main': 'js/main.js'
-    }
+    },
+   "bundleIgnore":["main", "util.dom"]
 }).main();
 ```
 or

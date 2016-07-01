@@ -171,13 +171,17 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
         ast.figure_out_scope();
         var nodes = [];
 
+        var topArr = [];
+        each(deps,function(item){
+            topArr.push(item.split('.')[0]);
+        })
 
         ast.walk(new U2.TreeWalker(function (node) {
 
             if (node instanceof U2.AST_New) {
                 var ex = node.expression;
                 var name = ex.name;
-                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
+               isInArray(name,topArr)|| isInWindow(name) ||  isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
             }
 
             if (node instanceof U2.AST_Dot) {
@@ -185,13 +189,13 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
                 var name = ex.name;
                 var scope = ex.scope;
                 if (scope) {
-                    isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
+                    isInArray(name,topArr)||isInWindow(name) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
                 }
             }
 
             if (node instanceof U2.AST_SymbolRef) {
                 var name = node.name;
-                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(node.scope, name) || nodes.push({name:name,node:node});
+                isInArray(name,topArr)||isInWindow(name) || isInScopeChainVariables(node.scope, name) || nodes.push({name:name,node:node});
             }
         }));
 

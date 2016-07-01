@@ -28,16 +28,14 @@ kmdjs.config is used for the whole project configuration, the general configurat
 
 ```javascript
 kmdjs.config({
-    "dependencies": [],
-    "mapping": {
-        'util.bom':'js/util/bom.js',
-        'app.Ball':'js/ball.js',
-        'util.dom':'js/util/dom.js',
-        'util.dom.test':'js/util/test.js',
-        'main': 'js/main.js'
-    },
-   "bundleIgnore":["main", "util.dom"]
-}).main();
+   "dependencies": [],
+   "mapping":[
+       ["util.bom","js/util/bom.js"],
+       ["app.Ball","js/ball.js"],
+       [ "main", "js/main.js"]
+     ],
+   "bundleIgnore":[""]
+ }).main();
 ```
 or
 

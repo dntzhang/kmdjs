@@ -23,11 +23,12 @@ function readModule(path,end){
     var i= 0,
         len=moduleInfo.deps.length;
     for(;i<len;i++){
-        readModule(KMD_CONFIG.mapping[moduleInfo.deps[i]]);
+        readModule(KMD_CONFIG.mmp[moduleInfo.deps[i]]);
     }
     cacheModule.push(moduleInfo);
 
     if(moduleCount===cacheModule.length){
+        sortFactories();
         var bundle=buildBundler();
         //fs.writeFileSync('bundle.js', bundle);
         //fs.writeFileSync('bundle.min.js', U2.minify(bundle, {fromString: true}).code);
@@ -103,13 +104,17 @@ function fixDeps(fn,deps) {
     ast.figure_out_scope();
     var nodes = [];
 
+    var topArr = [];
+    each(deps,function(item){
+        topArr.push(item.split('.')[0]);
+    })
 
     ast.walk(new U2.TreeWalker(function (node) {
 
         if (node instanceof U2.AST_New) {
             var ex = node.expression;
             var name = ex.name;
-            isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
+            isInArray(name,topArr)||isInWindow(name) ||  isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
         }
 
         if (node instanceof U2.AST_Dot) {
@@ -117,13 +122,13 @@ function fixDeps(fn,deps) {
             var name = ex.name;
             var scope = ex.scope;
             if (scope) {
-                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
+                isInArray(name,topArr)||isInWindow(name) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
             }
         }
 
         if (node instanceof U2.AST_SymbolRef) {
             var name = node.name;
-            isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(node.scope, name) || nodes.push({name:name,node:node});
+            isInArray(name,topArr)||isInWindow(name) ||  isInScopeChainVariables(node.scope, name) || nodes.push({name:name,node:node});
         }
     }));
 
@@ -296,6 +301,18 @@ function isInWindow(name){
     return isInArray(name,winProps);
 }
 
+function sortFactories(){
+    var newArr = [];
+    each(KMD_CONFIG.mapping, function (item) {
+        each(cacheModule, function (factory) {
+            if(item[0]===factory.name){
+                newArr.push(factory);
+            }
+        });
+    });
+    cacheModule = newArr;
+}
+
 module.exports =  function(config,end){
     KMD_CONFIG = config;
     if(!KMD_CONFIG.dependencies){
@@ -305,10 +322,11 @@ module.exports =  function(config,end){
         KMD_CONFIG.bundleIgnore=[];
     }
     var mapping = KMD_CONFIG.mapping;
-    for (var prop in mapping) {
-        if (mapping.hasOwnProperty(prop)) {
-            moduleCount++;
-        }
+    moduleCount = mapping.length;
+    var i= 0;
+    KMD_CONFIG.mmp={};
+    for(;i<moduleCount;i++){
+        KMD_CONFIG.mmp[mapping[i][0]]=mapping[i][1];
     }
-    readModule(mapping['main'],end)
+    readModule( KMD_CONFIG.mmp['main'],end)
 }

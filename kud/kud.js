@@ -1,4 +1,4 @@
-/** kud v0.1.4
+/** kud v0.1.6
  * kmdjs bundler -> kud
  * kmdjs bundle builder-> kud
  * Created by dntzhang on 2016/6/17.

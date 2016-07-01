@@ -94,15 +94,28 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
             var urls = [],
                 i = 0;
             for (; i < len; i++) {
-                urls.push(kmdjs.setting.mapping[deps[i]]);
+                urls.push(kmdjs.mmp[deps[i]]);
             }
             JSLoader.getByUrls(urls)
         }
         if(kmdjs.loadedScript === kmdjs.moduleCount){
+            sortFactories();
             buildBundler();
             execCode();
         }
     };
+
+    function sortFactories(){
+        var newArr = [];
+        each(kmdjs.setting.mapping, function (item) {
+            each(kmdjs.factories, function (factory) {
+                if(item[0]===factory[0]){
+                    newArr.push(factory);
+                }
+            });
+        });
+        kmdjs.factories = newArr;
+    }
 
     function buildBundler(){
         var code = "";
@@ -368,7 +381,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
     }
 
     kmdjs.main = function (callback) {
-        JSLoader.get(kmdjs.setting.mapping['main'])
+        JSLoader.get(kmdjs.mmp['main'])
         kmdjs.buildEnd = callback;
     };
 
@@ -387,15 +400,16 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
         }else {
             kmdjs.setting = setting;
         }
-        kmdjs.moduleCount = 0;
+
         var mapping = kmdjs.setting.mapping;
         if(!kmdjs.setting.bundleIgnore){
             kmdjs.setting.bundleIgnore=[];
         }
-        for (var prop in mapping) {
-            if (mapping.hasOwnProperty(prop)) {
-                kmdjs.moduleCount++;
-            }
+        kmdjs.moduleCount = mapping.length;
+        var i= 0;
+        kmdjs.mmp={};
+        for(;i<kmdjs.moduleCount;i++){
+            kmdjs.mmp[mapping[i][0]]=mapping[i][1];
         }
         return kmdjs;
     }

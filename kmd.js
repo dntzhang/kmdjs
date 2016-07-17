@@ -1,4 +1,4 @@
-/* kmdjs : kernel module definition 0.2.0
+/* kmdjs : kernel module definition 0.2.9
  * By dntzhang(张磊)
  * Github: https://github.com/kmdjs/kmdjs
  * MIT Licensed.
@@ -94,26 +94,56 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
             var urls = [],
                 i = 0;
             for (; i < len; i++) {
-                urls.push(kmdjs.setting[deps[i]]);
+                urls.push(kmdjs.mmp[deps[i]]);
             }
             JSLoader.getByUrls(urls)
         }
         if(kmdjs.loadedScript === kmdjs.moduleCount){
-            window.eval(buildBundler());
+            sortFactories();
+            buildBundler();
+            execCode();
         }
     };
 
+    function sortFactories(){
+        var newArr = [];
+        each(kmdjs.setting.mapping, function (item) {
+            each(kmdjs.factories, function (factory) {
+                if(item[0]===factory[0]){
+                    newArr.push(factory);
+                }
+            });
+        });
+        kmdjs.factories = newArr;
+    }
+
     function buildBundler(){
-        var topNsStr = "";
+        var code = "";
         each(kmdjs.factories, function (item) {
-            nsToCode(item[0]);
+            if(checkBundleIgnore(item[0]))nsToCode(item[0], kmdjs.nsList);
         });
-        topNsStr+=  kmdjs.nsList.join('\n') +"\n\n";
+        code+=  kmdjs.nsList.join('\n') +"\n\n";
         each(kmdjs.factories, function (item) {
-            topNsStr+=item[0]+' = ('+ fixDeps(item[2],item[1])+')();\n\n' ;
+            if(checkBundleIgnore(item[0]))code+=item[0]+' = ('+ fixDeps(item[2],item[1],item[0])+')();\n\n' ;
         });
-        if(kmdjs.buildEnd) kmdjs.buildEnd(topNsStr);
-        return topNsStr;
+        if(kmdjs.buildEnd) kmdjs.buildEnd(code);
+    }
+
+    function execCode(){
+        var code = "",arr=[];
+        each(kmdjs.factories, function (item) {
+            nsToCode(item[0],arr);
+        });
+        code+= arr.join('\n') +"\n\n";
+        each(kmdjs.factories, function (item) {
+            code+=item[0]+' = ('+ fixDeps(item[2],item[1],item[0])+')();\n\n' ;
+        });
+        window.eval(code);
+    }
+
+    function checkBundleIgnore(name){
+        if(isInArray(name ,kmdjs.setting.bundleIgnore))return false;
+        return true;
     }
 
     function isInArray(str,arr){
@@ -130,36 +160,41 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
             if (result === false) break;
         }
     }
-    function nsToCode(ns) {
+    function nsToCode(ns,arr) {
         var nsSplitArr = ns.split(".");
         var topStr = "var " + nsSplitArr[0] + "={};";
-        if(!isInArray(topStr,kmdjs.nsList)){
-            kmdjs.nsList.push(topStr);
+        if(!isInArray(topStr,arr)){
+            arr.push(topStr);
         }
         for (var i = 1; i < nsSplitArr.length -1; i++) {
             var str = nsSplitArr[0];
             for (var j = 1; j < i + 1; j++) str += "." + nsSplitArr[j];
-            if(!isInArray(str + "={};",kmdjs.nsList)){
-                kmdjs.nsList.push(str + "={};");
+            if(!isInArray(str + "={};",arr)){
+                arr.push(str + "={};");
             }
         }
     }
 
-    function fixDeps(fn,deps) {
-        var U2 = UglifyJS;
+    var U2 = UglifyJS;
+    function fixDeps(fn,deps,md) {
+
         //uglify2不支持匿名转ast
         var code = fn.toString().replace('function','function ___kmdjs_temp');
         var ast = U2.parse(code);
         ast.figure_out_scope();
         var nodes = [];
 
+        var topArr = [];
+        each(deps,function(item){
+            topArr.push(item.split('.')[0]);
+        })
 
         ast.walk(new U2.TreeWalker(function (node) {
 
             if (node instanceof U2.AST_New) {
                 var ex = node.expression;
                 var name = ex.name;
-                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
+               isInArray(name,topArr)|| isInWindow(name) ||  isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
             }
 
             if (node instanceof U2.AST_Dot) {
@@ -167,20 +202,23 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
                 var name = ex.name;
                 var scope = ex.scope;
                 if (scope) {
-                    isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
+                    isInArray(name,topArr)||isInWindow(name) || isInScopeChainVariables(ex.scope, name) || nodes.push({name:name,node:node});
                 }
             }
 
             if (node instanceof U2.AST_SymbolRef) {
                 var name = node.name;
-                isInWindow(name) || isInArray(nodes, node) || isInScopeChainVariables(node.scope, name) || nodes.push({name:name,node:node});
+                isInArray(name,topArr)||isInWindow(name) || isInScopeChainVariables(node.scope, name) || nodes.push({name:name,node:node});
             }
         }));
 
         var cloneNodes = [].concat(nodes);
         //过滤new nodes 中的symbo nodes
         for (var i = 0, len = nodes.length; i < len; i++) {
-            var nodeA = nodes[i].node;
+            var item = nodes[i];
+            var nodeA = item.node;
+            nodeA.replaceArea = [];
+            nodeA.fullName=getFullName(deps, item.name,md);
             for (var j = 0, cLen = cloneNodes.length; j < cLen; j++) {
                 var nodeB = cloneNodes[j].node;
                 if (nodeB.expression === nodeA) {
@@ -192,41 +230,112 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
 
         for (var i = nodes.length; --i >= 0;) {
             var item = nodes[i],
-                node=item.node,
-                name=item.name;
-            var fullName=getFullName(deps,name);
+                node=item.node;
+             //   name=item.name;
+            //var fullName=getFullName(deps,name);
             var replacement;
             if (node instanceof  U2.AST_New) {
                 replacement = new U2.AST_New({
                     expression: new U2.AST_SymbolRef({
-                        name:fullName
+                        name:node.fullName
                     }),
                     args: node.args
                 });
             } else if (node instanceof  U2.AST_Dot) {
                 replacement = new U2.AST_Dot({
                     expression: new U2.AST_SymbolRef({
-                        name: fullName
+                        name: node.fullName
                     }),
                     property: node.property
                 });
             }else if(node instanceof U2.AST_SymbolRef){
                 replacement = new U2.AST_SymbolRef({
-                    name: fullName
+                    name: node.fullName
                 });
             }
-
             var start_pos = node.start.pos;
             var end_pos = node.end.endpos;
-
+            for (var k = 0; k < nodes.length; k++) {
+                var item2 = nodes[k];
+                var otherNode = item2.node;
+                if (otherNode.start.pos < start_pos && otherNode.end.endpos > end_pos) {
+                    var fna2 = otherNode.fullName;
+                    var step = fna2.length - item2.name.length;
+                    otherNode.replaceArea.push({
+                        step: step,
+                        begin: start_pos,
+                        end: end_pos,
+                        replaceM: replacement,
+                        children: node,
+                        self: otherNode
+                    });
+                    node.parent = otherNode;
+                }
+            }
+            //
+            //code = splice_string(code, start_pos, end_pos, replacement.print_to_string({
+            //    beautify: true
+            //}));
+        }
+        for (var i = nodes.length; --i >= 0;) {
+            var node = nodes[i].node;
+            if (node.parent) continue;
+            var start_pos = node.start.pos;
+            var end_pos = node.end.endpos;
+            var replacement;
+            var fna = node.fullName ;
+            if (!node.fullName) continue;
+            if (node instanceof U2.AST_New)
+                replacement = new U2.AST_New({
+                    expression: new U2.AST_SymbolRef({
+                        name: fna
+                    }),
+                    args: node.args
+                }); else if (node instanceof U2.AST_SymbolRef)
+                replacement = new U2.AST_SymbolRef({
+                    name: fna
+                }); else replacement = new U2.AST_Dot({
+                    expression: new U2.AST_SymbolRef({
+                        name: fna
+                    }),
+                    property: node.property
+                });
             code = splice_string(code, start_pos, end_pos, replacement.print_to_string({
                 beautify: true
             }));
+            if (node.replaceArea && node.replaceArea.length > 0 && !node.parent) code = fixNode(node, code);
         }
         return code.replace('function ___kmdjs_temp','function');
     }
 
-    function getFullName(deps,name){
+    function replaceToFullName(code,target,replacement){
+        var matchReg = new RegExp("\"(?:\\\\\"|[^\"])*\"|\'(?:\\\\\'|[^\'])*\'|\\/\\*[\\S\\s]*?\\*\\/|\\/(?:\\\\\\/|[^/\\r\\n])+\\/(?=[^\\/])|\\/\\/.*|(?:)(\\b)("+target+")\\1", "g");
+        code=code.replace(matchReg, function (m, m1, m2) {
+            if (m2) {
+                return replacement;
+            }
+            return m;
+        })
+        return code;
+    }
+
+    function fixNode(node, code) {
+        var step = +node.replaceArea[0].step, target = code.substr(node.start.pos, node.end.endpos - node.start.pos + step);
+        for (var m = node.replaceArea.length; --m >= 0;) {
+            var item = node.replaceArea[m], child = item.children;
+            if (child instanceof U2.AST_New) {
+                target=replaceToFullName(target, "new\\s+" + child.fullName ,"new " + child.expression.name);
+                target=replaceToFullName(target, "new\\s+" + child.expression.name,"new " + child.fullName);
+            } else {
+                target=replaceToFullName(target,  child.fullName  , child.expression.name);
+                target=replaceToFullName(target,  child.expression.name , child.fullName);
+            }
+        }
+        code = splice_string(code, node.start.pos, node.end.endpos + step, target);
+        return code;
+    }
+
+    function getFullName(deps,name,md){
         var i= 0,
             len=deps.length,
             matchCount= 0,
@@ -241,11 +350,11 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
         }
 
         if(matchCount>1){
-            throw "the same name conflict: "+result.join(" and ");
+            throw "the same name conflict: "+result.join(" and ")+' in module ['+md+']';
         } else if(matchCount===1){
             return result[0];
         }else{
-            throw ' can not find module ['+name+']';
+            throw ' can not find module ['+name+'] in module ['+md+']';
         }
     }
 
@@ -272,7 +381,7 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
     }
 
     kmdjs.main = function (callback) {
-        JSLoader.get(kmdjs.setting['main'])
+        JSLoader.get(kmdjs.mmp['main'])
         kmdjs.buildEnd = callback;
     };
 
@@ -291,11 +400,16 @@ return a=e,i(),a=s,!0}}});t.walk(u);for(var s=0;s<r.length;++s)r[s].orig.forEach
         }else {
             kmdjs.setting = setting;
         }
-        kmdjs.moduleCount = 0;
-        for (var prop in kmdjs.setting) {
-            if (kmdjs.setting.hasOwnProperty(prop)) {
-                kmdjs.moduleCount++;
-            }
+
+        var mapping = kmdjs.setting.mapping;
+        if(!kmdjs.setting.bundleIgnore){
+            kmdjs.setting.bundleIgnore=[];
+        }
+        kmdjs.moduleCount = mapping.length;
+        var i= 0;
+        kmdjs.mmp={};
+        for(;i<kmdjs.moduleCount;i++){
+            kmdjs.mmp[mapping[i][0]]=mapping[i][1];
         }
         return kmdjs;
     }

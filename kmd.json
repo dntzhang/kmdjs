@@ -1,5 +1,9 @@
 {
-  "util.bom":"js/util/bom.js",
-  "app.Ball":"js/ball.js",
-  "main": "js/main.js"
+  "dependencies": [],
+  "mapping":[
+      ["util.bom","js/util/bom.js"],
+      ["app.Ball","js/ball.js"],
+      [ "main", "js/main.js"]
+    ],
+  "bundleIgnore":["main"]
 }
